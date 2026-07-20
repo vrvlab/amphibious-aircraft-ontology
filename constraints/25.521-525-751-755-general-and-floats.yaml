@@ -1,0 +1,190 @@
+# 14 CFR §§ 25.521, 25.525 (Subpart C) and §§ 25.751, 25.755 (Subpart D)
+# Text verified against eCFR issue 2026-07-07, retrieved 2026-07-20.
+
+- id: cfr-25.521-b-applicability
+  title: Water load method is a default path, not a hard requirement
+  kind: qualitative
+  source:
+    authority: 14 CFR
+    section: 25.521(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.521
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+    notes: >-
+      THIS IS THE MOST IMPORTANT SEMANTIC CONSTRAINT IN THE SUBPART and it is
+      routinely lost in summarization. Exact text: "Unless a more rational analysis
+      of the water loads is made, or the standards in ANC-3 are used, 25.523 through
+      25.537 apply." Every constraint derived from 25.523-25.537 is therefore
+      defeasible. A reasoner that treats them as mandatory will incorrectly reject
+      valid designs substantiated by higher-fidelity analysis.
+  statement: >-
+    Sections 25.523 through 25.537 apply unless a more rational analysis of the
+    water loads is made, or the standards in ANC-3 are used.
+  applicability:
+    superseded_by:
+      - more rational analysis of water loads
+      - ANC-3 standards
+
+- id: cfr-25.521-c-amphibian-scope
+  title: Water load requirements extend to amphibians
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.521(c)
+    url: https://www.ecfr.gov/current/title-14/section-25.521
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+  statement: >-
+    The requirements of 25.521 and 25.523 through 25.537 apply also to amphibians.
+
+- id: cfr-25.525-d-aerodynamic-lift
+  title: Aerodynamic lift assumption during water impact
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.525(d)
+    url: https://www.ecfr.gov/current/title-14/section-25.525
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+    notes: >-
+      Carries an exception that secondary sources drop: "Except in the takeoff
+      condition of 25.531". Encoding the 2/3 assumption unconditionally is wrong.
+  bound:
+    quantity: Aerodynamic lift during impact
+    operator: "=="
+    value: "(2/3) * W"
+    units: lb
+  applicability:
+    applies_when: All impact conditions EXCEPT the takeoff condition of § 25.531
+
+- id: cfr-25.525-c-twin-float-equivalent-hull
+  title: Twin-float equivalent hull treatment
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.525(c)
+    url: https://www.ecfr.gov/current/title-14/section-25.525
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+  statement: >-
+    For twin float seaplanes, each float must be treated as an equivalent hull on a
+    fictitious seaplane with a weight equal to one-half the weight of the twin float
+    seaplane.
+
+- id: cfr-25.751-a-main-float-buoyancy
+  title: Main float buoyancy margin
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.751(a)
+    url: https://www.ecfr.gov/current/title-14/section-25.751
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+    notes: >-
+      Exact text: "A buoyancy of 80 percent in excess of that required to support the
+      maximum weight of the seaplane or amphibian in fresh water." Note "maximum
+      weight", not "maximum design landing weight" -- secondary sources often
+      substitute the latter. 80 percent in excess yields a 1.8 multiplier.
+  bound:
+    quantity: Main float buoyancy
+    operator: ">="
+    value: "1.8 * (buoyancy required to support maximum weight in fresh water)"
+    units: lb
+  test_cases:
+    - description: Displaced volume for a single main float, fresh water
+      inputs:
+        W_max_lb: 120000
+        rho_fresh_lb_per_ft3: 62.4
+      expected:
+        required_volume_ft3: 3461.5
+        note: >-
+          1.8 * 120000 / 62.4. Assumes the float alone supports the full maximum
+          weight; for twin-float configurations see 25.525(c). Fresh water density
+          62.4 lb/ft3 is an engineering value, NOT specified in the regulation.
+      status: worked
+
+- id: cfr-25.751-b-watertight-compartments
+  title: Main float watertight compartment count
+  kind: cardinality
+  source:
+    authority: 14 CFR
+    section: 25.751(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.751
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+  bound:
+    quantity: Watertight compartments per main float
+    operator: ">="
+    value: 5
+    units: count
+  statement: >-
+    Not less than five watertight compartments, approximately equal in volume.
+
+- id: cfr-25.755-a-hull-flooding-stability
+  title: Hull flooding stability with two adjacent compartments flooded
+  kind: qualitative
+  source:
+    authority: 14 CFR
+    section: 25.755(a)
+    url: https://www.ecfr.gov/current/title-14/section-25.755
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+    notes: >-
+      CORRECTION TO A COMMON MISSTATEMENT. The regulation requires a margin of
+      positive stability great enough to "minimize the probability of capsizing" --
+      NOT a zero capsizing probability, which several secondary sources assert and
+      which is not an achievable engineering criterion. The regulation also does
+      not specify a compartment count for hulls (unlike 25.751(b) for floats); it
+      requires "enough watertight compartments" to meet the two-adjacent-flooded
+      condition.
+  statement: >-
+    Each hull must have enough watertight compartments so that, with any two
+    adjacent compartments flooded, the buoyancy of the hull and auxiliary floats
+    (and wheel tires, if used) provides a margin of positive stability great enough
+    to minimize the probability of capsizing in rough, fresh water.
+
+- id: interp-25.755-gm-positive
+  title: "INTERPRETATION: positive transverse metacentric height as a proxy criterion"
+  kind: qualitative
+  source:
+    authority: none
+    section: n/a
+    url: ""
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: interpretation
+    checked_against: >-
+      Not present in 14 CFR 25.755. Included explicitly so that downstream users do
+      not mistake it for regulatory text.
+    notes: >-
+      GM > 0 is a conventional naval-architecture proxy for "positive stability" and
+      is a reasonable engineering criterion, but the regulation states a qualitative
+      probability-minimization standard, not a metacentric height threshold. Any
+      tool asserting GM > 0 as the Part 25 compliance criterion is substituting an
+      interpretation for the rule. Flagged, not endorsed.
+  statement: >-
+    Positive transverse metacentric height (GM > 0) in the two-compartment-flooded
+    condition is commonly used as a computable proxy for 25.755(a). It is an
+    interpretation, not a regulatory requirement.

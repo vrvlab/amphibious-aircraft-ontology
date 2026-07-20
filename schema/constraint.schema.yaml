@@ -1,0 +1,56 @@
+# Schema for a single regulatory/physical constraint entry.
+# Representation-neutral by design: this projects into OWL/RDF, SysML, or code.
+
+id: string                    # stable slug, e.g. cfr-25.527-a1
+title: string
+kind: enum                    # formula | bound | cardinality | assertion | qualitative
+
+source:
+  authority: string           # "14 CFR" | "CS-25" | "ANC-3" | ...
+  section: string             # "25.527(a)(1)"
+  url: string                 # canonical primary-source URL
+  edition: date               # eCFR issue date the text was read from
+  retrieved: date
+
+# How much do we trust this entry? This field is load-bearing — it is what
+# separates this project from a transcription of a secondary source.
+verification:
+  status: enum                # verified | partial | unverified | interpretation
+  # verified       — matches primary regulatory text exactly
+  # partial        — text verified, but depends on an undigitized figure or image
+  # unverified     — from a secondary source; not yet checked against primary
+  # interpretation — engineering reading NOT stated in the regulation. Must say so.
+  checked_against: string     # what was actually read
+  notes: string
+
+# Present when kind == formula
+formula:
+  expression: string          # plain-text math, unambiguous ordering
+  latex: string               # optional
+  source_render: string       # URL, when the reg publishes the formula as an image
+  variables:                  # every symbol must be declared
+    - symbol: string
+      description: string
+      units: string           # or "dimensionless"
+      resolves_to: string     # optional: "Appendix B figure 2" for graph-valued terms
+
+# Present when kind == bound | cardinality
+bound:
+  quantity: string
+  operator: enum              # >= | <= | > | < | == | range
+  value: number|string
+  units: string
+
+# Conditions under which this constraint does not apply.
+# § 25.521(b) makes most of Subpart C a default path, not a hard requirement.
+applicability:
+  applies_when: string
+  superseded_by: [string]     # e.g. ["more rational analysis", "ANC-3"]
+
+test_cases:
+  - description: string
+    inputs: {}
+    expected: {}
+    status: enum              # worked | pending
+
+tags: [string]

@@ -1,0 +1,154 @@
+# 14 CFR § 25.533 — Hull and main float bottom pressures
+# Text verified against eCFR issue 2026-07-07, retrieved 2026-07-20.
+#
+# NOTE: C3 and C4 below are absent from most secondary summaries of this section,
+# including the AI-generated research report that seeded this project. They are in
+# the regulation.
+
+- id: cfr-25.533-b1-keel-pressure
+  title: Local pressure at the keel, unflared bottom
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.533(b)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.533
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: partial
+    checked_against: eCFR + published formula image EC28SE91.039
+    notes: K2 resolves to Appendix B figure 2, not yet digitized.
+  formula:
+    expression: "P_k = C2 * (K2 * V_S1^2) / tan(beta_k)"
+    latex: "P_k = C_2 \\times \\frac{K_2 V_{S1}^2}{\\tan \\beta_k}"
+    source_render: https://img.federalregister.gov/EC28SE91.039/EC28SE91.039_large.png
+    variables:
+      - symbol: P_k
+        description: Pressure at the keel
+        units: psi
+      - symbol: C2
+        description: Empirical constant
+        units: dimensionless
+      - symbol: K2
+        description: Hull station weighing factor
+        units: dimensionless
+        resolves_to: Appendix B figure 2
+      - symbol: V_S1
+        description: >-
+          Seaplane stalling speed at the design water takeoff weight with flaps
+          extended in the appropriate takeoff position
+        units: knots
+      - symbol: beta_k
+        description: Angle of dead rise AT THE KEEL specifically (not at an arbitrary station)
+        units: degrees
+        resolves_to: Appendix B figure 1
+
+- id: cfr-25.533-b1-c2-value
+  title: C2 empirical constant
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.533(b)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.533
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+  bound:
+    quantity: C2
+    operator: "=="
+    value: 0.00213
+    units: dimensionless
+
+- id: cfr-25.533-b1-chine-ratio
+  title: Chine pressure ratio, unflared bottom
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.533(b)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.533
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+    notes: >-
+      Pressure at the chine is 0.75 times the pressure at the keel, varying linearly
+      between, per Appendix B figure 3. This is an equality defining a distribution,
+      not a minimum. Sources that state it as "not less than 0.75 P_k" are wrong.
+  bound:
+    quantity: P_chine
+    operator: "=="
+    value: "0.75 * P_k"
+    units: psi
+  applicability:
+    applies_when: Unflared bottom
+
+- id: cfr-25.533-b2-c3-value
+  title: C3 empirical constant, flared bottom chine pressure
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.533(b)(2)
+    url: https://www.ecfr.gov/current/title-14/section-25.533
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+    notes: >-
+      For a flared bottom the chine pressure is computed from its own formula using
+      C3, and beta is taken at the appropriate station rather than at the keel.
+      Commonly omitted from secondary summaries.
+  bound:
+    quantity: C3
+    operator: "=="
+    value: 0.0016
+    units: dimensionless
+  applicability:
+    applies_when: Flared bottom
+
+- id: cfr-25.533-c1-c4-value
+  title: C4 constant for distributed (frame/keel/chine) pressures
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.533(c)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.533
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+    notes: >-
+      C4 is defined in terms of C1 from § 25.527, coupling the distributed-pressure
+      case to the load-factor section. Distributed pressures are for design of the
+      frames, keel and chine structure -- a different design case from the local
+      pressures in (b), which size plating and stringers. Conflating the two is a
+      common error.
+  bound:
+    quantity: C4
+    operator: "=="
+    value: "0.078 * C1"
+    units: dimensionless
+  applicability:
+    applies_when: Design of frames, keel, and chine structure
+
+- id: cfr-25.533-c2-unsymmetrical
+  title: Unsymmetrical pressure distribution
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.533(c)(2)
+    url: https://www.ecfr.gov/current/title-14/section-25.533
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR full text
+  statement: >-
+    The unsymmetrical distribution applies the (c)(1) pressures on one side of the
+    hull or main float centerline and one-half that pressure on the other side.
+    Loads must be carried into the sidewall structure but need not be transmitted
+    fore and aft as shear and bending loads.

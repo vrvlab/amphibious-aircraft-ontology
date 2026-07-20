@@ -23,7 +23,7 @@ Downgrading something from `verified` to `interpretation` because you checked an
 
 ## Where help is most needed
 
-1. **[Appendix B digitization](appendix-b/)** — the hard blocker. Bounded, verifiable, and useful outside this project.
+1. **[Appendix B provenance](appendix-b/)** — the figure values are encoded; where they came from is not. Tracing them to the underlying NACA tank data would be a significant contribution. An independent second reading of the figure is also welcome.
 2. **Sections not yet read** — §§ 25.523, 25.529, 25.531, 25.535, 25.537.
 3. **CS-25 / EASA equivalents** — everything here is FAA. The EASA side is unstarted.
 4. **ANC-3** — § 25.521(b) names it as an alternate standard. We have not located a copy.

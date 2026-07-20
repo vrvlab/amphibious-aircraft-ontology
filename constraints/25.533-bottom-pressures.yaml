@@ -15,9 +15,11 @@
     edition: 2026-07-07
     retrieved: 2026-07-20
   verification:
-    status: partial
+    status: verified
     checked_against: eCFR + published formula image EC28SE91.039
-    notes: K2 resolves to Appendix B figure 2, not yet digitized.
+    notes: >-
+      K2 is supplied exactly by Appendix B figure 2; see cfr-25-appB-fig2-k2. Note K2 is
+      not monotonic over the forebody.
   formula:
     expression: "P_k = C2 * (K2 * V_S1^2) / tan(beta_k)"
     latex: "P_k = C_2 \\times \\frac{K_2 V_{S1}^2}{\\tan \\beta_k}"
@@ -32,7 +34,7 @@
       - symbol: K2
         description: Hull station weighing factor
         units: dimensionless
-        resolves_to: Appendix B figure 2
+        resolves_to: cfr-25-appB-fig2-k2 (exact, piecewise linear)
       - symbol: V_S1
         description: >-
           Seaplane stalling speed at the design water takeoff weight with flaps
@@ -41,7 +43,7 @@
       - symbol: beta_k
         description: Angle of dead rise AT THE KEEL specifically (not at an arbitrary station)
         units: degrees
-        resolves_to: Appendix B figure 1
+        resolves_to: Appendix B figure 1 (measurement convention; beta_k is a design input)
 
 - id: cfr-25.533-b1-c2-value
   title: C2 empirical constant

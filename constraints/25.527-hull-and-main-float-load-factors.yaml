@@ -11,13 +11,12 @@
     edition: 2026-07-07
     retrieved: 2026-07-20
   verification:
-    status: partial
+    status: verified
     checked_against: eCFR enhanced renderer API + published formula image EC28SE91.036
     notes: >-
-      Formula text confirmed by reading the raster image the regulation publishes
-      in place of the equation. Marked partial rather than verified because beta
-      and K1 resolve to Appendix B figures that are not yet digitized, so the
-      constraint cannot be evaluated end to end from this repository alone.
+      Formula confirmed by reading the raster image the regulation publishes in place
+      of the equation. beta is a design input whose measurement convention is defined
+      by Appendix B figure 1; see cfr-25-appB-fig1-deadrise-definition.
   formula:
     expression: "n_w = (C1 * V_S0^2) / ((tan(beta)^(2/3)) * W^(1/3))"
     latex: "n_w = \\frac{C_1 V_{S0}^2}{\\left(\\tan^{2/3}\\beta\\right) W^{1/3}}"
@@ -37,7 +36,7 @@
       - symbol: beta
         description: Angle of dead rise at the longitudinal station where the load factor is determined
         units: degrees
-        resolves_to: Appendix B figure 1
+        resolves_to: Appendix B figure 1 (measurement convention; beta is a design input)
       - symbol: W
         description: Seaplane design landing weight
         units: lb
@@ -52,9 +51,11 @@
     edition: 2026-07-07
     retrieved: 2026-07-20
   verification:
-    status: partial
+    status: verified
     checked_against: eCFR + published formula image EC28SE91.037
-    notes: Depends on K1 from Appendix B figure 2, not yet digitized.
+    notes: >-
+      K1 is supplied exactly by Appendix B figure 2, which is piecewise linear with all
+      breakpoints labelled; see cfr-25-appB-fig2-k1.
   formula:
     expression: "n_w = ((C1 * V_S0^2) / ((tan(beta)^(2/3)) * W^(1/3))) * (K1 / (1 + r_x^2)^(2/3))"
     latex: "n_w = \\frac{C_1 V_{S0}^2}{\\left(\\tan^{2/3}\\beta\\right) W^{1/3}} \\times \\frac{K_1}{\\left(1 + r_x^2\\right)^{2/3}}"
@@ -63,7 +64,7 @@
       - symbol: K1
         description: Empirical hull station weighing factor
         units: dimensionless
-        resolves_to: Appendix B figure 2
+        resolves_to: cfr-25-appB-fig2-k1 (exact, piecewise linear)
       - symbol: r_x
         description: >-
           Ratio of the distance (parallel to the hull reference axis) from the CG to

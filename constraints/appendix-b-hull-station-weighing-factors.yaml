@@ -1,0 +1,183 @@
+# 14 CFR Part 25, Appendix B — Figure 2, hull station weighing factors K1 and K2
+#
+# Figure 2 is NOT an empirical curve requiring digitization. It is a piecewise-linear
+# distribution with every breakpoint value explicitly labelled on the figure. It is
+# therefore encodable exactly.
+#
+# Source image: https://img.federalregister.gov/EC28SE91.056/EC28SE91.056_large.png
+# Read 2026-07-20 against eCFR issue 2026-07-07.
+#
+# Station convention used below:
+#   x = 0            bow (forward perpendicular of the forebody)
+#   x = L_f          main step (end of forebody)
+#   x = L_f + L_a    stern (end of afterbody)
+
+- id: cfr-25-appB-fig2-k1
+  title: Hull station weighing factor K1 (vertical loads)
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: Appendix B to Part 25, figure 2
+    url: https://www.ecfr.gov/current/title-14/appendix-Appendix%20B%20to%20Part%2025
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: Published figure image EC28SE91.056, read directly
+    notes: >-
+      All breakpoint values are printed on the figure: 1.5 at the bow, 1.0 immediately
+      forward of the step, 0.375 immediately aft of the step, and 1.0 at the stern.
+      The distribution is linear between breakpoints with a discontinuity at the step.
+      The figure also marks a CG reference line within the forebody; the CG station is
+      a property of the design, not a value supplied by the figure.
+  formula:
+    expression: |
+      Forebody  (0 <= x <= L_f):
+        K1(x) = 1.5 + (1.0 - 1.5) * (x / L_f)
+              = 1.5 - 0.5 * (x / L_f)
+      Afterbody (L_f < x <= L_f + L_a):
+        K1(x) = 0.375 + (1.0 - 0.375) * ((x - L_f) / L_a)
+              = 0.375 + 0.625 * ((x - L_f) / L_a)
+    source_render: https://img.federalregister.gov/EC28SE91.056/EC28SE91.056_large.png
+    variables:
+      - symbol: K1
+        description: Hull station weighing factor for vertical loads, per § 25.527(a)(2)
+        units: dimensionless
+      - symbol: x
+        description: Station measured aft from the bow, parallel to the hull reference axis
+        units: length
+      - symbol: L_f
+        description: Forebody length (bow to main step)
+        units: length
+      - symbol: L_a
+        description: Afterbody length (main step to stern)
+        units: length
+  breakpoints:
+    - station: bow (x = 0)
+      value: 1.5
+    - station: forward of step (x -> L_f-)
+      value: 1.0
+    - station: aft of step (x -> L_f+)
+      value: 0.375
+    - station: stern (x = L_f + L_a)
+      value: 1.0
+  test_cases:
+    - description: Midway along the forebody
+      inputs: {x_over_Lf: 0.5}
+      expected: {K1: 1.25}
+      status: worked
+    - description: Midway along the afterbody
+      inputs: {x_minus_Lf_over_La: 0.5}
+      expected: {K1: 0.6875}
+      status: worked
+
+- id: cfr-25-appB-fig2-k2
+  title: Hull station weighing factor K2 (bottom pressures)
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: Appendix B to Part 25, figure 2
+    url: https://www.ecfr.gov/current/title-14/appendix-Appendix%20B%20to%20Part%2025
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: Published figure image EC28SE91.056, read directly
+    notes: >-
+      Breakpoints printed on the figure: 2.0 at the bow, a minimum of 0.75 at half the
+      forebody length, 1.0 immediately forward of the step, 0.5 immediately aft of the
+      step, and 1.0 at the stern. Note K2 is NOT monotonic over the forebody -- it
+      falls to a minimum at L_f/2 and then recovers. Treating it as a single linear
+      ramp from bow to step is a common and material error.
+  formula:
+    expression: |
+      Forward forebody (0 <= x <= L_f/2):
+        K2(x) = 2.0 + (0.75 - 2.0) * (x / (L_f/2))
+              = 2.0 - 2.5 * (x / L_f)
+      Aft forebody     (L_f/2 < x <= L_f):
+        K2(x) = 0.75 + (1.0 - 0.75) * ((x - L_f/2) / (L_f/2))
+              = 0.75 + 0.5 * ((x / L_f) - 0.5)
+      Afterbody        (L_f < x <= L_f + L_a):
+        K2(x) = 0.5 + (1.0 - 0.5) * ((x - L_f) / L_a)
+              = 0.5 + 0.5 * ((x - L_f) / L_a)
+    source_render: https://img.federalregister.gov/EC28SE91.056/EC28SE91.056_large.png
+    variables:
+      - symbol: K2
+        description: Hull station weighing factor for bottom pressures, per § 25.533
+        units: dimensionless
+      - symbol: x
+        description: Station measured aft from the bow
+        units: length
+      - symbol: L_f
+        description: Forebody length
+        units: length
+      - symbol: L_a
+        description: Afterbody length
+        units: length
+  breakpoints:
+    - station: bow (x = 0)
+      value: 2.0
+    - station: half forebody (x = L_f/2)
+      value: 0.75
+    - station: forward of step (x -> L_f-)
+      value: 1.0
+    - station: aft of step (x -> L_f+)
+      value: 0.5
+    - station: stern (x = L_f + L_a)
+      value: 1.0
+  test_cases:
+    - description: Quarter of the forebody length
+      inputs: {x_over_Lf: 0.25}
+      expected: {K2: 1.375}
+      status: worked
+    - description: Three quarters of the forebody length
+      inputs: {x_over_Lf: 0.75}
+      expected: {K2: 0.875}
+      status: worked
+
+- id: cfr-25-appB-fig1-deadrise-definition
+  title: Deadrise angle definition, unflared and flared bottoms
+  kind: qualitative
+  source:
+    authority: 14 CFR
+    section: Appendix B to Part 25, figure 1
+    url: https://www.ecfr.gov/current/title-14/appendix-Appendix%20B%20to%20Part%2025
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: Published figure image EC28SE91.055, read directly
+    notes: >-
+      Figure 1 is a pictorial definition of angles, dimensions and directions -- axes,
+      sign conventions, forebody/afterbody, and deadrise geometry. It supplies NO
+      numeric values. beta is a geometric property of the hull being designed, i.e. a
+      design input, not a quantity read from a chart.
+  statement: >-
+    For an unflared bottom, beta = beta_k: the deadrise angle is constant from keel to
+    chine. For a flared bottom, beta_k is the deadrise at the keel and beta is the
+    deadrise at the appropriate station, measured to the flared surface; the two differ
+    and beta_k is the steeper. Figure 1 also fixes the body axis convention (X, Y, Z)
+    and the forebody/afterbody split at the main step.
+
+- id: cfr-25-appB-fig3-pressure-distribution-shape
+  title: Transverse pressure distribution shapes
+  kind: qualitative
+  source:
+    authority: 14 CFR
+    section: Appendix B to Part 25, figure 3
+    url: https://www.ecfr.gov/current/title-14/appendix-Appendix%20B%20to%20Part%2025
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: Published figure image EC28SE91.057, read directly
+    notes: >-
+      Figure 3 is a schematic of pressure distribution shapes and introduces no values
+      beyond those already stated in the text of § 25.533. It is included for
+      completeness and to confirm the textual reading, not as an independent source.
+  statement: >-
+    Four cases are depicted. Local pressure, unflared: P_k at the keel falling linearly
+    to 0.75 P_k at the chine. Local pressure, flared: P_k at the keel with P_ch over the
+    flared region, chine pressure 0.75 P_k. Distributed pressure, symmetrical: uniform P
+    both sides of the centreline. Distributed pressure, unsymmetrical: P on one side and
+    P/2 on the other.

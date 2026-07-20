@@ -31,22 +31,29 @@ No existing ontology represents planing-hull geometry, water-impact loads, or hy
 
 ## The finding that shapes this project
 
-**14 CFR Part 25 Subpart C water loads cannot be extracted from regulatory text by NLP.** We verified this directly against eCFR:
+**The governing equations in §§ 25.527 and 25.533 are published as raster images, not
+text.** The regulation states "computed as follows:", renders a PNG, and then defines the
+variables. Any pipeline whose first step is "NLP-mine the regulatory text" will silently
+miss the formulas entirely. Confirming them required reading the images directly.
 
-1. **The governing formulas are raster images.** §§ 25.527 and 25.533 render their equations as PNGs hosted on `img.federalregister.gov` (e.g. `EC28SE91.036`). The surrounding text defines only the variables. A language model reading the CFR sees "computed as follows:" followed by nothing.
+**And the whole method is conditional.** § 25.521(b): §§ 25.523–25.537 apply *"unless a
+more rational analysis of the water loads is made, or the standards in ANC-3 are used."*
+These are a default path, not hard requirements. A formalization that encodes them as
+mandatory is semantically wrong and will reject valid designs. Every constraint here
+carries an `applicability` block.
 
-2. **Three critical coefficients are graphs, not numbers.** `K₁` (hull station weighing factor), `K₂`, and `β` (deadrise angle) all resolve to *figures in Appendix B* — printed curves. There is no closed form in the regulation.
-
-3. **The whole method is conditional.** § 25.521(b): the §§ 25.523–25.537 procedure applies *"unless a more rational analysis of the water loads is made, or the standards in ANC-3 are used."* These are a default path, not hard requirements. Any formalization that encodes them as mandatory constraints is semantically wrong.
-
-**Consequence:** digitizing Appendix B figures 1–3 is a hard prerequisite for this entire effort, and it is the single most reusable artifact we could publish. See [`appendix-b/`](appendix-b/).
+> **We got one of these wrong.** The first release also claimed the Appendix B
+> coefficients were undigitized empirical curves. They are not — Figure 2 is piecewise
+> linear with every breakpoint labelled, and it is now encoded exactly. The claim was
+> inferred from the text without reading the figures. Retraction and process change in
+> [`docs/verification-log.md`](docs/verification-log.md).
 
 ## What's here now
 
 - **[`constraints/`](constraints/)** — Part 25 water-load and float constraints in representation-neutral YAML. Every entry carries its formula, units, bounds, primary-source citation, and verification status.
 - **[`schema/`](schema/)** — the constraint schema.
 - **[`docs/verification-log.md`](docs/verification-log.md)** — what was checked against eCFR, what was confirmed, and what turned out to be wrong in secondary sources.
-- **[`appendix-b/`](appendix-b/)** — the open problem. Empty, deliberately.
+- **[`appendix-b/`](appendix-b/)** — what Appendix B figures 1–3 actually contain, and what remains open about them (provenance, not digitization).
 
 ## Design decision: not OWL (yet)
 

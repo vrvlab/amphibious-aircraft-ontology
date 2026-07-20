@@ -1,0 +1,50 @@
+name: "Appendix B — provenance or re-reading"
+description: "Trace where the Appendix B figure values came from, or challenge how we read them"
+title: "appendix-b: "
+labels: ["appendix-b", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Appendix B figures 1–3 have been read and encoded — they did **not** require
+        digitization (see [`appendix-b/`](../../appendix-b/) and the retraction in
+        [`docs/verification-log.md`](../../docs/verification-log.md)).
+
+        Two things remain open, and both are genuinely valuable.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of contribution is this
+      options:
+        - "Provenance — I have traced where the figure 2 values came from"
+        - "Re-reading — I read the figure and disagree with an encoded value"
+        - "Prior art — this figure is reproduced or explained somewhere useful"
+        - "ANC-3 — I have located the alternate standard named in 25.521(b)"
+        - "Question"
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: Details
+      description: >
+        For provenance: which report, test series or rulemaking document, with a citation.
+        The figure 2 breakpoints (1.5, 1.0, 0.375, 2.0, 0.75, 0.5) date to the 1964
+        rulemaking, Doc. No. 5066, and are likely fitted to NACA seaplane tank data.
+        Recovering the underlying test data would let downstream tools reason about why
+        the factors are what they are, not merely apply them.
+
+        For a re-reading: say which value, what you read instead, and from which image or
+        printing.
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Source and edition
+      description: "Citation, with the edition or date of what you actually read."
+    validations:
+      required: true

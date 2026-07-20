@@ -47,19 +47,55 @@ The `(b)` local-pressure case and the `(c)` distributed-pressure case are distin
 
 ### The structural finding
 
-**Subpart C water loads cannot be extracted from regulatory text by NLP.**
+**The equations in §§ 25.527 and 25.533 are published as PNG images, not text.** A model
+reading the CFR sees `computed as follows:` followed by a variable glossary and no
+equation. Confirming the formulas required reading `EC28SE91.036`, `.037` and `.039`
+directly. This part holds.
 
-1. The equations in §§ 25.527 and 25.533 are **PNG images**, not text. A model reading the CFR sees `computed as follows:` followed by a variable glossary and no equation.
-2. `K₁`, `K₂`, and `β` resolve to **printed graphs** in Appendix B figures 1–3. No closed form exists in the regulation.
-3. § 25.521(b) makes the entire §§ 25.523–25.537 method **defeasible** — it applies "unless a more rational analysis of the water loads is made, or the standards in ANC-3 are used."
+**§ 25.521(b) makes the entire §§ 25.523–25.537 method defeasible** — it applies "unless a
+more rational analysis of the water loads is made, or the standards in ANC-3 are used."
+Encoding these as mandatory would cause a reasoner to reject designs legitimately
+substantiated by higher-fidelity analysis. Every derived constraint carries an
+`applicability` block for this reason.
 
-Point 3 is the one most often lost. Encoding these as mandatory constraints would cause a reasoner to reject designs that are legitimately substantiated by higher-fidelity analysis. Every derived constraint carries an `applicability` block for this reason.
+## Round 2 — retraction of our own finding (2026-07-20)
 
-Points 1 and 2 mean any pipeline whose first step is "NLP-mine the regulatory text" will silently produce an incomplete model. Digitizing Appendix B is a prerequisite, not a refinement. See [`../appendix-b/`](../appendix-b/).
+**The first release of this repository claimed that Appendix B figures 1–3 were printed
+empirical curves requiring digitization, that `K₁`, `K₂` and `β` were therefore
+unavailable, and that digitizing them was a hard prerequisite for the project. This was
+wrong.**
+
+The claim was inferred from the phrase "in accordance with figure 2 of appendix B" in the
+regulatory text. **The figures themselves were not examined before the claim was
+published.** When they were read:
+
+| Figure | What it actually is |
+| --- | --- |
+| **1** | Pictorial nomenclature — axes, sign conventions, deadrise geometry. No numeric values. `β` is a design input, not a chart value. |
+| **2** | Piecewise-linear distribution with **every breakpoint value printed on the figure**. Encodable exactly. |
+| **3** | Schematic of pressure distribution shapes. Introduces no values beyond the § 25.533 text. |
+
+Consequences:
+
+- Three constraints previously marked `partial` are now `verified`
+- `K₁` and `K₂` are encoded exactly in `constraints/appendix-b-hull-station-weighing-factors.yaml`
+- `appendix-b/` is no longer an open problem
+- **The claim that Subpart C "cannot be NLP-extracted" was overstated.** The narrow version survives — the equations really are images — but the coefficients were available all along.
+
+This is recorded rather than quietly edited because it is the exact failure this
+repository exists to prevent: a plausible inference, confidently stated, published as a
+verified finding. It occurred in the same commit that established the verification
+standard. The lesson is the one already in `CONTRIBUTING.md` — plausible and correct are
+different things — and it applies to maintainers first.
+
+**Process change:** a claim about what a source contains now requires reading that source,
+including when the source is an image. "The text references a figure" is not evidence
+about the figure's contents.
 
 ## Open items
 
-- [ ] Digitize Appendix B figures 1–3
+- [ ] Trace the empirical provenance of the Appendix B figure 2 breakpoints (1964 rulemaking, Doc. No. 5066; likely NACA tank data)
+- [ ] Independent second reading of Appendix B figure 2 values
 - [ ] §§ 25.523, 25.529, 25.531, 25.535, 25.537 not yet read
 - [ ] ANC-3 alternate standard not yet located or assessed
 - [ ] CS-25 Appendix S (water scooping) — no primary text obtained; all secondary

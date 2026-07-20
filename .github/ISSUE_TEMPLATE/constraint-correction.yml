@@ -1,0 +1,78 @@
+name: "Constraint correction"
+description: "Report a constraint that misstates the underlying regulation or standard"
+title: "correction: "
+labels: ["correction", "high priority"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This is the most valuable kind of issue in this repository.**
+
+        The entire premise of this project is that constraints trace to primary sources.
+        A silently wrong constant is worse than a missing one, because tooling will trust it.
+
+        Reporting that something we marked `verified` is actually an interpretation — or is
+        simply wrong — is a contribution, not a criticism.
+
+  - type: input
+    id: constraint_id
+    attributes:
+      label: Constraint id
+      description: "The `id` field from the YAML, e.g. cfr-25.533-b1-c2-value"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repo_says
+    attributes:
+      label: What this repository currently says
+    validations:
+      required: true
+
+  - type: textarea
+    id: source_says
+    attributes:
+      label: What the primary source says
+      description: "Quote the relevant text."
+    validations:
+      required: true
+
+  - type: input
+    id: citation
+    attributes:
+      label: Citation
+      description: "Section and a link to the primary source."
+      placeholder: "14 CFR 25.533(b)(2) — https://www.ecfr.gov/current/title-14/section-25.533"
+    validations:
+      required: true
+
+  - type: input
+    id: edition
+    attributes:
+      label: Edition / issue date you read
+      description: >
+        Regulations change. An undated citation is not reproducible, so we ask for the
+        edition date of the text you actually read.
+      placeholder: "eCFR issue 2026-07-07"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: proposed_status
+    attributes:
+      label: Proposed corrected status
+      options:
+        - "verified — matches primary text exactly"
+        - "partial — text right, but depends on an undigitized figure"
+        - "unverified — from a secondary source"
+        - "interpretation — an engineering reading, not stated in the regulation"
+        - "remove entirely — not supported by any source"
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact (optional)
+      description: >
+        Would a design be wrongly accepted or wrongly rejected because of this? Helps triage.

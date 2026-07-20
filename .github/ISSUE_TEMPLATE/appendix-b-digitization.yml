@@ -1,0 +1,81 @@
+name: "Appendix B digitization"
+description: "Claim or contribute digitization of a 14 CFR Part 25 Appendix B figure"
+title: "appendix-b: figure "
+labels: ["appendix-b", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping with the hardest blocker in this project.
+
+        Please open an issue **before** starting substantial work so effort isn't duplicated.
+        Partial contributions are welcome — one carefully digitized figure is a complete contribution.
+
+  - type: dropdown
+    id: figure
+    attributes:
+      label: Which figure
+      options:
+        - "Figure 1 — angle of dead rise (beta, beta_k)"
+        - "Figure 2 — hull station weighing factors (K1, K2)"
+        - "Figure 3 — pressure distribution keel to chine"
+        - "Other / not sure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: intent
+    attributes:
+      label: What is this issue for
+      options:
+        - "Claiming it — I intend to work on this"
+        - "Contributing data — I have digitized values to submit"
+        - "Prior art — this has already been published somewhere"
+        - "Question about approach"
+    validations:
+      required: true
+
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Source and provenance
+      description: >
+        Which scan or printing are you working from? Federal Register image ID, GPO PDF,
+        a reproduction in a textbook or report, ANC-3, etc. Include the edition or date.
+      placeholder: "e.g. GPO CFR-2024-title14-vol1, Appendix B to Part 25, p. NNN"
+    validations:
+      required: true
+
+  - type: textarea
+    id: method
+    attributes:
+      label: Extraction method
+      description: >
+        Manual reading, WebPlotDigitizer, custom script, OCR, etc. If you fit a curve,
+        say which functional form and report max and RMS error against the extracted points.
+
+  - type: textarea
+    id: uncertainty
+    attributes:
+      label: Uncertainty
+      description: >
+        Honest error bars please. A curve read from a 1964 raster has real uncertainty
+        and we would rather publish it than hide it.
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation (optional)
+      description: >
+        Does your digitization reproduce any independently published seaplane sizing
+        example? That is the strongest possible evidence and very welcome.
+
+  - type: checkboxes
+    id: ack
+    attributes:
+      label: Acknowledgement
+      options:
+        - label: >
+            I understand digitized values are approximations of a legal document and will be
+            published with that caveat, never as authoritative.
+          required: true

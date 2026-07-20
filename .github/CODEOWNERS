@@ -1,0 +1,8 @@
+# Default owner for everything.
+*                       @claytonconway
+
+# Constraint data and its schema are the load-bearing artifacts of this project.
+# Changes here alter what downstream tooling believes about the regulations.
+/constraints/           @claytonconway
+/schema/                @claytonconway
+/docs/verification-log.md  @claytonconway

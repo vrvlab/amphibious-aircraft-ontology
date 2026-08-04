@@ -1,0 +1,133 @@
+# Deadrise angle — the quantity 14 CFR Part 25 calls `beta` and `beta_k`.
+#
+# This is the worked example for the parameter layer because it is the case
+# where a naive mapping is most likely to be wrong: the regulation treats
+# deadrise as a continuous function of longitudinal station, most design tools
+# carry two or three constant values, and the transverse convention changes
+# depending on whether the bottom is flared.
+
+- id: deadrise-at-station
+  name: Deadrise angle at a longitudinal station
+  aliases: [deadrise, dead rise, deadrise angle, beta]
+  quantity:
+    unit: unit:DEG
+    symbol: deg
+    quantity_kind: quantitykind:Angle
+  definition: >-
+    The transverse angle between the hull bottom and the horizontal, at a given
+    longitudinal station. It governs how sharply the vee parts the water and
+    therefore how impact load is spread: a higher deadrise reduces peak water
+    reaction and local bottom pressure at the cost of increased planing
+    resistance and hump drag.
+  measurement_convention:
+    datum: >-
+      Measured from the horizontal in a transverse section. For an UNFLARED
+      bottom the angle is constant from keel to chine, so beta = beta_k. For a
+      FLARED bottom the bottom curves near the chine: beta_k at the keel is the
+      steeper angle, and beta at an outboard station is shallower.
+    station: >-
+      Longitudinal. 14 CFR 25.527(b)(4) requires the value "at the longitudinal
+      station at which the load factor is being determined" -- it is not a
+      single number for the hull.
+    source: 14 CFR Part 25, Appendix B, figure 1 (image EC28SE91.055)
+    notes: >-
+      Appendix B figure 1 is a pictorial nomenclature diagram, not a chart: it
+      fixes how the angle is measured and shows the unflared/flared distinction.
+      It supplies no numeric values. beta is a design input, not a value looked
+      up from the regulation.
+  regulatory_mapping:
+    - constraint: cfr-25.527-a1
+      symbol: beta
+      relationship: identical
+      caveats: >-
+        Evaluated at the station where the load factor is being determined. For
+        the step landing case of 25.527(a)(1) that is the main step.
+    - constraint: cfr-25.527-a2
+      symbol: beta
+      relationship: identical
+      caveats: >-
+        The bow and stern landing cases evaluate at bow and stern stations, so
+        the same formula is applied with DIFFERENT deadrise values. A model
+        carrying one hull-wide deadrise cannot express this case correctly.
+    - constraint: cfr-25.533-b1-keel-pressure
+      symbol: beta_k
+      relationship: subset
+      caveats: >-
+        beta_k is deadrise AT THE KEEL specifically. Equal to beta only for an
+        unflared bottom. Substituting a chine or mean deadrise into the keel
+        pressure formula understates P_k, because P_k varies as 1/tan(beta_k).
+  implementations:
+    - system: amphix-auto-engineer
+      identifier: deadrise_fwd
+      unit: unit:DEG
+      bounds: [15.0, 30.0]
+      notes: >-
+        Constant forebody value. Maps to beta at forebody stations and, for an
+        unflared bottom, to beta_k at the main step -- which is the value the
+        25.527(a)(1) step landing case needs.
+    - system: amphix-auto-engineer
+      identifier: deadrise_aft
+      unit: unit:DEG
+      bounds: [5.0, 20.0]
+      notes: Constant afterbody value. Maps to beta at afterbody stations.
+    - system: NACA ARR 4F15 (Davidson & Locke 1944)
+      identifier: Dead rise at keel at main step
+      unit: unit:DEG
+      bounds: [20.0, 20.0]
+      notes: >-
+        All four tank models held at 20.0 deg. Reported at the keel at the main
+        step, matching the beta_k convention exactly -- a useful cross-check
+        that the convention here is the one the experimental literature uses.
+  verification:
+    status: verified
+    checked_against: >-
+      14 CFR 25.527(b)(4) and 25.533(b)(1) full text, eCFR issue 2026-07-07;
+      Appendix B figure 1 read from the published image.
+    notes: >-
+      A TWO-VALUE fore/aft model is a DISCRETIZATION of a quantity the
+      regulation treats as continuous along the hull. That is a reasonable
+      modelling choice, but it is a choice, and it has a consequence: a warped
+      forebody has deadrise varying WITHIN the forebody (NACA ARR 4F15 reports
+      "forebody warping" of 1.2-2.1 deg per beam across its four models), so a
+      single forebody constant cannot represent a warped hull faithfully. See
+      deadrise-discretization-note below.
+  tags: [hull, geometry, part-25, water-loads]
+
+- id: deadrise-discretization-note
+  name: "Note: discretizing a station-dependent deadrise"
+  quantity:
+    unit: unit:UNITLESS
+    symbol: "1"
+    quantity_kind: quantitykind:DimensionlessRatio
+  definition: >-
+    Not a parameter. A recorded consequence of representing a continuous
+    quantity with a small number of constants, kept here so a tool author does
+    not have to rediscover it.
+  measurement_convention:
+    datum: n/a
+    station: n/a
+    source: 14 CFR 25.527(a)(2), 25.527(b)(4)
+    notes: n/a
+  regulatory_mapping:
+    - constraint: cfr-25.527-a2
+      symbol: beta
+      relationship: discretization
+      caveats: >-
+        25.527(a)(2) evaluates the load factor at bow and stern stations, each
+        with its own beta and its own K1 from Appendix B figure 2. A model with
+        constant forebody and afterbody deadrise supplies at most two distinct
+        values where the regulation asks for a value per station. For a hull
+        with significant forebody warp the bow deadrise is materially different
+        from the mid-forebody value, and using the latter understates n_w at
+        the bow -- the non-conservative direction.
+  verification:
+    status: interpretation
+    checked_against: >-
+      Not stated in the regulation. This is an engineering reading of what
+      25.527(a)(2) requires when applied to a discretized geometry model.
+    notes: >-
+      Recorded as `interpretation` rather than `verified` because the
+      regulation does not discuss discretization at all. It states the
+      requirement per station; the consequence for a constant-per-region model
+      is inferred.
+  tags: [hull, geometry, part-25, modelling]

@@ -51,9 +51,37 @@ carries an `applicability` block.
 ## What's here now
 
 - **[`constraints/`](constraints/)** — Part 25 water-load and float constraints in representation-neutral YAML. Every entry carries its formula, units, bounds, primary-source citation, and verification status.
+- **[`parameters/`](parameters/)** — the join between design parameters and regulatory symbols. Each quantity carries a QUDT unit IRI, an explicit measurement convention, and typed links to the constraints it appears in.
+- **[`tools/validate.py`](tools/validate.py)** — checks that every mapping resolves, relationships come from the closed vocabulary, and non-identical mappings explain themselves.
 - **[`schema/`](schema/)** — the constraint schema.
 - **[`docs/verification-log.md`](docs/verification-log.md)** — what was checked against eCFR, what was confirmed, and what turned out to be wrong in secondary sources.
 - **[`appendix-b/`](appendix-b/)** — what Appendix B figures 1–3 actually contain, and what remains open about them (provenance, not digitization).
+
+## The parameter layer
+
+`constraints/` says what the regulation requires. It does not say what those symbols correspond to in a design tool — and that gap is where errors live.
+
+14 CFR 25.527 uses `beta`. A parametric model has `deadrise_fwd` and `deadrise_aft`. Same physical quantity, different conventions, no connection. Existing frameworks cover one side each: **CPACS** has parametric geometry with no regulatory meaning; **14 CFR** has regulatory meaning with no parametric geometry. Neither covers the join.
+
+`parameters/` is that join. Each entry declares its unit as a [QUDT](https://qudt.org) IRI, pins down its measurement convention, and links to regulatory symbols with a typed relationship:
+
+| Relationship | Meaning |
+| --- | --- |
+| `identical` | same quantity, same convention |
+| `discretization` | the tool samples a continuous regulatory quantity |
+| `subset` | applies over part of the regulatory domain |
+| `derived` | computed from, not equal to |
+| `selects` | **the value determines which regulatory case applies** |
+
+Anything other than `identical` must carry a caveat explaining the difference; the validator enforces it. An unexplained non-identical mapping is worse than no mapping.
+
+**`selects` is why this layer is worth building.** Chine flare is a plain angle in degrees — a units registry would confirm that and catch nothing else. But its *value* decides whether § 25.533(b)(1) applies with `C₂ = 0.00213` or § 25.533(b)(2) applies with `C₃ = 0.0016`. A tool that carries a flare parameter and always evaluates the unflared formula is non-compliant in a way no unit check and no bounds check would ever detect.
+
+### Units follow QUDT and CPACS
+
+Units are QUDT IRIs, not strings — QUDT originated at NASA Ames (NExIOM/Constellation), is RDF/OWL so a reasoner can use it directly, and cross-references UCUM, UNECE and IEC 61360.
+
+Units are never encoded in parameter *names*. CPACS development guidelines §5 (*"element names are descriptive, without abbreviations or symbols"*) and QUDT (a unit is a property of a quantity) agree, and CPACS practice confirms it — 32 uses of `[m]` in its schema, zero of `[mm]`.
 
 ## Design decision: not OWL (yet)
 

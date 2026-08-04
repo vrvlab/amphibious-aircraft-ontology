@@ -92,11 +92,57 @@ different things — and it applies to maintainers first.
 including when the source is an image. "The text references a figure" is not evidence
 about the figure's contents.
 
+## Round 2 — § 25.337 limit maneuvering load factors
+
+**Source:** eCFR versioner API, full XML for Title 14 § 25.337, issue **2026-07-07**.
+Retrieved **2026-08-04**. The enhanced renderer endpoint used in Round 1 now 302s to an
+interstitial; `api/versioner/v1/full/{date}/title-14.xml?...&section=25.337` returns the
+section text directly and was used instead.
+
+Prompted by an audit of `vrvlab/flightforge`, which selects the limit load factor from a table
+keyed on vehicle class where every civil entry is `2.5`.
+
+### Confirmed correct
+
+| Claim | Section | Result |
+| --- | --- | --- |
+| `n ≥ 2.1 + 24,000/(W + 10,000)` | 25.337(b) | ✅ exact |
+| lower bound `2.5` | 25.337(b) | ✅ exact |
+| upper relief `3.8` | 25.337(b) | ✅ exact |
+| `W` is design maximum takeoff weight | 25.337(b) | ✅ explicit in text |
+
+### Corrections to how this section was being characterised
+
+The formula had been stated from recollection in `flightforge/docs/CONCEPTUAL_FIDELITY_PLAN.md`
+and flagged there as unverified pending this check. The expression itself survived. Its framing
+did not.
+
+| Misstatement | What the text says |
+| --- | --- |
+| "n is a function of weight" | It is a **minimum**. "may not be less than" — a design may use more. Computing the expression yields the least acceptable value, not the value. |
+| "capped at 3.8" | "**need not be greater than** 3.8" is relief from further increase, not a prohibition on exceeding it. |
+| "floored at 2.5" | True as written in (b), but **25.337(d)** permits lower factors where design features make exceeding them impossible in flight. (b) is a default path, not an invariant. |
+| — | **25.337(c) was omitted entirely.** The negative limit load factor — not less than −1.0 up to VC, varying linearly to zero at VD — is a distinct design condition. |
+| — | **25.337(a)** requires pitching velocities appropriate to pull-up and steady turn maneuvers to be accounted for. Applying the (b) scalar alone does not evaluate this. |
+
+The units are not stated in the section. The constants are dimensional, so the expression is
+valid only with `W` in pounds; this is recorded as `interpretation` inside an otherwise
+`verified` entry rather than being asserted as regulatory.
+
+### Consequence for the tool that prompted this
+
+A load factor of 2.5 is correct only above 50 000 lb, where the expression falls to the floor.
+Below it the table under-predicts, and the shortfall grows as weight falls — 2.90 at 20 000 lb,
+3.19 at 12 000 lb. The omission of the negative case and of (a) means the section is not being
+evaluated at all, only one paragraph of it approximated.
+
 ## Open items
 
 - [ ] Trace the empirical provenance of the Appendix B figure 2 breakpoints (1964 rulemaking, Doc. No. 5066; likely NACA tank data)
 - [ ] Independent second reading of Appendix B figure 2 values
 - [ ] §§ 25.523, 25.529, 25.531, 25.535, 25.537 not yet read
+- [ ] § 25.337(c) negative case is captured but has no worked test case — needs VC/VD from a real aircraft
+- [ ] § 25.335 (design airspeeds) is referenced by 25.337(c) via VC and VD but is not yet read
 - [ ] ANC-3 alternate standard not yet located or assessed
 - [ ] CS-25 Appendix S (water scooping) — no primary text obtained; all secondary
 - [ ] Fresh water density used in the 25.751 worked example (62.4 lb/ft³) is an engineering value, not regulatory

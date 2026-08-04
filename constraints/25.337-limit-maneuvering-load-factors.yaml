@@ -1,0 +1,183 @@
+# 14 CFR § 25.337 — Limit maneuvering load factors
+# Text verified against eCFR issue 2026-07-07, retrieved 2026-08-04.
+#
+# Scope note: this is a Subpart C *flight* loads section, not a water loads
+# section. It is here because the water load cases do not stand alone — the
+# governing design load factor is the envelope of the flight case and the
+# § 25.527 water case, so the flight minimum has to be represented to evaluate
+# the combined condition at all.
+
+- id: cfr-25.337-b-positive-limit-maneuvering
+  title: Positive limit maneuvering load factor — minimum required value
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.337(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.337
+    edition: 2026-07-07
+    retrieved: 2026-08-04
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.337
+    notes: >-
+      The regulation states a MINIMUM, not an equality: "may not be less than
+      2.1 + 24,000/(W + 10,000) except that n may not be less than 2.5 and need
+      not be greater than 3.8". Read carefully, that is three separate
+      provisions: a formula, a floor on the required minimum, and a relief cap
+      above which no further increase is required. A design may legitimately use
+      a higher n than this expression yields; treating the result as "the load
+      factor" rather than "the least acceptable load factor" is an engineering
+      choice the regulation does not make. See also 25.337(d), which permits
+      LOWER factors in defined circumstances.
+
+      W is specifically the design maximum takeoff weight, not an arbitrary
+      operating weight.
+  formula:
+    expression: "n_min = max(2.5, min(3.8, 2.1 + 24000 / (W + 10000)))"
+    latex: "n_{min} = \\max\\left(2.5,\\ \\min\\left(3.8,\\ 2.1 + \\frac{24000}{W + 10000}\\right)\\right)"
+    variables:
+      - symbol: n
+        description: >-
+          Positive limit maneuvering load factor, for any speed up to Vn. The
+          expression yields the least value that satisfies the section.
+        units: dimensionless
+      - symbol: W
+        description: Design maximum takeoff weight
+        units: lb
+        resolves_to: >-
+          INTERPRETATION — the section states no units. The constants 24,000 and
+          10,000 are dimensional, so the expression is only valid with W in
+          pounds. Confirmed by the bracketing values behaving correctly across
+          the transport weight range; not stated in the regulation text.
+  applicability:
+    applies_when: Any speed up to Vn; symmetrical maneuvers per 25.337(a)
+    superseded_by:
+      - >-
+        25.337(d) — lower factors permitted where design features make exceeding
+        them impossible in flight
+      - 25.337(a) — where limited by maximum (static) lift coefficients
+  test_cases:
+    - description: Formula governs — mid transport range
+      inputs: {W_lb: 20000}
+      expected: {n_min: 2.9000}
+      status: worked
+    - description: Formula governs — a real regional_tp gate result
+      inputs: {W_lb: 39280.53}
+      expected: {n_min: 2.5870}
+      status: worked
+    - description: Floor governs — raw expression falls below 2.5
+      inputs: {W_lb: 80000}
+      expected: {n_min: 2.5000, raw_expression: 2.3667}
+      status: worked
+    - description: Relief cap governs — raw expression exceeds 3.8
+      inputs: {W_lb: 3000}
+      expected: {n_min: 3.8000, raw_expression: 3.9462}
+      status: worked
+    - description: Lower clamp crossover — raw expression equals 2.5 exactly
+      inputs: {W_lb: 50000}
+      expected: {n_min: 2.5000}
+      status: worked
+  tags: [flight-loads, subpart-c, load-factor]
+
+- id: cfr-25.337-c1-negative-limit-to-vc
+  title: Negative limit maneuvering load factor up to VC
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.337(c)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.337
+    edition: 2026-07-07
+    retrieved: 2026-08-04
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.337
+    notes: >-
+      Stated as "may not be less than -1.0 at speeds up to VC". Negative is a
+      distinct design condition from the positive case and is frequently omitted
+      when § 25.337 is reduced to its positive formula alone.
+  bound:
+    quantity: Negative limit maneuvering load factor at speeds up to VC
+    operator: "<="
+    value: -1.0
+    units: dimensionless
+  applicability:
+    applies_when: Speeds up to VC
+  tags: [flight-loads, subpart-c, load-factor, negative]
+
+- id: cfr-25.337-c2-negative-varies-to-vd
+  title: Negative limit load factor varies linearly from VC to zero at VD
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.337(c)(2)
+    url: https://www.ecfr.gov/current/title-14/section-25.337
+    edition: 2026-07-07
+    retrieved: 2026-08-04
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.337
+    notes: >-
+      "Must vary linearly with speed from the value at VC to zero at VD." The
+      regulation gives the endpoints and the interpolation rule; the algebraic
+      form below is a direct transcription of that statement, not an addition.
+  formula:
+    expression: "n_neg(V) = n_neg_VC * (V_D - V) / (V_D - V_C)   for V_C <= V <= V_D"
+    variables:
+      - symbol: n_neg_VC
+        description: Negative limit maneuvering load factor at VC, per 25.337(c)(1)
+        units: dimensionless
+      - symbol: V_C
+        description: Design cruising speed
+        units: KEAS
+      - symbol: V_D
+        description: Design dive speed
+        units: KEAS
+  applicability:
+    applies_when: Speeds between VC and VD
+  tags: [flight-loads, subpart-c, load-factor, negative]
+
+- id: cfr-25.337-d-lower-factors-relief
+  title: Lower maneuvering load factors permitted where flight-limited by design
+  kind: qualitative
+  source:
+    authority: 14 CFR
+    section: 25.337(d)
+    url: https://www.ecfr.gov/current/title-14/section-25.337
+    edition: 2026-07-07
+    retrieved: 2026-08-04
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.337
+    notes: >-
+      "Maneuvering load factors lower than those specified in this section may be
+      used if the airplane has design features that make it impossible to exceed
+      these values in flight." This is why the 2.5 floor in (b) is not an
+      absolute minimum for every Part 25 airplane, and why an automated sizing
+      tool should treat (b) as the default path rather than an invariant.
+  applicability:
+    applies_when: Airplane has design features making the values impossible to exceed in flight
+  tags: [flight-loads, subpart-c, load-factor, relief]
+
+- id: cfr-25.337-a-symmetrical-maneuver-basis
+  title: Symmetrical maneuver assumption and pitching velocity accounting
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.337(a)
+    url: https://www.ecfr.gov/current/title-14/section-25.337
+    edition: 2026-07-07
+    retrieved: 2026-08-04
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.337
+    notes: >-
+      The airplane is assumed subject to symmetrical maneuvers producing the
+      prescribed factors, except where limited by maximum (static) lift
+      coefficients, and pitching velocities appropriate to pull-up and steady
+      turn maneuvers must be accounted for. A conceptual tool that applies only
+      the (b) scalar is not evaluating this paragraph.
+  applicability:
+    applies_when: Symmetrical maneuvers
+    superseded_by:
+      - Maximum (static) lift coefficient limits
+  tags: [flight-loads, subpart-c, assumptions]

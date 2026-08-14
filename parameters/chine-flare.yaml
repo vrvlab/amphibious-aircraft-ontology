@@ -1,0 +1,117 @@
+# Chine flare — the parameter whose VALUE selects which regulation applies.
+#
+# This is the clearest demonstration of why the parameter layer is not just
+# documentation. 14 CFR 25.533 has two distinct local-pressure cases with
+# different empirical constants, and which one is in force depends on a
+# geometric property of the hull. A tool that carries a flare parameter but
+# always evaluates the unflared formula is non-compliant in a way no unit check
+# and no bounds check would ever detect.
+
+- id: chine-flare
+  name: Chine flare angle
+  aliases: [flare, chine flare]
+  quantity:
+    unit: unit:DEG
+    symbol: deg
+    quantity_kind: quantitykind:Angle
+  definition: >-
+    The outboard upward curvature of the hull bottom near the chine, relative
+    to the straight vee that would otherwise continue from the keel. Flare
+    deflects spray outward and downward rather than up the hull side. Zero
+    flare means a straight (unflared) vee bottom.
+  measurement_convention:
+    datum: >-
+      Relative to the unflared vee. Appendix B figure 1 shows both cases in
+      transverse section: "Unflared Bottom" with a single straight vee where
+      beta = beta_k, and "Flared Bottom" with the flare region marked and beta
+      and beta_k shown as distinct angles.
+    station: >-
+      Transverse, near the chine. May vary longitudinally; the regulation
+      evaluates pressures at the "appropriate station".
+    source: 14 CFR Part 25, Appendix B, figures 1 and 3
+    notes: >-
+      Figure 3 shows the resulting pressure distributions for both cases:
+      unflared runs P_k at keel falling linearly to 0.75 P_k at the chine;
+      flared adds P_ch over the flared region.
+  regulatory_mapping:
+    # THIS is the important one: the value selects the applicable rule.
+    - constraint: cfr-25.533-b1-c2-value
+      symbol: C2
+      relationship: selects
+      caveats: >-
+        C2 = 0.00213 applies to the UNFLARED bottom case, 25.533(b)(1). It is
+        the correct constant only when chine flare is zero.
+    - constraint: cfr-25.533-b2-c3-value
+      symbol: C3
+      relationship: selects
+      caveats: >-
+        C3 = 0.0016 applies to the FLARED bottom case, 25.533(b)(2). A hull
+        with non-zero chine flare must use the flared chine-pressure formula
+        with C3, not the unflared formula with C2. C3 is absent from most
+        secondary summaries of 25.533, so a tool built from a summary rather
+        than the regulation will not have it at all.
+    - constraint: cfr-25.533-b1-keel-pressure
+      symbol: beta_k
+      relationship: selects
+      caveats: >-
+        Non-zero flare makes beta differ from beta_k. The keel pressure formula
+        needs beta_k specifically; using an outboard or mean deadrise
+        understates P_k because P_k varies as 1/tan(beta_k).
+    - constraint: cfr-25.533-b1-chine-ratio
+      symbol: P_chine
+      relationship: selects
+      caveats: >-
+        The 0.75 * P_k chine ratio is stated for the unflared bottom. For the
+        flared case, 25.533(b)(2) gives the chine pressure its own formula and
+        the distribution between chine and start-of-flare varies linearly.
+  implementations:
+    - system: amphix-auto-engineer
+      identifier: chine_flare
+      unit: unit:DEG
+      bounds: [0.0, 15.0]
+      notes: >-
+        Bounds SPAN the regulatory case boundary: 0.0 is the unflared case,
+        anything above it is the flared case. A design search over this range
+        therefore crosses between two different regulatory formulas with
+        different empirical constants. Whether the pressure model switches
+        accordingly is a checkable claim about the implementation, and is
+        exactly the kind of check this mapping exists to make possible.
+    - system: loftline
+      identifier: chine_flare_deg
+      unit: unit:DEG
+      bounds: [0.0, 45.0]
+      status: exact
+      notes: >-
+        Documented as flare "at the step", which is narrower than the flared
+        bottom condition of 25.533(b)(2) -- that one is a property of a
+        station, so a hull flared aft of the step and straight forward of it
+        cannot be expressed.
+    - system: aerogit
+      identifier: null
+      status: absent
+      finding: >-
+        AeroGit carries no chine flare at all, so the facet CANNOT express
+        which of the two 25.533(b) paths a design takes. Loftline and
+        Flightforge both can. The regulatory selector is lost precisely at the
+        layer that versions the design and gates the pull request.
+    - system: flightforge
+      identifier: geometry.hull.chine_flare_deg
+      unit: unit:DEG
+      bounds: [0.0, 20.0]
+      status: exact
+      notes: >-
+        Carried AND used as the selector: water_loads.py switches to the flared
+        path on flare > 1.0 degree. That 1 degree threshold is an
+        implementation choice, not a regulatory one -- 25.533(b) distinguishes
+        flared from unflared without a numeric cut.
+  verification:
+    status: verified
+    checked_against: >-
+      14 CFR 25.533(b)(1) and (b)(2) full text, eCFR issue 2026-07-07;
+      Appendix B figures 1 and 3 read from the published images.
+    notes: >-
+      The `selects` relationship is the reason this layer is worth building. A
+      units registry alone would confirm chine_flare is an angle in degrees and
+      catch nothing else. The regulatory link is what makes "this hull is
+      flared, so C3 applies" a statement a machine can check.
+  tags: [hull, geometry, part-25, water-loads, spray]

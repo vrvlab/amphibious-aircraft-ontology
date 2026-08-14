@@ -1,54 +1,280 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/vrvlab/amphibious-aircraft-ontology/main/schema/parameter.schema.json",
-  "title": "Amphibious Aircraft Ontology — canonical parameter vocabulary",
-  "description": "The constraint corpus says what the regulations require. This says what the quantities in those requirements are called, what units they carry, and where their bounds come from. Consumers map their own names onto these; tools/check_consumers.py checks that the mapping still holds.",
+  "title": "Amphibious Aircraft Ontology — design parameter",
+  "description": "A design parameter: an engineering quantity with a canonical definition, a unit, a measurement convention, and links to the regulatory symbols it corresponds to. constraints/ encodes what the regulation requires; it does not say what the quantities in those formulas correspond to in a design tool. 14 CFR 25.527 uses beta; a parametric model has deadrise_fwd and deadrise_aft. This layer is the join. Normative and enforced by tools/validate.py; schema/README.md carries the rationale.",
   "type": "array",
   "minItems": 1,
   "items": {
-    "type": "object",
-    "additionalProperties": false,
-    "required": ["name", "title", "units", "description", "used_by"],
-    "properties": {
-      "name": {
-        "type": "string",
-        "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
-        "description": "Canonical dotted key. Stable; consumers pin it."
-      },
-      "title": { "type": "string", "minLength": 1 },
-      "symbol": {
-        "type": "string",
-        "description": "The symbol this parameter binds in constraint expressions, where one exists. This is the join between the vocabulary and the corpus."
-      },
-      "units": { "type": "string", "minLength": 1 },
-      "description": { "type": "string", "minLength": 1 },
-      "bounds": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "min": { "type": "number" },
-          "max": { "type": "number" },
-          "min_exclusive": { "type": "boolean", "default": false },
-          "max_exclusive": { "type": "boolean", "default": false }
+    "$ref": "#/$defs/parameter"
+  },
+  "$defs": {
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "quantity",
+        "definition",
+        "measurement_convention",
+        "verification"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$",
+          "description": "Stable slug, e.g. deadrise-at-keel. Unique across the WHOLE corpus, constraints included — a mapping cites both the same way."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "parameter",
+            "note"
+          ],
+          "default": "parameter",
+          "description": "`note` marks an entry that is not a quantity a tool holds — a recorded consequence of modelling, kept next to the parameter it concerns. Notes are exempt from implementation-coverage checks, since there is nothing for a tool to declare."
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Other names in use for the same quantity, so a tool author searching for their own spelling lands here."
+        },
+        "quantity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "unit",
+            "symbol",
+            "quantity_kind"
+          ],
+          "description": "Units are QUDT IRIs, not strings — RDF/OWL, so usable directly by a reasoner, and cross-referenced to UCUM, UNECE and IEC 61360. Units are NEVER encoded in parameter names.",
+          "properties": {
+            "unit": {
+              "type": "string",
+              "pattern": "^unit:",
+              "description": "QUDT IRI, prefixed — \"unit:DEG\"."
+            },
+            "symbol": {
+              "type": "string",
+              "minLength": 1,
+              "description": "CPACS-style bracket form — \"deg\", \"m\", \"1\". Checked against the unit."
+            },
+            "quantity_kind": {
+              "type": "string",
+              "pattern": "^quantitykind:",
+              "description": "QUDT IRI — \"quantitykind:Angle\"."
+            }
+          }
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What the quantity IS, independent of any tool."
+        },
+        "measurement_convention": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "datum",
+            "station",
+            "source"
+          ],
+          "description": "HOW the quantity is measured. Two tools can agree on a definition and still disagree on a value if they measure at different stations or from different datums.",
+          "properties": {
+            "datum": {
+              "type": "string",
+              "minLength": 1
+            },
+            "station": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        },
+        "bounds": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Canonical validity bounds, as distinct from any one tool's search range. Requires bounds_basis, because a bound with no stated authority gets enforced as though it had one.",
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "min_exclusive": {
+              "type": "boolean",
+              "default": false
+            },
+            "max_exclusive": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "bounds_basis": {
+          "enum": [
+            "regulatory",
+            "mathematical",
+            "conceptual"
+          ],
+          "description": "regulatory — the rule states it. mathematical — outside this range a governing expression is singular or undefined. conceptual — a sanity range carrying no authority, to be reported and NOT enforced as a rejection. Rejecting a valid unusual design is the failure mode this corpus exists to avoid."
+        },
+        "bounds_rationale": {
+          "type": "string"
+        },
+        "regulatory_mapping": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/mapping"
+          }
+        },
+        "distinct_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Parameter ids this one is routinely and wrongly conflated with. The reason the layer exists; checked to resolve, so a rename cannot silently drop the warning."
+        },
+        "implementations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/implementation"
+          },
+          "description": "Where the quantity appears in real tools. Descriptive, not normative."
+        },
+        "verification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "checked_against"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "verified",
+                "partial",
+                "unverified",
+                "interpretation"
+              ]
+            },
+            "checked_against": {
+              "type": "string",
+              "minLength": 1
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
         }
-      },
-      "bounds_basis": {
-        "enum": ["regulatory", "mathematical", "conceptual"],
-        "description": "regulatory — the rule states it. mathematical — outside this range a governing expression is singular or undefined. conceptual — a sanity range, carrying no authority and not to be enforced as a rejection."
-      },
-      "bounds_rationale": { "type": "string" },
-      "used_by": {
-        "type": "array",
-        "minItems": 1,
-        "items": { "type": "string" },
-        "description": "Constraint entry ids that consume this parameter. Checked to resolve."
-      },
-      "distinct_from": {
-        "type": "array",
-        "items": { "type": "string" },
-        "description": "Other canonical parameters this one is routinely and wrongly conflated with. The reason the vocabulary exists."
-      },
-      "notes": { "type": "string" }
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "constraint",
+        "symbol",
+        "relationship"
+      ],
+      "properties": {
+        "constraint": {
+          "type": "string",
+          "description": "Constraint id in constraints/. Checked to resolve."
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The symbol as it appears in that constraint."
+        },
+        "relationship": {
+          "enum": [
+            "identical",
+            "discretization",
+            "subset",
+            "derived",
+            "selects"
+          ],
+          "description": "identical — same quantity, same convention. discretization — the tool samples a continuous regulatory quantity. subset — the tool value applies over part of the regulatory domain. derived — computed from, not equal to. selects — the value determines WHICH regulatory case applies."
+        },
+        "caveats": {
+          "type": "string",
+          "description": "REQUIRED by tools/validate.py when relationship is not `identical`. A mapping that is not identical claims the two differ; unexplained, it is worse than no mapping."
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "system"
+      ],
+      "properties": {
+        "system": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identifier": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The name that system uses. null when the parameter is absent there."
+        },
+        "unit": {
+          "type": "string",
+          "description": "QUDT IRI as that system uses it."
+        },
+        "bounds": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          },
+          "description": "That system's declared range, recorded as it stands today. tools/check_consumers.py re-reads the system's own source and fails if this has gone stale."
+        },
+        "status": {
+          "enum": [
+            "exact",
+            "collapsed",
+            "conflated",
+            "renamed",
+            "absent"
+          ],
+          "description": "exact — the identifier means this parameter and nothing else. collapsed — one identifier stands for two or more parameters. conflated — the identifier is used where a DIFFERENT parameter belongs. renamed — same meaning, different spelling. absent — the system does not carry it."
+        },
+        "finding": {
+          "type": "string",
+          "description": "What the divergence costs, where it costs anything."
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
     }
   }
 }

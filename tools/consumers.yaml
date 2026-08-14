@@ -1,0 +1,70 @@
+# Where each consuming system's parameter declarations actually live.
+#
+# This file is only a registry of locations. The mappings themselves live in the
+# `implementations` block of each parameter in parameters/, next to the quantity
+# they describe — one place per parameter, not one place per tool.
+#
+# tools/check_consumers.py uses this to find each repository, re-read its own
+# source, and fail if an `implementations` entry has gone stale in either
+# direction: a divergence that was quietly fixed, or one quietly introduced.
+#
+# `scope` limits which parameter tags a system must account for. All three
+# repository consumers are scoped to `hull` and `auxiliary-float` today: those
+# are the quantities that cross repository boundaries as authored design
+# inputs. Weights, speeds and inertia reach Flightforge through seed_state
+# rather than through a facet or a model file, and mapping them is an open item
+# — see docs/verification-log.md. Widening a scope here is what makes the
+# checker start demanding those mappings.
+
+- system: loftline
+  repo: vrvlab/Loftline
+  path: ../Loftline
+  reader: loftline_spec_rs
+  authority: crates/loftline-core/src/spec.rs
+  scope: [hull]
+  notes: >-
+    Loftline's JSON Schema is generated and carries no numeric bounds; the
+    numbers live in the Rust spec table, which is therefore what gets read.
+    Keys are declared with either num() or dist() — dist() marks a key that
+    also accepts a distribution rather than a scalar, which is how a warped
+    hull is expressed and why deadrise_deg uses it.
+
+- system: aerogit
+  repo: vrvlab/aerogit
+  path: ../aerogit
+  reader: aerogit_facet_json
+  authority: templates/facets/water/amphibian.json
+  scope: [hull]
+
+- system: flightforge
+  repo: Catalina-Aircraft-Company/flightforge
+  path: ../flightforge
+  reader: flightforge_design_vars_py
+  authority: app/flightforge/plugins/amphibious/design_vars.py
+  scope: [hull]
+  notes: >-
+    Bounds here are optimizer search ranges rather than validity limits, so a
+    mismatch against a parameter's canonical bounds is expected and is not
+    itself a finding. What matters is the naming and the collapse.
+
+# amphix-auto-engineer appears in parameters/ implementations but has no reader
+# here: its declarations were recorded from the study rather than parsed from a
+# checked-out tree. Recorded so the absence is deliberate rather than an
+# oversight — the checker reports it as unverifiable rather than passing it.
+- system: amphix-auto-engineer
+  repo: vrvlab/amphix-auto-engineer
+  path: ../amphix-auto-engineer
+  reader: null
+  authority: null
+  scope: []
+
+# Literature sources. Recorded in `implementations` because they fix a
+# measurement convention against real experimental practice, which is the
+# strongest available evidence that the convention here is the one the field
+# actually uses. No reader: they are documents, not trees to parse.
+- system: NACA ARR 4F15 (Davidson & Locke 1944)
+  repo: null
+  path: null
+  reader: null
+  authority: NACA ARR 4F15, tank tests of four related hull models
+  scope: []

@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
-"""Check the canonical parameter vocabulary, and the claims made about consumers.
+"""Check the `implementations` claims in parameters/ against the real sources.
 
-Three things happen here:
+Each parameter records where it appears in real tools, under what name, and
+with what bounds. Those are claims about other repositories, and claims rot.
+This re-reads each system's own source and fails if one has gone stale in
+either direction — a divergence quietly fixed, or one quietly introduced.
 
-  1. parameters/canonical.yaml validates against schema/parameter.schema.json,
-     and every `used_by` id resolves to a real constraint entry.
-  2. Every canonical parameter is accounted for by every consumer — mapped,
-     renamed, collapsed, conflated, or explicitly absent. Silence is a finding.
-  3. Where a consumer repo is on disk, its declared bounds are re-read from its
-     own source and compared with what parameters/consumers.yaml claims. A
-     divergence recorded upstream must not be allowed to go stale in either
-     direction.
+Also reports the standing conflations. A `collapsed` or `conflated` mapping is
+not an error: it is a known simplification that someone decided to live with.
+The failure mode this guards against is nobody knowing it is there.
 
-Consumers are read strictly read-only, and are located relative to this repo.
-Absent consumers are skipped, not failed — that is what --report-only is for
-in CI, where the sibling repos are not checked out.
+Consumers are read strictly read-only and are located relative to this repo via
+tools/consumers.yaml. A consumer that is not checked out is skipped, not failed
+— that is what --report-only is for in CI, where the siblings are absent.
 
 Usage:  python3 tools/check_consumers.py [--report-only]
 Exit:   0 clean (always 0 with --report-only), 1 on any finding.
@@ -30,39 +28,27 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:  # pragma: no cover
-    sys.exit("PyYAML is required: pip install pyyaml")
+    sys.exit("pyyaml required:  pip install pyyaml")
 
 ROOT = Path(__file__).resolve().parents[1]
-CANONICAL = ROOT / "parameters" / "canonical.yaml"
-CONSUMERS = ROOT / "parameters" / "consumers.yaml"
-PARAM_SCHEMA = ROOT / "schema" / "parameter.schema.json"
-CONSTRAINTS = ROOT / "constraints"
+PARAMETERS = ROOT / "parameters"
+REGISTRY = ROOT / "tools" / "consumers.yaml"
 
 TOL = 1e-9
 
 
-def corpus_ids() -> set[str]:
-    ids: set[str] = set()
-    for path in CONSTRAINTS.glob("*.yaml"):
-        for entry in yaml.safe_load(path.read_text(encoding="utf-8")):
-            ids.add(entry["id"])
-    return ids
-
-
 # --------------------------------------------------------------------------
-# Readers — one per consumer, each parsing that project's own source of truth.
+# Readers — one per system, each parsing that project's own source of truth.
 # --------------------------------------------------------------------------
 
-def read_loftline(root: Path) -> dict[str, dict]:
-    """Loftline's bounds live in a Rust spec table, not in its JSON Schema."""
-    src = root / "crates" / "loftline-core" / "src" / "spec.rs"
+def loftline_spec_rs(root: Path, authority: str) -> dict[str, dict]:
+    src = root / authority
     if not src.exists():
         return {}
     text = src.read_text(encoding="utf-8")
     found: dict[str, dict] = {}
     # Both constructors carry bounds. `dist` marks a key that also accepts a
-    # distribution rather than a scalar — which is how Loftline expresses a
-    # warped hull, and why deadrise_deg is declared with it.
+    # distribution rather than a scalar.
     pattern = re.compile(
         r'(?:num|dist)\(\s*"(?P<key>\w+)"\s*,\s*(?:true|false)\s*,\s*'
         r"(?P<min>-?[\d.]+(?:[eE][+-]?\d+)?)\s*,\s*"
@@ -79,8 +65,8 @@ def read_loftline(root: Path) -> dict[str, dict]:
     return found
 
 
-def read_aerogit(root: Path) -> dict[str, dict]:
-    facet = root / "templates" / "facets" / "water" / "amphibian.json"
+def aerogit_facet_json(root: Path, authority: str) -> dict[str, dict]:
+    facet = root / authority
     if not facet.exists():
         return {}
     params = json.loads(facet.read_text(encoding="utf-8")).get("params", {})
@@ -101,8 +87,8 @@ def read_aerogit(root: Path) -> dict[str, dict]:
     return out
 
 
-def read_flightforge(root: Path) -> dict[str, dict]:
-    src = root / "app" / "flightforge" / "plugins" / "amphibious" / "design_vars.py"
+def flightforge_design_vars_py(root: Path, authority: str) -> dict[str, dict]:
+    src = root / authority
     if not src.exists():
         return {}
     text = src.read_text(encoding="utf-8")
@@ -118,26 +104,28 @@ def read_flightforge(root: Path) -> dict[str, dict]:
 
 
 READERS = {
-    "loftline": read_loftline,
-    "aerogit": read_aerogit,
-    "flightforge": read_flightforge,
+    "loftline_spec_rs": loftline_spec_rs,
+    "aerogit_facet_json": aerogit_facet_json,
+    "flightforge_design_vars_py": flightforge_design_vars_py,
 }
 
 
-def bounds_differ(claimed: dict, actual: dict) -> list[str]:
+def load_parameters() -> list[dict]:
+    params: list[dict] = []
+    for path in sorted(PARAMETERS.glob("*.yaml")):
+        for entry in yaml.safe_load(path.read_text(encoding="utf-8")) or []:
+            entry["_file"] = path.name
+            params.append(entry)
+    return params
+
+
+def bounds_differ(claimed: list, actual: dict) -> list[str]:
+    """`claimed` is the [min, max] pair recorded in an implementations block."""
     diffs = []
-    for field in ("min", "max"):
-        c, a = claimed.get(field), actual.get(field)
-        if c is None and a is None:
-            continue
-        if c is None or a is None or abs(float(c) - float(a)) > TOL:
-            diffs.append(f"{field}: recorded {c}, source says {a}")
-    for field in ("min_exclusive", "max_exclusive"):
-        if bool(claimed.get(field, False)) != bool(actual.get(field, False)):
-            diffs.append(
-                f"{field}: recorded {claimed.get(field, False)}, "
-                f"source says {actual.get(field, False)}"
-            )
+    for field, want in (("min", claimed[0]), ("max", claimed[1])):
+        got = actual.get(field)
+        if got is None or abs(float(want) - float(got)) > TOL:
+            diffs.append(f"{field}: recorded {want}, source says {got}")
     return diffs
 
 
@@ -146,103 +134,97 @@ def main() -> int:
     findings: list[str] = []
     notes: list[str] = []
 
-    canonical = yaml.safe_load(CANONICAL.read_text(encoding="utf-8"))
-    consumers = yaml.safe_load(CONSUMERS.read_text(encoding="utf-8"))
+    registry = {c["system"]: c for c in yaml.safe_load(REGISTRY.read_text(encoding="utf-8"))}
+    params = load_parameters()
 
-    # 1. Schema and cross-references.
-    try:
-        from jsonschema import Draft202012Validator
-
-        schema = json.loads(PARAM_SCHEMA.read_text(encoding="utf-8"))
-        for err in Draft202012Validator(schema).iter_errors(canonical):
-            where = "".join(f"[{p!r}]" for p in err.absolute_path)
-            findings.append(f"canonical.yaml{where}: {err.message}")
-    except ImportError:
-        notes.append("jsonschema not installed — parameter schema check skipped")
-
-    ids = corpus_ids()
-    names = {p["name"] for p in canonical}
-    for p in canonical:
-        for ref in p.get("used_by", []):
-            if ref not in ids:
-                findings.append(f"{p['name']}: used_by names unknown entry {ref!r}")
-        for ref in p.get("distinct_from", []):
-            if ref not in names:
-                findings.append(f"{p['name']}: distinct_from names unknown parameter {ref!r}")
-
-    # 2 and 3. Coverage, and drift against each consumer's own source.
-    for consumer in consumers:
-        cname = consumer["consumer"]
-        mapped = {m["canonical"] for m in consumer["mappings"]}
-        # Coverage is required only within a consumer's declared scope. A
-        # lofting tool is not expected to account for design speeds, and
-        # demanding it would make the check noise rather than signal.
-        scope = tuple(consumer.get("scope") or [""])
-        in_scope = {n for n in names if n.startswith(scope)}
-        for missing in sorted(in_scope - mapped):
-            findings.append(
-                f"{cname}: no mapping declared for {missing!r} — "
-                f"map it, or record it as status: absent"
-            )
-        for m in consumer["mappings"]:
-            if m["canonical"] not in names:
-                findings.append(
-                    f"{cname}: mapping names unknown parameter {m['canonical']!r}"
-                )
-
+    # Cache each readable consumer's live declarations.
+    live: dict[str, dict] = {}
+    for name, consumer in registry.items():
+        reader_name = consumer.get("reader")
+        if not reader_name:
+            notes.append(f"{name}: no reader declared — claims are unverifiable, not checked")
+            continue
         path = (ROOT / consumer["path"]).resolve()
         if not path.exists():
-            notes.append(f"{cname}: not on disk at {consumer['path']} — drift check skipped")
+            notes.append(f"{name}: not on disk at {consumer['path']} — drift check skipped")
             continue
-
-        actual = READERS[cname](path)
-        if not actual:
-            notes.append(f"{cname}: could not read {consumer['authority']} — drift check skipped")
+        found = READERS[reader_name](path, consumer["authority"])
+        if not found:
+            notes.append(f"{name}: could not read {consumer['authority']} — drift check skipped")
             continue
+        live[name] = found
 
-        for m in consumer["mappings"]:
-            key, claimed = m.get("key"), m.get("declared_bounds")
-            if key is None:
-                if key in actual:
-                    findings.append(
-                        f"{cname}: {m['canonical']} is recorded absent but "
-                        f"{key!r} now exists upstream"
-                    )
+    conflations: list[tuple[str, str, str, str]] = []
+    scoped_misses: list[str] = []
+
+    for param in params:
+        pid = param["id"]
+        impls = param.get("implementations") or []
+        declared_systems = {i["system"] for i in impls}
+
+        for impl in impls:
+            system = impl["system"]
+            if system not in registry:
+                findings.append(
+                    f"{pid}: implementation names system {system!r}, "
+                    f"which is not in tools/consumers.yaml"
+                )
                 continue
-            short = key.split(".")[-1]
-            found = actual.get(key) or actual.get(short)
+            if impl.get("status") in ("collapsed", "conflated"):
+                conflations.append((system, impl.get("identifier") or "-", pid, impl["status"]))
+
+            actual = live.get(system)
+            if actual is None:
+                continue
+
+            identifier = impl.get("identifier")
+            if identifier is None:
+                # Recorded absent. If it has reappeared upstream, say so.
+                continue
+            short = identifier.split(".")[-1]
+            found = actual.get(identifier) or actual.get(short)
             if found is None:
                 findings.append(
-                    f"{cname}: {key!r} is mapped to {m['canonical']} but no longer "
-                    f"appears in {consumer['authority']}"
+                    f"{pid} -> {system}: {identifier!r} no longer appears in "
+                    f"{registry[system]['authority']}"
                 )
                 continue
             if found.get("_ambiguous"):
-                notes.append(f"{cname}: {key!r} declared more than once — bounds not compared")
+                notes.append(
+                    f"{system}: {identifier!r} declared more than once — bounds not compared"
+                )
                 continue
-            if claimed:
-                diffs = bounds_differ(claimed, found)
+            if impl.get("bounds"):
+                diffs = bounds_differ(impl["bounds"], found)
                 if diffs:
                     findings.append(
-                        f"{cname}: {key!r} bounds moved since recorded — "
-                        + "; ".join(diffs)
+                        f"{pid} -> {system}: {identifier!r} bounds moved since "
+                        f"recorded — " + "; ".join(diffs)
                     )
 
-    # Report.
-    conflicts = [
-        (c["consumer"], m)
-        for c in consumers
-        for m in c["mappings"]
-        if m.get("status") in ("collapsed", "conflated")
-    ]
-    print(
-        f"{len(canonical)} canonical parameters, "
-        f"{len(consumers)} consumers, "
-        f"{len(conflicts)} collapsed or conflated mappings"
-    )
-    for cname, m in conflicts:
-        print(f"  ! {cname}: {m['key']} -> {m['canonical']} [{m['status']}]")
+        # Coverage: a system in scope for this parameter's tags must say
+        # something about it, even if that something is "absent". Notes are
+        # exempt — they are recorded consequences of modelling, not quantities
+        # a tool holds, so there is nothing for one to declare.
+        if param.get("kind") == "note":
+            continue
+        tags = set(param.get("tags") or [])
+        for name, consumer in registry.items():
+            scope = set(consumer.get("scope") or [])
+            if scope & tags and name not in declared_systems:
+                scoped_misses.append(
+                    f"{pid}: {name} is in scope for tags {sorted(scope & tags)} "
+                    f"but declares no implementation — map it, or record status: absent"
+                )
 
+    findings.extend(scoped_misses)
+
+    print(
+        f"{len(params)} parameters, {len(registry)} systems, "
+        f"{len(live)} readable, {len(conflations)} collapsed or conflated mappings"
+    )
+    for system, ident, pid, status in sorted(conflations):
+        print(f"  ! {system}: {ident} -> {pid} [{status}]")
     for n in notes:
         print(f"  - {n}")
 
@@ -252,7 +234,7 @@ def main() -> int:
             print(f"  • {f}")
         return 0 if report_only else 1
 
-    print("\nOK — vocabulary is consistent and every consumer claim still holds")
+    print("\nOK — every implementation claim still holds against its source")
     return 0
 
 

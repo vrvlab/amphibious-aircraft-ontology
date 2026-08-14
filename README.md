@@ -58,8 +58,8 @@ carries an `applicability` block.
 ## What's here now
 
 - **[`constraints/`](constraints/)** — 63 entries across Part 25 water loads, flight and ground loads in representation-neutral YAML. Every entry carries its formula, units, bounds, primary-source citation, and verification status.
-- **[`parameters/`](parameters/)** — the canonical parameter vocabulary, and what each consuming project calls the same quantities. See below.
-- **[`schema/`](schema/)** — JSON Schema for both, enforced in CI.
+- **[`parameters/`](parameters/)** — the join between design parameters and regulatory symbols. Each quantity carries a QUDT unit IRI, an explicit measurement convention, and typed links to the constraints it appears in.
+- **[`schema/`](schema/)** — JSON Schema for constraints and parameters, both enforced in CI.
 - **[`tools/`](tools/)** — validator, test runner, artifact builder, consumer conformance checker.
 - **[`dist/constraints.json`](dist/constraints.json)** — the whole corpus as one file, for consumers without a YAML parser.
 - **[`docs/verification-log.md`](docs/verification-log.md)** — what was checked against eCFR, what was confirmed, what was wrong in secondary sources, and what we got wrong ourselves.
@@ -75,9 +75,9 @@ python3 -c "import json;d=json.load(open('dist/constraints.json'));print(d['entr
 ```
 
 Do not transcribe constants into your own source. That is how `flightforge` came to carry
-`C4 = 0.078 · C1` as a Python literal and a formula the corpus had never encoded, and how
-the 2.33 step load floor came to be implemented downstream from a key no schema declared.
-Load the entry and assert against it.
+`C4 = 0.078 · C1` as a Python literal alongside a formula the corpus had never encoded, and
+how the 2.33 step load floor came to be implemented downstream from a key no schema
+declared. Load the entry and assert against it.
 
 Everything is checked on every push:
 
@@ -85,33 +85,53 @@ Everything is checked on every push:
 python3 tools/validate.py && python3 tools/run_tests.py && python3 tools/check_consumers.py
 ```
 
-`validate.py` enforces the schema, id uniqueness across the whole corpus, cross-reference
+`validate.py` enforces both schemas, id uniqueness across the whole corpus, cross-reference
 integrity, and that every symbol used in an expression is declared. `run_tests.py`
 evaluates each `worked` test case **from the corpus itself** — expressions are parsed as
 written and graph-valued terms interpolated from their declared breakpoints, so there is
 no second copy of any formula to drift. Change a constant and the tests fail.
 
-## The parameter vocabulary
+## The parameter layer
 
-The constraints say what the regulations require. [`parameters/`](parameters/) says what
-the quantities are *called* — because three consuming projects independently invented
-three vocabularies for the same hull, and each lost something different:
+`constraints/` says what the regulation requires. It does not say what those symbols correspond to in a design tool — and that gap is where errors live.
+
+14 CFR 25.527 uses `beta`. A parametric model has `deadrise_fwd` and `deadrise_aft`. Same physical quantity, different conventions, no connection. Existing frameworks cover one side each: **CPACS** has parametric geometry with no regulatory meaning; **14 CFR** has regulatory meaning with no parametric geometry. Neither covers the join.
+
+`parameters/` is that join. Each entry declares its unit as a [QUDT](https://qudt.org) IRI, pins down its measurement convention, and links to regulatory symbols with a typed relationship:
+
+| Relationship | Meaning |
+| --- | --- |
+| `identical` | same quantity, same convention |
+| `discretization` | the tool samples a continuous regulatory quantity |
+| `subset` | applies over part of the regulatory domain |
+| `derived` | computed from, not equal to |
+| `selects` | **the value determines which regulatory case applies** |
+
+Anything other than `identical` must carry a caveat explaining the difference; the validator enforces it. An unexplained non-identical mapping is worse than no mapping.
+
+**`selects` is why this layer is worth building.** Chine flare is a plain angle in degrees — a units registry would confirm that and catch nothing else. But its *value* decides whether § 25.533(b)(1) applies with `C₂ = 0.00213` or § 25.533(b)(2) applies with `C₃ = 0.0016`. A tool that carries a flare parameter and always evaluates the unflared formula is non-compliant in a way no unit check and no bounds check would ever detect.
+
+### What the layer found
+
+Each parameter records where it appears in real tools, under what name and with what bounds. Three consuming projects had independently invented three vocabularies for the same hull:
 
 | | Ontology | Loftline | AeroGit | Flightforge |
 | --- | --- | --- | --- | --- |
-| deadrise | `beta` at station, `beta_k` at keel, `beta` at step — three distinct angles | one `deadrise_deg`, `0.0–60.0` | one `deadrise_deg`, `>0–45` | one `deadrise_deg` |
-| forebody | `L_f` — the step station, definitionally | `forebody_fraction`, may differ from `step_fraction` | `L_forebody_fraction` | `step_fraction` *and* a Parkinson spray `L_forebody_fraction` |
-| chine flare | selects § 25.533(b)(1) vs (b)(2) | carried | **absent** | carried |
+| deadrise | three distinct angles — `beta` at station, `beta_k` at keel, `beta` at the step | one `deadrise_deg`, `0.0–60.0` | one `deadrise_deg`, `>0–45` | one `deadrise_deg`, `10–25` |
+| forebody | `L_f` — the step station, definitionally | `forebody_fraction`, may differ from `step_fraction` | `L_forebody_fraction` | `step_fraction`, plus a Parkinson spray `L_forebody_fraction` |
+| chine flare | selects § 25.533(b)(1) vs (b)(2) | carried | **absent** | carried, switches on flare > 1° |
 
-Two of those are live defects. Loftline admits `deadrise_deg = 0.0`, and § 25.533 divides
-by `tan β` — that hull is not flat-bottomed, it is undefined; AeroGit made the same bound
-exclusive for exactly this reason. And "forebody fraction" means the step station in two
-projects and a spray correlation length in the third, which are genuinely different
-quantities that must not be substituted.
+Two of those are live defects. Loftline admits `deadrise_deg = 0.0` inclusive, and § 25.533 divides by `tan β` — that hull is not flat-bottomed, it is *undefined*; AeroGit made the same bound exclusive for exactly this reason, and Flightforge's `_tan_deg` floors the angle at 1°, which is a numerical guard doing a validation job. And "forebody fraction" means the step station in two projects and a spray correlation length in the third; Flightforge's is correctly the latter, which is why the two are separate parameters here.
 
-[`tools/check_consumers.py`](tools/check_consumers.py) reads each project's own source
-read-only and fails if a recorded divergence goes stale in either direction — so a
-conflation cannot be quietly fixed, or quietly introduced, without this repo noticing.
+A third finding is an absence: § 25.535 auxiliary float loads are fully encoded, and **no consumer carries a float deadrise for them to act on**.
+
+[`tools/check_consumers.py`](tools/check_consumers.py) reads each project's own source read-only and fails if an `implementations` claim goes stale in either direction — so a conflation cannot be quietly fixed, or quietly introduced, without this repo noticing.
+
+### Units follow QUDT and CPACS
+
+Units are QUDT IRIs, not strings — QUDT originated at NASA Ames (NExIOM/Constellation), is RDF/OWL so a reasoner can use it directly, and cross-references UCUM, UNECE and IEC 61360. Every IRI in use is checked to resolve at qudt.org.
+
+Units are never encoded in parameter *names*. CPACS development guidelines §5 (*"element names are descriptive, without abbreviations or symbols"*) and QUDT (a unit is a property of a quantity) agree, and CPACS practice confirms it — 32 uses of `[m]` in its schema, zero of `[mm]`.
 
 ## Design decision: not OWL (yet)
 

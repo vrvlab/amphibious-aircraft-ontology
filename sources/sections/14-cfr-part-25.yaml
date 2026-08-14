@@ -35,6 +35,12 @@
 #                      collapsed, first 16 hex characters
 #   text_chars         length of that normalised text, a cheap corroborating
 #                      check that a digest mismatch is a real edit
+#   history_verified_from
+#                      the earliest date this section's text has actually been
+#                      COMPARED against. Above it the corpus can say whether the
+#                      section changed; below it, it cannot. A claim about
+#                      evidence held, not an assertion that nothing happened.
+#   history_method     how that was established, so it can be audited.
 #
 # WHY APPENDIX B HAS NO RECORD HERE. It has no text to digest. Its entire text
 # content is twenty-one characters -- the words "Appendix B to Part 25" -- and
@@ -59,6 +65,14 @@
     35 FR 5672, Apr. 8, 1970]
   text_sha256: "d571d0a191442772"
   text_chars: 1045
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
 
 - section: "25.345"
   authority: 14 CFR
@@ -73,6 +87,14 @@
     29, 1997; Amdt. 25-141, 79 FR 73468, Dec. 11, 2014]
   text_sha256: "475b51a8cbfc3b9a"
   text_chars: 2337
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
 
 - section: "25.349"
   authority: 14 CFR
@@ -86,6 +108,14 @@
     25-94, 63 FR 8848, Feb. 23, 1998]
   text_sha256: "b22f73bfe1570d3c"
   text_chars: 2194
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
 
 - section: "25.457"
   authority: 14 CFR
@@ -96,6 +126,14 @@
   amendment_history: null
   text_sha256: "04d4a5fad24ee8af"
   text_chars: 281
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     No citation line. Unamended since 1964.
 
@@ -110,6 +148,14 @@
     27, 1997; Amdt. 25-103, 66 FR 27394, May 16, 2001]
   text_sha256: "930025eba6b45b8d"
   text_chars: 1533
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     Citation line begins at Amdt. 25-91 rather than the 1964 adoption, so the
     section was substantially restated in 1997.
@@ -125,6 +171,14 @@
     27, 1997]
   text_sha256: "ce08d59e8be94831"
   text_chars: 2585
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     Citation line begins at Amdt. 25-91; substantially restated in 1997.
 
@@ -137,6 +191,14 @@
   amendment_history: null
   text_sha256: "bc975e57b821af87"
   text_chars: 518
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     No citation line. Unamended since 1964 -- notable, because 25.521(b) is
     the paragraph that makes the whole of 25.523-25.537 defeasible.
@@ -152,6 +214,14 @@
     35 FR 5673, Apr. 8, 1970]
   text_sha256: "d1972be8b55f06f8"
   text_chars: 641
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
 
 - section: "25.525"
   authority: 14 CFR
@@ -165,6 +235,14 @@
     18, 2023]
   text_sha256: "445f2e4860d930b6"
   text_chars: 984
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     Amended by Amdt. 25-148 in 2022: paragraph (b) changed its cross-reference
     from 25.533(b) to 25.533(c), moving the floor on distributed loads from the
@@ -181,6 +259,14 @@
     35 FR 5673, Apr. 8, 1970]
   text_sha256: "513230c7de66e01a"
   text_chars: 1670
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
 
 - section: "25.529"
   authority: 14 CFR
@@ -191,6 +277,14 @@
   amendment_history: null
   text_sha256: "56403df0242c931a"
   text_chars: 1978
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     No citation line. Unamended since the original adoption of Part 25 in
     1964; the part-level citation covers it.
@@ -206,6 +300,14 @@
     35 FR 5673, Apr. 8, 1970]
   text_sha256: "313272bdc327ca99"
   text_chars: 691
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
 
 - section: "25.533"
   authority: 14 CFR
@@ -218,6 +320,14 @@
     35 FR 5673, Apr. 8, 1970]
   text_sha256: "098f21326d184496"
   text_chars: 3248
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
 
 - section: "25.535"
   authority: 14 CFR
@@ -231,6 +341,14 @@
     2813, Jan. 18, 2023]
   text_sha256: "e8b39bc61d89e321"
   text_chars: 3530
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     Amended by Amdt. 25-148 in 2022: paragraph (d) changed 3.25 tan beta to
     0.25 tan beta. See cfr-25.535-d-unsymmetrical-step-loading, which carries
@@ -245,6 +363,14 @@
   amendment_history: null
   text_sha256: "3a7c8d9dbea39466"
   text_chars: 83
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     No citation line. Unamended since 1964, and one sentence long.
 
@@ -257,6 +383,14 @@
   amendment_history: null
   text_sha256: "9499ba141c82fe75"
   text_chars: 269
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     No citation line. Unamended since 1964.
 
@@ -269,6 +403,14 @@
   amendment_history: null
   text_sha256: "4e5687b8fe0ea4e4"
   text_chars: 401
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     No citation line. Unamended since 1964.
 
@@ -285,6 +427,14 @@
     24502, May 3, 2004]
   text_sha256: "5211ef551746f351"
   text_chars: 10084
+  history_verified_from: 1997-01-01
+  history_method: >-
+    Section body of the govinfo annual CFR granule
+    CFR-1997-title14-vol1 compared against CFR-2016-title14-vol1 and
+    against the current eCFR text. 1997 is the earliest year govinfo
+    publishes an XML granule for this title; 1996 has none.
+    ENDPOINT COMPARISON: it detects net change across the window, not
+    a value that changed and changed back within it.
   notes: >-
     Heavily amended -- five amendments between 1990 and 2004, and the citation
     line begins at Amdt. 25-72 rather than at original adoption.

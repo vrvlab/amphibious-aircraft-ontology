@@ -1,0 +1,197 @@
+# Hull stations — the parameters whose NAMES collide across tools.
+#
+# Deadrise is the quantity most likely to be measured wrongly. Forebody length
+# is the one most likely to be *named* wrongly, which is a different failure and
+# a quieter one: two tools exchange a field called "forebody fraction", both
+# validate it, and they mean different lengths.
+#
+# For Appendix B the forebody ends at the main step by definition — figure 2
+# places x = L_f there and hangs the K1/K2 discontinuity off it. A separate
+# forebody length used by spray correlations is a different quantity, and
+# substituting it moves the discontinuity to a station the hull does not have.
+
+- id: forebody-length
+  name: Forebody length, bow to main step
+  aliases: [forebody, L_f, forebody_fraction, L_forebody_fraction, step station]
+  quantity:
+    unit: unit:M
+    symbol: m
+    quantity_kind: quantitykind:Length
+  definition: >-
+    Distance from the bow to the main step, measured parallel to the hull
+    reference axis. The forebody is the planing surface that carries the hull
+    at rest and through the hump; the step terminates it so that flow separates
+    cleanly rather than sticking to the afterbody.
+  measurement_convention:
+    datum: >-
+      From the bow, parallel to the hull reference axis — the straight line in
+      the plane of symmetry tangential to the keel at the main step, as fixed
+      by 25.527(b)(7).
+    station: >-
+      Terminates AT THE MAIN STEP. This is definitional, not conventional:
+      Appendix B figure 2 places x = L_f at the step and puts the K1 and K2
+      discontinuities there.
+    source: 14 CFR Part 25, Appendix B, figure 2 (image EC28SE91.056)
+    notes: >-
+      Because the endpoint is definitional, a tool carrying both a "step
+      fraction" and a "forebody fraction" that are permitted to differ has two
+      candidate values for L_f and no rule for choosing. Two of the three
+      consumers do exactly that.
+  bounds:
+    min: 0.0
+    min_exclusive: true
+  bounds_basis: mathematical
+  bounds_rationale: >-
+    Denominator of the forebody branch of cfr-25-appB-fig2-k1 and -k2.
+  regulatory_mapping:
+    - constraint: cfr-25-appB-fig2-k1
+      symbol: L_f
+      relationship: identical
+    - constraint: cfr-25-appB-fig2-k2
+      symbol: L_f
+      relationship: identical
+  distinct_from: [spray-forebody-length, afterbody-length]
+  implementations:
+    - system: loftline
+      identifier: forebody_fraction
+      unit: unit:UNITLESS
+      bounds: [0.1, 0.95]
+      status: conflated
+      finding: >-
+        Declared separately from step_fraction and defaulting to it when
+        omitted, so the two are permitted to differ. For Appendix B they cannot.
+      notes: A fraction of overall hull length, not an absolute length.
+    - system: aerogit
+      identifier: L_forebody_fraction
+      status: renamed
+      finding: >-
+        Same quantity as Loftline's forebody_fraction under a different
+        spelling. Neither name is wrong; carrying both is.
+    - system: flightforge
+      identifier: geometry.hull.step_fraction
+      unit: unit:UNITLESS
+      bounds: [0.4, 0.6]
+      status: renamed
+      finding: >-
+        The step station is the correct source for L_f. Flightforge also
+        carries a separate L_forebody_fraction, which is the spray length —
+        see spray-forebody-length.
+  verification:
+    status: verified
+    checked_against: >-
+      14 CFR 25.527(b)(7) full text and Appendix B figure 2, read from the
+      published image, eCFR issue 2026-07-07.
+  tags: [hull, geometry, part-25, water-loads]
+
+- id: spray-forebody-length
+  name: Hydrodynamic spray forebody length
+  aliases: [Parkinson forebody length, spray L_f]
+  quantity:
+    unit: unit:M
+    symbol: m
+    quantity_kind: quantitykind:Length
+  definition: >-
+    Forebody length as used by spray and planing correlations. A hydrodynamic
+    correlation length, chosen to fit experimental spray data, which need not
+    coincide with the regulatory step station.
+  measurement_convention:
+    datum: From the bow.
+    station: >-
+      Set by whichever correlation is in use, not by the main step. This is the
+      whole point of the separate entry.
+    source: >-
+      Not a regulatory quantity. Parkinson spray correlations as applied in
+      flightforge's amphibious plugin.
+    notes: >-
+      Declared so that the distinction from forebody-length is nameable and the
+      conflation is checkable. It is legitimate for a tool to carry both.
+  bounds_basis: conceptual
+  regulatory_mapping:
+    - constraint: cfr-25-appB-fig2-k1
+      symbol: L_f
+      relationship: derived
+      caveats: >-
+        NOT interchangeable with L_f. This mapping records what the quantity is
+        wrongly substituted INTO, not what it legitimately feeds. Appendix B
+        needs the step station; supplying a spray length instead relocates the
+        K1 and K2 discontinuity away from the physical step. No constraint in
+        this corpus consumes this parameter.
+  distinct_from: [forebody-length]
+  implementations:
+    - system: flightforge
+      identifier: geometry.hull.L_forebody_fraction
+      unit: unit:UNITLESS
+      bounds: [0.45, 0.65]
+      status: exact
+      finding: >-
+        This one is right, and is why the two forebody lengths are separate
+        parameters at all. Flightforge's own note reads "Parkinson spray L_f".
+        Its search range overlaps but does not coincide with step_fraction's,
+        confirming the two are treated as independent quantities there.
+    - system: loftline
+      identifier: null
+      status: absent
+      finding: >-
+        Loftline carries one forebody_fraction whose documentation does not say
+        which meaning it holds.
+    - system: aerogit
+      identifier: null
+      status: absent
+  verification:
+    status: interpretation
+    checked_against: >-
+      Not a regulatory quantity and not stated in 14 CFR. Recorded because two
+      tools exchange a field of this name meaning two different lengths.
+  tags: [hull, geometry, hydrodynamics]
+
+- id: afterbody-length
+  name: Afterbody length, main step to stern post
+  aliases: [afterbody, L_a]
+  quantity:
+    unit: unit:M
+    symbol: m
+    quantity_kind: quantitykind:Length
+  definition: >-
+    Distance from the main step to the stern post. Carries the hull at low
+    speed and in the stern landing case, and its ventilation behind the step is
+    what stops the hull sticking to the water on takeoff.
+  measurement_convention:
+    datum: From the main step, parallel to the hull reference axis.
+    station: Terminates at the stern post.
+    source: 14 CFR Part 25, Appendix B, figure 2 (image EC28SE91.056)
+    notes: >-
+      25.529(a)(3) applies the stern landing load at 85 percent of this length,
+      not at its end, so the station where the load acts and the station where
+      the figure reads K1 = 1.0 are not the same place.
+  bounds:
+    min: 0.0
+    min_exclusive: true
+  bounds_basis: mathematical
+  bounds_rationale: >-
+    Denominator of the afterbody branch of cfr-25-appB-fig2-k1 and -k2.
+  regulatory_mapping:
+    - constraint: cfr-25-appB-fig2-k1
+      symbol: L_a
+      relationship: identical
+    - constraint: cfr-25-appB-fig2-k2
+      symbol: L_a
+      relationship: identical
+  distinct_from: [forebody-length]
+  implementations:
+    - system: loftline
+      identifier: null
+      status: absent
+      finding: >-
+        Derivable as length minus the step station, but not declared, so the
+        afterbody branch of K1 and K2 has no named input.
+    - system: aerogit
+      identifier: null
+      status: absent
+    - system: flightforge
+      identifier: null
+      status: absent
+  verification:
+    status: verified
+    checked_against: >-
+      Appendix B figure 2, read from the published image, eCFR issue 2026-07-07.
+  tags: [hull, geometry, part-25, water-loads]

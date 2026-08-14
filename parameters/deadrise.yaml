@@ -35,6 +35,18 @@
       fixes how the angle is measured and shows the unflared/flared distinction.
       It supplies no numeric values. beta is a design input, not a value looked
       up from the regulation.
+  bounds:
+    min: 0.0
+    min_exclusive: true
+    max: 60.0
+  bounds_basis: mathematical
+  bounds_rationale: >-
+    Raised to the 2/3 power in the denominator of cfr-25.527-a1 and divided
+    into by cfr-25.533-b2-flared-chine-pressure and
+    cfr-25.533-c1-distributed-pressure. Zero is singular in all three, not
+    merely unusual. The upper figure is conceptual and must NOT be enforced as
+    a rejection.
+  distinct_from: [deadrise-at-keel, deadrise-at-main-step, deadrise-auxiliary-float]
   regulatory_mapping:
     - constraint: cfr-25.527-a1
       symbol: beta
@@ -78,6 +90,54 @@
         All four tank models held at 20.0 deg. Reported at the keel at the main
         step, matching the beta_k convention exactly -- a useful cross-check
         that the convention here is the one the experimental literature uses.
+    - system: loftline
+      identifier: deadrise_deg
+      unit: unit:DEG
+      bounds: [0.0, 60.0]
+      status: collapsed
+      finding: >-
+        BOUND CONFLICT, and the one that matters most in the ecosystem.
+        Loftline admits deadrise_deg = 0.0 INCLUSIVE. 25.533 divides by
+        tan(beta_k), so a zero-deadrise hull is not a flat-bottomed hull with a
+        large pressure -- it is undefined. AeroGit made the same bound
+        exclusive for exactly this reason and says so in its description.
+        Loftline sits upstream of the geometry, so its permissive bound is the
+        one that decides what reaches the pressure formulas.
+      notes: >-
+        Loftline does accept a DISTRIBUTION for this key, which is more than
+        the other consumers manage -- a warped hull can be expressed. That
+        addresses the discretization concern in deadrise-discretization-note
+        but not the keel-versus-station distinction, and nothing selects which
+        reading a downstream formula receives.
+    - system: aerogit
+      identifier: deadrise_deg
+      unit: unit:DEG
+      bounds: [0.0, 45.0]
+      status: collapsed
+      finding: >-
+        Collapsed, but KNOWINGLY: the facet's own description states that one
+        authored value stands for both beta and beta_k and calls it "a
+        simplification this parameter does not currently record". Its lower
+        bound is exclusive and its stated reason -- that 25.533 divides by tan
+        of the angle -- is the right one.
+      notes: >-
+        The 45 degree ceiling is labelled a conceptual sanity limit rather than
+        a regulatory one, which is the correct posture, but it is 15 degrees
+        tighter than Loftline's. A hull Loftline accepts can be rejected on
+        arrival here.
+    - system: flightforge
+      identifier: geometry.hull.deadrise_deg
+      unit: unit:DEG
+      bounds: [10.0, 25.0]
+      status: collapsed
+      finding: >-
+        Collapsed like the others. water_loads.py additionally floors the angle
+        at 1 degree inside _tan_deg, so a zero or near-zero deadrise arriving
+        from Loftline produces a finite, WRONG pressure rather than an error.
+        That floor is a numerical guard being asked to do a validation job.
+      notes: >-
+        These bounds are an optimizer search range, not a validity limit, so a
+        mismatch against the canonical bounds is expected here.
   verification:
     status: verified
     checked_against: >-
@@ -95,6 +155,7 @@
 
 - id: deadrise-discretization-note
   name: "Note: discretizing a station-dependent deadrise"
+  kind: note
   quantity:
     unit: unit:UNITLESS
     symbol: "1"
@@ -131,3 +192,191 @@
       requirement per station; the consequence for a constant-per-region model
       is inferred.
   tags: [hull, geometry, part-25, modelling]
+
+# The three angles below were added when §§ 25.531 and 25.535 were read into
+# the corpus. `deadrise-at-station` above maps beta_k as a `subset`, which was
+# right while beta_k had no entry of its own; now that the keel angle is a
+# named parameter, a tool can say which one it holds.
+
+- id: deadrise-at-keel
+  name: Angle of dead rise at the keel
+  aliases: [beta_k, keel deadrise, dead rise at keel]
+  quantity:
+    unit: unit:DEG
+    symbol: deg
+    quantity_kind: quantitykind:Angle
+  definition: >-
+    The transverse angle of the hull bottom measured AT THE KEEL. For an
+    unflared bottom it equals the station deadrise; for a flared bottom it is
+    the steeper of the pair, because the flare shallows the section outboard.
+  measurement_convention:
+    datum: >-
+      From the horizontal in a transverse section, taken at the keel itself
+      rather than at any outboard point.
+    station: >-
+      Longitudinal position is wherever the pressure is being computed; the
+      TRANSVERSE position is fixed at the keel. Both qualifiers are needed.
+    source: 14 CFR Part 25, Appendix B, figure 1 (image EC28SE91.055)
+    notes: >-
+      Appendix B figure 1 supplies no numeric values -- it fixes how the angle
+      is measured and shows the unflared and flared cases side by side. beta_k
+      is a design input, not a chart lookup.
+  bounds:
+    min: 0.0
+    min_exclusive: true
+    max: 60.0
+  bounds_basis: mathematical
+  bounds_rationale: >-
+    cfr-25.533-b1-keel-pressure divides by tan(beta_k). Zero is singular. The
+    upper figure is conceptual and must not be enforced as a rejection.
+  regulatory_mapping:
+    - constraint: cfr-25.533-b1-keel-pressure
+      symbol: beta_k
+      relationship: identical
+  distinct_from: [deadrise-at-station, deadrise-at-main-step, deadrise-auxiliary-float]
+  implementations:
+    - system: loftline
+      identifier: deadrise_deg
+      unit: unit:DEG
+      bounds: [0.0, 60.0]
+      status: collapsed
+      finding: One key for this and the station angle. See deadrise-at-station.
+    - system: aerogit
+      identifier: deadrise_deg
+      unit: unit:DEG
+      bounds: [0.0, 45.0]
+      status: collapsed
+    - system: flightforge
+      identifier: geometry.hull.deadrise_deg
+      unit: unit:DEG
+      bounds: [10.0, 25.0]
+      status: collapsed
+  verification:
+    status: verified
+    checked_against: >-
+      14 CFR 25.533(b)(1) full text, eCFR issue 2026-07-07, and Appendix B
+      figure 1 read from the published image.
+    notes: >-
+      Substituting a chine or mean deadrise here understates P_k, because P_k
+      varies as 1/tan(beta_k) and beta_k is the steeper angle.
+  tags: [hull, geometry, part-25, water-loads]
+
+- id: deadrise-at-main-step
+  name: Angle of dead rise at the main step
+  aliases: [step deadrise, beta at step]
+  quantity:
+    unit: unit:DEG
+    symbol: deg
+    quantity_kind: quantitykind:Angle
+  definition: >-
+    Deadrise at the main step. Named separately because § 25.531 specifies this
+    station and no other for the takeoff condition.
+  measurement_convention:
+    datum: From the horizontal in a transverse section.
+    station: >-
+      At the main step. Not "in the forebody" and not "at the CG" -- the
+      takeoff condition names one station.
+    source: 14 CFR 25.531(b)
+    notes: >-
+      Also the station where the hull reference axis is tangent to the keel,
+      per 25.527(b)(7), so it is doing double duty as a geometric datum.
+  bounds:
+    min: 0.0
+    min_exclusive: true
+    max: 60.0
+  bounds_basis: mathematical
+  bounds_rationale: Denominator of cfr-25.531-b-takeoff-inertia-load-factor.
+  regulatory_mapping:
+    - constraint: cfr-25.531-b-takeoff-inertia-load-factor
+      symbol: beta
+      relationship: identical
+  distinct_from: [deadrise-at-station, deadrise-at-keel, deadrise-auxiliary-float]
+  implementations:
+    - system: loftline
+      identifier: deadrise_deg
+      unit: unit:DEG
+      bounds: [0.0, 60.0]
+      status: collapsed
+      finding: >-
+        Loftline's distribution form could in principle be evaluated at the
+        step station to recover a distinct value; nothing does so.
+    - system: aerogit
+      identifier: deadrise_deg
+      unit: unit:DEG
+      bounds: [0.0, 45.0]
+      status: collapsed
+      finding: >-
+        A third angle behind the same authored value. The facet's description
+        names two of the three; the 25.531 step angle is the one it omits.
+    - system: flightforge
+      identifier: geometry.hull.deadrise_deg
+      unit: unit:DEG
+      bounds: [10.0, 25.0]
+      status: collapsed
+  verification:
+    status: verified
+    checked_against: 14 CFR 25.531(b) full text, eCFR issue 2026-07-07.
+  tags: [hull, geometry, part-25, water-loads, takeoff]
+
+- id: deadrise-auxiliary-float
+  name: Auxiliary float dead rise at three-quarters bow-to-step
+  aliases: [beta_S, float deadrise, tip float deadrise]
+  quantity:
+    unit: unit:DEG
+    symbol: deg
+    quantity_kind: quantitykind:Angle
+  definition: >-
+    Deadrise of an AUXILIARY float -- a wing-tip or sponson float -- at a
+    station three-quarters of the distance from that float's bow to its step. A
+    property of the float, not of the hull.
+  measurement_convention:
+    datum: From the horizontal in a transverse section of the float.
+    station: >-
+      Three-quarters of the distance from the float's own bow to the float's
+      own step. Both the bow and the step are the float's, not the hull's.
+    source: 14 CFR 25.535(b)
+    notes: >-
+      Subject to a 15 degree floor, which is RELIEF and not a geometric limit:
+      the float may physically have less, and the designer simply need not use
+      the smaller value in the load formula. It is the regulation's own guard
+      against the tan(beta) singularity, and the only one in Subpart C.
+  bounds:
+    min: 15.0
+  bounds_basis: regulatory
+  bounds_rationale: >-
+    cfr-25.535-b-deadrise-floor -- "need not be less than 15 degrees". The
+    bound constrains the value USED IN THE FORMULA, not the shape the designer
+    may draw. A consumer that rejects an 8 degree float has misread it.
+  regulatory_mapping:
+    - constraint: cfr-25.535-b-step-load
+      symbol: beta_S
+      relationship: identical
+    - constraint: cfr-25.535-b-deadrise-floor
+      symbol: beta_S
+      relationship: subset
+      caveats: >-
+        The floor applies to the value substituted into the load formula, not
+        to the geometry. A float with 8 degrees of deadrise is legal; the
+        formula is simply evaluated at 15.
+  distinct_from: [deadrise-at-station, deadrise-at-keel, deadrise-at-main-step]
+  implementations:
+    - system: loftline
+      identifier: null
+      status: absent
+      finding: >-
+        Loftline models the hull, not auxiliary floats.
+    - system: aerogit
+      identifier: null
+      status: absent
+    - system: flightforge
+      identifier: null
+      status: absent
+      finding: >-
+        Flightforge sizes tip floats by volume fraction and carries no float
+        deadrise. § 25.535 is fully encoded in the corpus and has NO geometry
+        source anywhere in the ecosystem -- the clearest single gap the
+        conformance checker surfaces.
+  verification:
+    status: verified
+    checked_against: 14 CFR 25.535(b) full text, eCFR issue 2026-07-07.
+  tags: [auxiliary-float, geometry, part-25, water-loads]

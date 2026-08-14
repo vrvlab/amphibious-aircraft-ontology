@@ -105,18 +105,64 @@
     operator: ">="
     value: "1.8 * (buoyancy required to support maximum weight in fresh water)"
     units: lb
+
+- id: interp-25.751-required-float-volume
+  title: "INTERPRETATION: displaced volume implied by the 25.751(a) buoyancy margin"
+  kind: formula
+  source:
+    authority: none
+    section: n/a
+    url: ""
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: interpretation
+    checked_against: >-
+      The 1.8 multiplier is regulatory (25.751(a), verified). The conversion
+      from a buoyancy requirement to a displaced volume is not: it needs a
+      water density, and § 25.751 specifies none.
+    notes: >-
+      Split out of cfr-25.751-a-main-float-buoyancy, where it had been carried
+      as a worked example inside an otherwise purely regulatory entry. That
+      placement let a non-regulatory constant (62.4 lb/ft3) inherit the parent
+      entry's `verified` status by adjacency.
+
+      Two engineering choices are folded in here and neither is in the rule.
+      Fresh water density is taken as 62.4 lb/ft3 at about 60 F; it varies with
+      temperature, and salt water is roughly 64 lb/ft3, which makes this the
+      conservative choice for the fresh-water condition the section names.
+      And the form below assumes the float alone supports the full maximum
+      weight — for twin-float configurations see cfr-25.525-c-twin-float-equivalent-hull,
+      under which each float is sized for half the seaplane weight.
+  formula:
+    expression: "V_req = 1.8 * W_max / rho_fresh"
+    variables:
+      - symbol: V_req
+        description: Displaced volume the float must provide
+        units: ft^3
+      - symbol: W_max
+        description: >-
+          Maximum weight of the seaplane or amphibian. Note "maximum weight",
+          not "maximum design landing weight" — see cfr-25.751-a-main-float-buoyancy.
+        units: lb
+      - symbol: rho_fresh
+        description: >-
+          Fresh water density. ENGINEERING VALUE, not regulatory. 62.4 lb/ft^3
+          is the conventional figure.
+        units: lb/ft^3
   test_cases:
     - description: Displaced volume for a single main float, fresh water
-      inputs:
-        W_max_lb: 120000
-        rho_fresh_lb_per_ft3: 62.4
-      expected:
-        required_volume_ft3: 3461.5
-        note: >-
-          1.8 * 120000 / 62.4. Assumes the float alone supports the full maximum
-          weight; for twin-float configurations see 25.525(c). Fresh water density
-          62.4 lb/ft3 is an engineering value, NOT specified in the regulation.
+      inputs: {W_max: 120000.0, rho_fresh: 62.4}
+      expected: {V_req: 3461.5385}
       status: worked
+    - description: >-
+        The same airframe as a twin float installation, each float sized for
+        half the weight per 25.525(c). Half the volume each, so no margin is
+        gained or lost by the split.
+      inputs: {W_max: 60000.0, rho_fresh: 62.4}
+      expected: {V_req: 1730.7692}
+      status: worked
+  tags: [water-loads, subpart-d, buoyancy, interpretation]
 
 - id: cfr-25.751-b-watertight-compartments
   title: Main float watertight compartment count

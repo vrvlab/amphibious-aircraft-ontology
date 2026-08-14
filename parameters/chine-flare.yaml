@@ -76,6 +76,34 @@
         different empirical constants. Whether the pressure model switches
         accordingly is a checkable claim about the implementation, and is
         exactly the kind of check this mapping exists to make possible.
+    - system: loftline
+      identifier: chine_flare_deg
+      unit: unit:DEG
+      bounds: [0.0, 45.0]
+      status: exact
+      notes: >-
+        Documented as flare "at the step", which is narrower than the flared
+        bottom condition of 25.533(b)(2) -- that one is a property of a
+        station, so a hull flared aft of the step and straight forward of it
+        cannot be expressed.
+    - system: aerogit
+      identifier: null
+      status: absent
+      finding: >-
+        AeroGit carries no chine flare at all, so the facet CANNOT express
+        which of the two 25.533(b) paths a design takes. Loftline and
+        Flightforge both can. The regulatory selector is lost precisely at the
+        layer that versions the design and gates the pull request.
+    - system: flightforge
+      identifier: geometry.hull.chine_flare_deg
+      unit: unit:DEG
+      bounds: [0.0, 20.0]
+      status: exact
+      notes: >-
+        Carried AND used as the selector: water_loads.py switches to the flared
+        path on flare > 1.0 degree. That 1 degree threshold is an
+        implementation choice, not a regulatory one -- 25.533(b) distinguishes
+        flared from unflared without a numeric cut.
   verification:
     status: verified
     checked_against: >-

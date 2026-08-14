@@ -87,13 +87,24 @@
         station, so a hull flared aft of the step and straight forward of it
         cannot be expressed.
     - system: aerogit
-      identifier: null
-      status: absent
+      identifier: chine_flare_deg
+      unit: unit:DEG
+      status: exact
       finding: >-
-        AeroGit carries no chine flare at all, so the facet CANNOT express
-        which of the two 25.533(b) paths a design takes. Loftline and
-        Flightforge both can. The regulatory selector is lost precisely at the
-        layer that versions the design and gates the pull request.
+        Resolved. AeroGit previously carried no chine flare at all, so the
+        facet could not express which of the two 25.533(b) paths a design
+        took, and the regulatory selector was lost precisely at the layer that
+        versions the design and gates the pull request. It now declares the
+        angle and aliases it to geometry.hull.chine_flare_deg.
+      notes: >-
+        Declared with a conceptual minimum of zero and NO maximum, on the
+        stated grounds that this corpus fixes no canonical bound while
+        Loftline admits 45 degrees and Flightforge searches to 20 -- so any
+        ceiling chosen here would refuse a hull the tool upstream of the
+        geometry accepts. Bounds are therefore omitted rather than recorded:
+        an implementations `bounds` pair cannot express a half-open range.
+        AeroGit selects nothing itself; it passes the angle and leaves the
+        (b)(1)-versus-(b)(2) choice to the amphibious plugin.
     - system: flightforge
       identifier: geometry.hull.chine_flare_deg
       unit: unit:DEG

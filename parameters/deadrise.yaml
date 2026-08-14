@@ -116,15 +116,17 @@
       status: collapsed
       finding: >-
         Collapsed, but KNOWINGLY: the facet's own description states that one
-        authored value stands for both beta and beta_k and calls it "a
-        simplification this parameter does not currently record". Its lower
-        bound is exclusive and its stated reason -- that 25.533 divides by tan
-        of the angle -- is the right one.
+        authored value stands for all three of the angles named below and
+        calls it "a simplification this parameter does not currently record".
+        Its lower bound is exclusive and its stated reason -- that 25.533
+        divides by tan of the angle -- is the right one.
       notes: >-
-        The 45 degree ceiling is labelled a conceptual sanity limit rather than
-        a regulatory one, which is the correct posture, but it is 15 degrees
-        tighter than Loftline's. A hull Loftline accepts can be rejected on
-        arrival here.
+        The 45 degree ceiling is labelled conceptual rather than regulatory,
+        and AeroGit now ENFORCES that distinction rather than only stating it:
+        a value above 45 is reported and accepted, not refused. So the ceiling
+        being 15 degrees tighter than Loftline's no longer means a hull
+        Loftline accepts is rejected on arrival. AeroGit adopted a per-keyword
+        `bounds_basis` for this, taking the vocabulary from this schema.
     - system: flightforge
       identifier: geometry.hull.deadrise_deg
       unit: unit:DEG
@@ -307,7 +309,9 @@
       status: collapsed
       finding: >-
         A third angle behind the same authored value. The facet's description
-        names two of the three; the 25.531 step angle is the one it omits.
+        previously named only two; it now names this one too, citing 25.531 as
+        the takeoff condition that specifies the step station and no other.
+        Still collapsed -- but the collapse is now stated in full.
     - system: flightforge
       identifier: geometry.hull.deadrise_deg
       unit: unit:DEG

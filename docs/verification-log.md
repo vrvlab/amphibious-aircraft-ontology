@@ -496,6 +496,59 @@ about the contents of figure 2, that is not a hypothetical failure mode.
 `tools/validate.py` now enforces the join both ways: every `EC…` identifier appearing in
 an entry must have a registry record, and every record's `read_by` must resolve.
 
+## Round 6 — the conformance checker was not checking half of what it claimed (2026-08-14)
+
+**Source:** the consuming repositories themselves, read through `tools/check_consumers.py`.
+
+Two findings this corpus filed against AeroGit were fixed there — chine flare is now
+carried, and the `conceptual` bounds distinction is now enforced rather than only stated.
+Neither fix was noticed here. That is the interesting part.
+
+### An `absent` claim was never verified
+
+`tools/consumers.yaml` and the checker's own docstring both promise it fails when a claim
+goes stale "in either direction — a divergence quietly fixed, or one quietly introduced."
+Only the second direction was implemented:
+
+```python
+identifier = impl.get("identifier")
+if identifier is None:
+    # Recorded absent. If it has reappeared upstream, say so.
+    continue
+```
+
+The comment states the intent and the `continue` skips it. So every `status: absent` entry
+was unfalsifiable: nothing looked for the parameter reappearing. AeroGit added
+`chine_flare_deg`, and the checker reported "every implementation claim still holds against
+its source" — byte-identical output before and after.
+
+This is the same failure this project exists to catch, turned on itself: a claim that reads
+as checked, is not, and looks fine because nothing contradicts it. It was found by a
+consumer running the checker after making a change it should have flagged, which is an
+argument for consumers running it in their own CI rather than only this repository doing so.
+
+The fix matches a null identifier against the parameter's `name` and `aliases`, plus the
+consumer's key with a trailing unit token stripped — `chine_flare_deg` against `chine-flare`.
+It is deliberately conservative and will miss a tool that invents a spelling this corpus
+does not list. A looser substring rule would have fired on `L_a` throughout, and a checker
+that cries wolf gets switched off. Where it misses, the remedy is to add the spelling to
+`aliases`, which is where a tool author searching for their own name would land anyway.
+
+### Three entries recorded against the wrong parameter
+
+AeroGit's `L_forebody_fraction` was recorded as the regulatory forebody length. It is the
+spray length; its `step_fraction` is the regulatory one. The mapping had been read from that
+facet's description, which said "Forebody length as a fraction of hull length" — and the
+description was simply wrong, as its authors have since agreed and corrected.
+
+Worth recording as a limitation rather than a one-off: **a mapping read from prose is only as
+good as the prose.** The checker verifies bounds, which are machine-readable, and cannot
+verify identity, which is not. Both `forebody-length` and `spray-forebody-length` now carry
+a note saying where their AeroGit entry came from.
+
+The same pass corrected the note that two of three consumers carry both a step fraction and
+a forebody fraction permitted to differ. It is three of three.
+
 ## Open items
 
 - [ ] **Characterise pre-2017 amendments** for §§ 25.345, 25.349, 25.473, 25.479 and 25.807 by reading the Federal Register issues named in their citation lines. eCFR cannot help below its 2016-12-30 horizon, and `as_of.py` reports these as gaps
@@ -515,4 +568,4 @@ an entry must have a registry record, and every record's `read_by` must resolve.
 - [ ] CS-25 Appendix S (water scooping) — no primary text obtained; all secondary
 - [ ] Extend `parameters/` scope beyond `geometry.` — the weights, speeds and inertia families reach Flightforge through seed_state and have no declared consumer mapping yet
 - [ ] No consumer carries an auxiliary float deadrise, so the § 25.535 load path has no geometry source anywhere in the ecosystem
-- [ ] AeroGit carries no chine flare, so the § 25.533(b)(1)-versus-(b)(2) selector is lost at the layer that versions the design
+- [x] ~~AeroGit carries no chine flare, so the § 25.533(b)(1)-versus-(b)(2) selector is lost at the layer that versions the design~~ — AeroGit now declares `chine_flare_deg` and aliases it to the key the amphibious plugin selects on. It passes the angle and does not choose the path itself, which is right: the choice belongs to whatever evaluates the pressures

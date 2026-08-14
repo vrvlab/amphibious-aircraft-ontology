@@ -35,7 +35,7 @@
     notes: >-
       Because the endpoint is definitional, a tool carrying both a "step
       fraction" and a "forebody fraction" that are permitted to differ has two
-      candidate values for L_f and no rule for choosing. Two of the three
+      candidate values for L_f and no rule for choosing. All three repository
       consumers do exactly that.
   bounds:
     min: 0.0
@@ -62,11 +62,20 @@
         omitted, so the two are permitted to differ. For Appendix B they cannot.
       notes: A fraction of overall hull length, not an absolute length.
     - system: aerogit
-      identifier: L_forebody_fraction
+      identifier: step_fraction
       status: renamed
       finding: >-
-        Same quantity as Loftline's forebody_fraction under a different
-        spelling. Neither name is wrong; carrying both is.
+        Same quantity as Loftline's forebody_fraction and Flightforge's
+        step_fraction, under the third of three spellings. Neither name is
+        wrong; carrying both is.
+      notes: >-
+        Corrected. This entry previously named AeroGit's L_forebody_fraction,
+        read from a facet description that said "Forebody length as a fraction
+        of hull length" -- which reads as this parameter. Its alias table sends
+        that key to Flightforge's L_forebody_fraction, the spray length, and
+        AeroGit's step_fraction is what carries L_f. The description was the
+        thing that was wrong and has since been corrected upstream; recorded
+        here because a mapping read from prose is only as good as the prose.
     - system: flightforge
       identifier: geometry.hull.step_fraction
       unit: unit:UNITLESS
@@ -135,13 +144,24 @@
         Loftline carries one forebody_fraction whose documentation does not say
         which meaning it holds.
     - system: aerogit
-      identifier: null
-      status: absent
+      identifier: L_forebody_fraction
+      unit: unit:UNITLESS
+      status: renamed
+      finding: >-
+        Carried, and correctly wired: AeroGit's alias table sends this key to
+        Flightforge's L_forebody_fraction, the spray length, and not to the
+        step station. Previously recorded absent here, from a description that
+        called it the forebody length -- see the note on forebody-length.
+      notes: >-
+        Bounds are an open interval on (0, 1) as a fraction of hull length, so
+        they are not the same kind of claim as the other entries' search ranges
+        and are omitted rather than recorded as [0, 1].
   verification:
     status: interpretation
     checked_against: >-
-      Not a regulatory quantity and not stated in 14 CFR. Recorded because two
-      tools exchange a field of this name meaning two different lengths.
+      Not a regulatory quantity and not stated in 14 CFR. Recorded because
+      three tools exchange a field of this name and two distinct lengths
+      between them.
   tags: [hull, geometry, hydrodynamics]
 
 - id: afterbody-length

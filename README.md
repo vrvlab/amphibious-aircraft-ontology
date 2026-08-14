@@ -55,6 +55,20 @@ carries an `applicability` block.
 > run of the validator found 11 more findings across 27 entries. Both retractions and the
 > resulting process changes are in [`docs/verification-log.md`](docs/verification-log.md).
 
+## The regulation gets things wrong too
+
+§ 25.535(d) specified a side load coefficient of **`3.25 tan β`** from 1964 until 2022,
+when [Amdt. 25-148](https://www.federalregister.gov/documents/2022/12/09/2022-23327/miscellaneous-amendments)
+corrected it to **`0.25`** in a rule addressing typographical errors. That is a
+**thirteenfold** change in the unsymmetrical step side load on an auxiliary float, and it
+stood for fifty-eight years in a paragraph whose sibling had `0.25` all along.
+
+Anything built on a pre-2023 copy of Part 25 carries the larger figure — and the 2011
+printed CFR, the version a search is most likely to surface as a PDF, still shows `3.25`.
+
+This is why every entry carries an `edition`. A constant is not a fact; it is a fact *as
+of an issue date*.
+
 ## What's here now
 
 - **[`constraints/`](constraints/)** — 63 entries across Part 25 water loads, flight and ground loads in representation-neutral YAML. Every entry carries its formula, units, bounds, primary-source citation, and verification status.

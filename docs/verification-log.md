@@ -267,6 +267,105 @@ because three consumers had independently invented three vocabularies for one hu
 `tools/check_consumers.py` re-reads each consumer's own source read-only and fails if a
 recorded divergence goes stale in either direction.
 
+## Round 4 — § 25.535 speed units resolved, and a fifty-eight-year error found (2026-08-14)
+
+**Source:** eCFR versioner API, Title 14, issues **2022-01-01** and **2023-06-01**, diffed
+against each other and against the **typeset printed CFR** (GPO, 14 CFR Ch. I, 1-1-11
+edition, p. 418). The printed edition matters here: it is set from the authoritative text
+rather than rendered from XML, so it settles questions eCFR's markup mangles.
+
+Opened to close the § 25.535(f) speed-unit item. It closed that item and found something
+larger on the way.
+
+### § 25.535(d) was wrong in the regulation from 1964 until 2022
+
+The section read **"a side component equal to 3.25 tan β"**. It now reads **0.25**.
+
+`Amdt. 25-148` (87 FR 75710, 9 December 2022, corrected at 88 FR 2813, 18 January 2023)
+changed it as part of a Miscellaneous Amendments rule addressing typographical and
+editorial errors. The diff between the two eCFR issues shows the change and nothing else
+of substance in the section.
+
+**That is a thirteenfold reduction in the unsymmetrical step side load on an auxiliary
+float.** On the wing-tip float used as this corpus's worked case, 1758.83 lb under the
+rule in force against 22864.75 lb under the text that stood for fifty-eight years.
+
+Anything built on a pre-2023 copy of Part 25 carries the larger figure — and the 2011
+printed CFR, which is what a search engine is most likely to surface as a PDF, still shows
+`3.25`. The sibling paragraph (e) had `0.25` throughout, as do § 25.529(b)(1) for hulls
+and § 25.529(c) for twin floats, so `3.25` was always the odd one out.
+
+This is the strongest argument this corpus has yet produced for its own `edition` field.
+A constant is not a fact; it is a fact *as of an issue date*.
+
+### A defect the 2022 pass did not fix
+
+§ 25.535(d) takes 0.75 times "the load specified in paragraph (a)". Paragraph (a) is the
+General paragraph and specifies no load at all — the step load is in (b). The corrections
+pass fixed the coefficient in that sentence and left the dangling cross-reference beside
+it. Read literally the vertical component of the condition is undefined.
+
+`cfr-25.535-d-unsymmetrical-step-loading` binds it to the (b) step load, which is what (e)
+does for the bow case and the only reading under which the paragraph operates at all. That
+is recorded in the entry as an engineering reading, not as regulatory text.
+
+### The § 25.535(f) speed units
+
+**Established, and no longer inferred:** ρ is slugs/ft³ and V is ft³. The eCFR XML renders
+both as `ft.2`; the typeset CFR shows the superscript the XML lost. Round 3 reached the
+same conclusion by dimensional analysis alone. It is now read from the source, which is
+what the Round 2 process change requires.
+
+**Also established:** the section really does say **knots**, in both renderings. It is not
+an eCFR artifact, and it survived a targeted FAA typo-correction pass over this very
+section in 2022.
+
+**Not established, and not establishable from the regulation:** which unit closes the
+equation. The two readings differ by 1.68781² = 2.849.
+
+The argument for ft/s is that § 25.535(f) is the *only* water-load expression in Subpart C
+written in genuine physical quantities. Every other one — `cfr-25.527-a1`,
+`cfr-25.533-b1-keel-pressure`, `cfr-25.535-b-step-load` — is an empirical fit whose
+constant absorbs the units, which is why knots is unremarkable there. Here the form is
+`C·(ρ/2)·area·speed²`, the textbook dynamic pressure, and C_x and C_y are called
+*"coefficient of drag force"* and *"coefficient of side force"* — the language of
+dimensionless coefficients. And the companion component in the same load set, `ρ g V`, is
+exactly lbf in consistent units with no fitted constant at all. One load set cannot
+coherently use consistent units for its vertical component and knots for its horizontal
+ones.
+
+The argument for knots is that the section says knots.
+
+**Resolution.** The corpus does not pretend the regulation is consistent. It splits the
+two claims:
+
+- `cfr-25.535-f-immersed-drag-and-side` stays **verified** and records the expression and
+  the stated unit exactly as published.
+- `interp-25.535-f-speed-units` is a new **interpretation** entry carrying the ft/s
+  reading, the arithmetic, and the reasoning above.
+
+ft/s was chosen for two reasons in order: it is the only reading under which the
+expression is the drag equation it visibly is, and it is the conservative one for a
+strength requirement, yielding loads 2.849 times larger. Choosing the other way would be
+choosing the unconservative reading of an ambiguous rule.
+
+A certification programme must obtain FAA agreement rather than rely on this entry.
+§ 25.521(b) makes the whole method defeasible in any case. **If the FAA ever states the
+unit, this entry is retracted here rather than quietly edited.**
+
+The corpus now has **no `pending` test cases**: 41 worked cases, all reproducing.
+
+### What was tried and did not resolve it
+
+| Source | Result |
+| --- | --- |
+| Part 29 water loads (§ 29.519) | Rotorcraft dropped the formula entirely in 1968 for a qualitative "fully immersed float" requirement. No units to compare. |
+| Part 23 § 23.535 | Gone. Amdt. 23-64 replaced prescriptive Part 23 with performance-based rules; the versioner returns 404 at 2016. |
+| MIL-A-8864 | *Airplane Strength and Rigidity, Water and Handling Loads for Seaplanes* — the likely engineering ancestor. Cancelled 1982, no accessible full text. |
+| ANC-3 | Still not located. Now blocking three items. |
+| Gudmundsson, *General Aviation Aircraft Design*, App. C3 | Publisher's copy decommissioned; no accessible text. |
+| CS-25.535 | A search summary asserted EASA reads `0.25`, but no primary EASA text was obtained. **Not recorded as a finding** — a secondary claim about a harmonised text is exactly what this corpus does not accept. |
+
 ## Open items
 
 - [ ] Trace the empirical provenance of the Appendix B figure 2 breakpoints (1964 rulemaking, Doc. No. 5066; likely NACA tank data)
@@ -274,7 +373,10 @@ recorded divergence goes stale in either direction.
 - [x] ~~§§ 25.523, 25.529, 25.531, 25.535, 25.537 not yet read~~ — all five read and encoded, Round 3
 - [x] ~~§ 25.337(c) negative case has no worked test case~~ — now covered by magnitude-bound cases; a VC/VD pair from a real aircraft would still be better than the synthetic 300/400 KEAS pair
 - [x] ~~Fresh water density in the 25.751 worked example is an engineering value~~ — split into `interp-25.751-required-float-volume` so it can no longer inherit a `verified` status by adjacency
-- [ ] **§ 25.535(f) speed units unresolved** — glossary says knots, dimensional closure requires ft/s, factor of 2.85 between them. Needs a source that states it: Advisory Circular material, the 1964 rulemaking record, or ANC-3
+- [x] ~~§ 25.535(f) speed units unresolved~~ — resolved as far as the sources allow in Round 4. Recorded as `interp-25.535-f-speed-units`, not as regulatory fact. **Still worth an FAA query**; a statement of the intended unit would retire that entry
+- [ ] Confirm whether CS-25.535 carries the FAA's 2022 correction of (d) from 3.25 to 0.25. If EASA has not picked it up, that is a live harmonisation gap worth reporting. Needs primary EASA text, not a search summary
+- [ ] § 25.535(d) still takes 0.75 times "the load specified in paragraph (a)", which specifies no load. Worth an FAA query alongside the units question
+- [ ] Locate MIL-A-8864 (cancelled 1982) — the probable engineering ancestor of §§ 25.527-25.535 and the most likely place the immersed-float units are stated explicitly
 - [ ] § 25.335 (design airspeeds) is referenced by 25.337(c) via VC and VD but is not yet read
 - [ ] § 25.485 and the remaining ground load sections referenced by the upstreamed 25.473 file are not read
 - [ ] ANC-3 alternate standard not yet located or assessed — now blocking two items rather than one

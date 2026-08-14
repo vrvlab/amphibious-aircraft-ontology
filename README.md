@@ -2,7 +2,8 @@
 
 **A machine-checkable formalization of the regulations and physics governing amphibious and seaplane design — starting with 14 CFR Part 25 water loads.**
 
-> **Status: v0.1 — early. The constraint kernel is real and primary-sourced. The ontology layer does not exist yet.**
+> **Status: v0.2 — early. The constraint kernel is real, primary-sourced, and now
+> executed in CI. The OWL layer still does not exist; a parameter vocabulary does.**
 > We are looking for collaborators. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
@@ -42,18 +43,75 @@ These are a default path, not hard requirements. A formalization that encodes th
 mandatory is semantically wrong and will reject valid designs. Every constraint here
 carries an `applicability` block.
 
-> **We got one of these wrong.** The first release also claimed the Appendix B
+> **We have got two of these wrong so far.** The first release claimed the Appendix B
 > coefficients were undigitized empirical curves. They are not — Figure 2 is piecewise
 > linear with every breakpoint labelled, and it is now encoded exactly. The claim was
-> inferred from the text without reading the figures. Retraction and process change in
-> [`docs/verification-log.md`](docs/verification-log.md).
+> inferred from the text without reading the figures.
+>
+> Then § 25.337(c)(1) was encoded as `<= -1.0` while quoting *"may not be less than
+> −1.0"* two lines above it — the machine-readable field contradicting the primary source
+> printed beside it. Prose was doing the verification and nothing checked the field.
+> **That is why the corpus is now executed rather than merely written**, and the first
+> run of the validator found 11 more findings across 27 entries. Both retractions and the
+> resulting process changes are in [`docs/verification-log.md`](docs/verification-log.md).
 
 ## What's here now
 
-- **[`constraints/`](constraints/)** — Part 25 water-load and float constraints in representation-neutral YAML. Every entry carries its formula, units, bounds, primary-source citation, and verification status.
-- **[`schema/`](schema/)** — the constraint schema.
-- **[`docs/verification-log.md`](docs/verification-log.md)** — what was checked against eCFR, what was confirmed, and what turned out to be wrong in secondary sources.
+- **[`constraints/`](constraints/)** — 63 entries across Part 25 water loads, flight and ground loads in representation-neutral YAML. Every entry carries its formula, units, bounds, primary-source citation, and verification status.
+- **[`parameters/`](parameters/)** — the canonical parameter vocabulary, and what each consuming project calls the same quantities. See below.
+- **[`schema/`](schema/)** — JSON Schema for both, enforced in CI.
+- **[`tools/`](tools/)** — validator, test runner, artifact builder, consumer conformance checker.
+- **[`dist/constraints.json`](dist/constraints.json)** — the whole corpus as one file, for consumers without a YAML parser.
+- **[`docs/verification-log.md`](docs/verification-log.md)** — what was checked against eCFR, what was confirmed, what was wrong in secondary sources, and what we got wrong ourselves.
 - **[`appendix-b/`](appendix-b/)** — what Appendix B figures 1–3 actually contain, and what remains open about them (provenance, not digitization).
+
+## Using it
+
+Vendor `dist/constraints.json` and pin a tag. It is a single self-contained file readable
+from any standard library, with entries sorted by id and a `content_sha256` over them:
+
+```bash
+python3 -c "import json;d=json.load(open('dist/constraints.json'));print(d['entry_count'],d['content_sha256'][:12])"
+```
+
+Do not transcribe constants into your own source. That is how `flightforge` came to carry
+`C4 = 0.078 · C1` as a Python literal and a formula the corpus had never encoded, and how
+the 2.33 step load floor came to be implemented downstream from a key no schema declared.
+Load the entry and assert against it.
+
+Everything is checked on every push:
+
+```bash
+python3 tools/validate.py && python3 tools/run_tests.py && python3 tools/check_consumers.py
+```
+
+`validate.py` enforces the schema, id uniqueness across the whole corpus, cross-reference
+integrity, and that every symbol used in an expression is declared. `run_tests.py`
+evaluates each `worked` test case **from the corpus itself** — expressions are parsed as
+written and graph-valued terms interpolated from their declared breakpoints, so there is
+no second copy of any formula to drift. Change a constant and the tests fail.
+
+## The parameter vocabulary
+
+The constraints say what the regulations require. [`parameters/`](parameters/) says what
+the quantities are *called* — because three consuming projects independently invented
+three vocabularies for the same hull, and each lost something different:
+
+| | Ontology | Loftline | AeroGit | Flightforge |
+| --- | --- | --- | --- | --- |
+| deadrise | `beta` at station, `beta_k` at keel, `beta` at step — three distinct angles | one `deadrise_deg`, `0.0–60.0` | one `deadrise_deg`, `>0–45` | one `deadrise_deg` |
+| forebody | `L_f` — the step station, definitionally | `forebody_fraction`, may differ from `step_fraction` | `L_forebody_fraction` | `step_fraction` *and* a Parkinson spray `L_forebody_fraction` |
+| chine flare | selects § 25.533(b)(1) vs (b)(2) | carried | **absent** | carried |
+
+Two of those are live defects. Loftline admits `deadrise_deg = 0.0`, and § 25.533 divides
+by `tan β` — that hull is not flat-bottomed, it is undefined; AeroGit made the same bound
+exclusive for exactly this reason. And "forebody fraction" means the step station in two
+projects and a spray correlation length in the third, which are genuinely different
+quantities that must not be substituted.
+
+[`tools/check_consumers.py`](tools/check_consumers.py) reads each project's own source
+read-only and fails if a recorded divergence goes stale in either direction — so a
+conflation cannot be quietly fixed, or quietly introduced, without this repo noticing.
 
 ## Design decision: not OWL (yet)
 

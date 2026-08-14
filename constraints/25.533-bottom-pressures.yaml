@@ -44,6 +44,174 @@
         description: Angle of dead rise AT THE KEEL specifically (not at an arbitrary station)
         units: degrees
         resolves_to: Appendix B figure 1 (measurement convention; beta_k is a design input)
+  applicability:
+    applies_when: Design of bottom plating and stringers and their attachments
+    superseded_by:
+      - cfr-25.521-b-applicability
+  test_cases:
+    - description: >-
+        Keel pressure at the main step of a mid-size flying boat. K2 = 1.0 is
+        the value immediately forward of the step per cfr-25-appB-fig2-k1.
+      inputs: {C2: 0.00213, K2: 1.0, V_S1: 70.0, beta_k: 20.0}
+      expected: {P_k: 28.6754}
+      status: worked
+    - description: >-
+        The same hull at the bow, where K2 = 2.0. Local pressure doubles; this
+        is the station a single bow-to-step ramp would under-read.
+      inputs: {C2: 0.00213, K2: 2.0, V_S1: 70.0, beta_k: 20.0}
+      expected: {P_k: 57.3508}
+      status: worked
+  tags: [water-loads, subpart-c, pressure, local]
+
+- id: cfr-25.533-b2-flared-chine-pressure
+  title: Chine pressure, flared bottom
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.533(b)(2)
+    url: https://www.ecfr.gov/current/title-14/section-25.533
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: >-
+      eCFR versioner API full XML for title-14 § 25.533, plus the published
+      formula image EC28SE91.040 read directly
+    notes: >-
+      The corpus previously carried C3 as a bare constant with no expression,
+      while downstream flightforge implemented this formula anyway. A constant
+      without its formula is not an encoding of the rule.
+
+      Note which deadrise this takes: beta at the appropriate station, NOT
+      beta_k at the keel. That is the substantive difference between the flared
+      and unflared paths — C3/C2 = 0.7512, so where beta happens to equal
+      beta_k this expression returns essentially the same 0.75 x P_k that the
+      unflared case gives directly. The two paths agree at the unflared limit,
+      which is a useful check that the image was read correctly.
+
+      The pressure at the beginning of the flare is the same as for an unflared
+      bottom, and the pressure between the chine and the beginning of the flare
+      varies linearly per figure 3 of appendix B.
+  formula:
+    expression: "P_ch = C3 * (K2 * V_S1^2) / tan(beta)"
+    latex: "P_{ch} = C_3 \\times \\frac{K_2 V_{S1}^2}{\\tan \\beta}"
+    source_render: https://img.federalregister.gov/EC28SE91.040/EC28SE91.040_large.png
+    variables:
+      - symbol: P_ch
+        description: Pressure at the chine
+        units: psi
+      - symbol: C3
+        description: Empirical constant
+        units: dimensionless
+        resolves_to: cfr-25.533-b2-c3-value
+      - symbol: K2
+        description: Hull station weighing factor
+        units: dimensionless
+        resolves_to: cfr-25-appB-fig2-k2 (exact, piecewise linear)
+      - symbol: V_S1
+        description: >-
+          Seaplane stalling speed at the design water takeoff weight with flaps
+          extended in the appropriate takeoff position
+        units: knots
+      - symbol: beta
+        description: >-
+          Angle of dead rise AT THE APPROPRIATE STATION, not at the keel. For a
+          flared bottom beta and beta_k differ; see cfr-25-appB-fig1-deadrise-definition.
+        units: degrees
+  applicability:
+    applies_when: Flared bottom; design of bottom plating and stringers
+    superseded_by:
+      - cfr-25.521-b-applicability
+  test_cases:
+    - description: >-
+        Chine pressure at the step, flared bottom, with the station deadrise
+        equal to the keel deadrise. Compare cfr-25.533-b1-chine-ratio, which
+        gives 21.5066 for the unflared case — the paths agree to 0.16%.
+      inputs: {C3: 0.0016, K2: 1.0, V_S1: 70.0, beta: 20.0}
+      expected: {P_ch: 21.5402}
+      status: worked
+    - description: >-
+        The flare genuinely bites when the station deadrise is shallower than
+        the keel: at beta = 12 degrees the chine pressure rises by 68%.
+      inputs: {C3: 0.0016, K2: 1.0, V_S1: 70.0, beta: 12.0}
+      expected: {P_ch: 36.8843}
+      status: worked
+  tags: [water-loads, subpart-c, pressure, local, flared]
+
+- id: cfr-25.533-c1-distributed-pressure
+  title: Symmetrical distributed pressure for frames, keel and chine structure
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.533(c)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.533
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: >-
+      eCFR versioner API full XML for title-14 § 25.533, plus the published
+      formula image EC28SE91.041 read directly
+    notes: >-
+      THIS FORMULA TAKES V_S0, NOT V_S1. Both the variable glossary in (c)(1)
+      and the image confirm it: the distributed case is referred to the LANDING
+      stalling speed with landing flaps and no slipstream, while the local
+      pressures of (b) are referred to the TAKEOFF stalling speed at the design
+      water takeoff weight. Two different speeds in adjacent paragraphs of one
+      section is exactly the detail a summarizer drops, and getting it backwards
+      changes the answer by the square of the speed ratio.
+
+      These pressures are uniform and are applied simultaneously over the entire
+      hull or main float bottom. The resulting loads must be carried into the
+      sidewall structure but need not be transmitted fore and aft as shear and
+      bending loads.
+
+      The eCFR XML for this paragraph duplicates the V_S0 glossary line and
+      then runs the beta definition onto the end of the repeat; the published
+      image is unambiguous and was used instead.
+  formula:
+    expression: "P = C4 * (K2 * V_S0^2) / tan(beta)"
+    latex: "P = C_4 \\times \\frac{K_2 V_{S0}^2}{\\tan \\beta}"
+    source_render: https://img.federalregister.gov/EC28SE91.041/EC28SE91.041_large.png
+    variables:
+      - symbol: P
+        description: Distributed pressure, applied uniformly over the whole bottom
+        units: psi
+      - symbol: C4
+        description: Empirical constant, defined in terms of C1 from § 25.527
+        units: dimensionless
+        resolves_to: cfr-25.533-c1-c4-value
+      - symbol: K2
+        description: Hull station weighing factor
+        units: dimensionless
+        resolves_to: cfr-25-appB-fig2-k2 (exact, piecewise linear)
+      - symbol: V_S0
+        description: >-
+          Seaplane stalling speed with LANDING flaps extended in the appropriate
+          position and with no slipstream effect. Not V_S1.
+        units: knots
+      - symbol: beta
+        description: Angle of dead rise at the appropriate station
+        units: degrees
+  applicability:
+    applies_when: Design of the frames, keel and chine structure
+    superseded_by:
+      - cfr-25.521-b-applicability
+  test_cases:
+    - description: >-
+        Distributed pressure at the step with C1 at its nominal 0.012, so
+        C4 = 0.078 * 0.012 = 0.000936.
+      inputs: {C4: 0.000936, K2: 1.0, V_S0: 65.0, beta: 20.0}
+      expected: {P: 10.8652}
+      status: worked
+    - description: >-
+        A light seaplane whose C1 was raised to 0.018156 by the step load
+        factor floor carries that increase through into C4, and so into the
+        frame design case: C4 = 0.078 * 0.018156 = 0.0014162.
+      inputs: {C4: 0.0014162, K2: 1.0, V_S0: 65.0, beta: 20.0}
+      expected: {P: 16.4394}
+      status: worked
+  tags: [water-loads, subpart-c, pressure, distributed]
 
 - id: cfr-25.533-b1-c2-value
   title: C2 empirical constant

@@ -1,0 +1,94 @@
+- id: cfr-25.807-a-exit-type-openings
+  title: Minimum rectangular opening for each passenger emergency exit type
+  kind: table
+  source:
+    authority: 14 CFR
+    section: 25.807(a)
+    url: https://www.ecfr.gov/current/title-14/section-25.807
+    edition: 2026-07-07
+    retrieved: 2026-08-06
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.807
+    notes: Widths and heights are the minimum rectangular opening each type must contain.
+      Ventral and tailcone exits are defined by egress rate and by configuration rather than
+      by a rectangle, so they are not tabulated here and a method that needs them has to say
+      so.
+  table:
+    units: in
+    columns:
+    - type
+    - width
+    - height
+    rows:
+    - - Type A
+      - 42
+      - 72
+    - - Type B
+      - 32
+      - 72
+    - - Type C
+      - 30
+      - 48
+    - - Type I
+      - 24
+      - 48
+    - - Type II
+      - 20
+      - 44
+    - - Type III
+      - 20
+      - 36
+    - - Type IV
+      - 19
+      - 26
+  tags:
+  - emergency-exits
+  - subpart-d
+  - cabin
+- id: cfr-25.807-g1-seats-per-exit-pair
+  title: Maximum passenger seats permitted per pair of exits, by type
+  kind: table
+  source:
+    authority: 14 CFR
+    section: 25.807(g)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.807
+    edition: 2026-07-07
+    retrieved: 2026-08-06
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.807
+    notes: '"The maximum number of passenger seats permitted depends on the type and" ...
+      the tabulated allowance is PER PAIR of exits, one each side. Halving a pair''s allowance
+      to get a per-exit number is a reading the table does not support and is not done here.
+
+
+      The regulation permits combinations of types. It states a floor on egress capacity,
+      not a design — which is why choosing among the combinations that satisfy it is a method''s
+      job and not the rule''s.'
+  table:
+    units: seats per pair
+    columns:
+    - type
+    - seats_per_pair
+    rows:
+    - - Type A
+      - 220
+    - - Type B
+      - 150
+    - - Type C
+      - 110
+    - - Type I
+      - 90
+    - - Type II
+      - 80
+    - - Type III
+      - 70
+    - - Type IV
+      - 18
+  applicability:
+    applies_when: Passenger emergency exits, § 25.807(g)
+  tags:
+  - emergency-exits
+  - subpart-d
+  - cabin

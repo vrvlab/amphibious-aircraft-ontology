@@ -61,6 +61,28 @@
     latex: "n_w = \\frac{C_1 V_{S0}^2}{\\left(\\tan^{2/3}\\beta\\right) W^{1/3}} \\times \\frac{K_1}{\\left(1 + r_x^2\\right)^{2/3}}"
     source_render: https://img.federalregister.gov/EC28SE91.037/EC28SE91.037_large.png
     variables:
+      # The four symbols carried over from (a)(1) are redeclared in full rather
+      # than inherited. An entry has to be resolvable on its own: a consumer that
+      # pins cfr-25.527-a2 must not have to know that a sibling entry exists.
+      - symbol: n_w
+        description: Water reaction load factor (water reaction divided by seaplane weight)
+        units: dimensionless
+      - symbol: C1
+        description: Empirical seaplane operations factor, as in 25.527(a)(1)
+        units: dimensionless
+        resolves_to: cfr-25.527-b2-c1-value
+      - symbol: V_S0
+        description: >-
+          Seaplane stalling speed with flaps extended in the appropriate landing
+          position, no slipstream effect
+        units: knots
+      - symbol: beta
+        description: Angle of dead rise at the longitudinal station where the load factor is determined
+        units: degrees
+        resolves_to: Appendix B figure 1 (measurement convention; beta is a design input)
+      - symbol: W
+        description: Seaplane design landing weight
+        units: lb
       - symbol: K1
         description: Empirical hull station weighing factor
         units: dimensionless
@@ -97,11 +119,63 @@
     operator: "=="
     value: 0.012
     units: dimensionless
-  notes_additional_bound:
-    quantity: n_w (step landing case)
+
+- id: cfr-25.527-b2-step-load-factor-floor
+  title: Minimum step landing load factor, obtained by raising C1
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.527(b)(2)
+    url: https://www.ecfr.gov/current/title-14/section-25.527
+    edition: 2026-07-07
+    retrieved: 2026-07-20
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.527
+    notes: >-
+      Promoted from a `notes_additional_bound` key on cfr-25.527-b2-c1-value,
+      which no schema declared and therefore no consumer could read. It was
+      nonetheless being implemented downstream (flightforge's c1_for_step),
+      i.e. a load-bearing rule was travelling as a comment.
+
+      The floor operates on C1, not on n_w: the parenthesis reads "except that
+      this factor may not be less than that necessary to obtain the minimum
+      value of step load factor of 2.33". So C1 is raised until the STEP case
+      reaches 2.33; it is not a blanket floor applied to n_w at every station.
+      Once C1 is raised, the higher value flows through 25.527(a)(2) and
+      through C4 in 25.533(c)(1), which is defined as 0.078 C1.
+  bound:
+    quantity: n_w in the step landing case of 25.527(a)(1), after raising C1 if required
     operator: ">="
     value: 2.33
     units: dimensionless
+  applicability:
+    applies_when: Step landing case only
+  test_cases:
+    - description: >-
+        Nominal C1 already clears the floor, so nothing is raised. Large flying
+        boat — the floor is slack across the whole transport range.
+      via: cfr-25.527-a1
+      inputs: {C1: 0.012, V_S0: 100.0, beta: 20.0, W: 120000.0}
+      expected: {n_w: 4.7725}
+      status: worked
+    - description: >-
+        Nominal C1 falls short. The floor bites at low weight and low stalling
+        speed — the light-seaplane end, not the transport end.
+      via: cfr-25.527-a1
+      inputs: {C1: 0.012, V_S0: 35.0, beta: 25.0, W: 4000.0}
+      expected: {n_w: 1.5400}
+      status: worked
+    - description: >-
+        The same seaplane with C1 raised to the least value that satisfies the
+        floor reaches the 2.33 step load factor exactly. Stated as a forward
+        evaluation so the required C1 is checked arithmetically rather than
+        restated as a constant.
+      via: cfr-25.527-a1
+      inputs: {C1: 0.018156, V_S0: 35.0, beta: 25.0, W: 4000.0}
+      expected: {n_w: 2.3300}
+      status: worked
+  tags: [water-loads, subpart-c, load-factor]
 
 - id: cfr-25.527-c-twin-float-k1-reduction
   title: Twin-float K1 reduction at bow and stern

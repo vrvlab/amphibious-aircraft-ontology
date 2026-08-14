@@ -1,0 +1,312 @@
+- id: cfr-25.473-a2-limit-descent-velocity-landing-weight
+  title: Limit descent velocity at the design landing weight
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.473(a)(2)
+    url: https://www.ecfr.gov/current/title-14/section-25.473
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.473
+    notes: '"With a limit descent velocity of 10 fps at the design landing weight (the maximum
+      weight for landing conditions at maximum descent velocity)."
+
+      The parenthesis is the operative part for a conceptual tool: DESIGN LANDING WEIGHT is
+      defined here by what it is for, not by a value. It is a manufacturer''s choice, and
+      treating it as derivable is the mistake this entry exists to prevent.'
+  bound:
+    quantity: Limit descent velocity at touchdown, at the design landing weight
+    operator: ==
+    value: 10.0
+    units: ft/s
+  applicability:
+    applies_when: Landing conditions of §§ 25.479 to 25.485
+    superseded_by:
+    - 25.473(a)(4) — the prescribed velocities may be modified where design features make
+      them impossible to develop
+  tags:
+  - ground-loads
+  - subpart-c
+  - landing
+- id: cfr-25.473-a3-limit-descent-velocity-takeoff-weight
+  title: Limit descent velocity at the design takeoff weight
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.473(a)(3)
+    url: https://www.ecfr.gov/current/title-14/section-25.473
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.473
+    notes: '"With a limit descent velocity of 6 fps at the design take-off weight (the maximum
+      weight for landing conditions at a reduced descent velocity)."
+
+      A SECOND condition, not an alternative to (a)(2). Recorded because it is the one a conceptual
+      tool can evaluate without sourcing a landing weight — gross weight is already known
+      — and because doing only that would understate the gear reaction by roughly a factor
+      of two. Reaction goes as V^2 W, so (a)(2) governs by about 100 x 0.85 to 36 x 1.0.'
+  bound:
+    quantity: Limit descent velocity at touchdown, at the design takeoff weight
+    operator: ==
+    value: 6.0
+    units: ft/s
+  applicability:
+    applies_when: Landing conditions of §§ 25.479 to 25.485
+  tags:
+  - ground-loads
+  - subpart-c
+  - landing
+- id: cfr-25.473-b-lift-assumption
+  title: Airplane lift during landing impact
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.473(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.473
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.473
+    notes: '"Airplane lift, not exceeding airplane weight, may be assumed unless the presence
+      of systems or procedures significantly affects the lift."
+
+      This is what makes the energy balance tractable: with lift equal to weight, the whole
+      sink energy goes into the gear, and the reaction factor falls out of stroke and efficiency
+      alone. Note the wording is permissive — "may be assumed" — and capped at weight, which
+      is an AMENDED value; older texts of this section said two-thirds.'
+  bound:
+    quantity: Airplane lift assumed during landing impact
+    operator: <=
+    value: 1.0
+    units: fraction of airplane weight
+  applicability:
+    applies_when: Landing impact, absent systems or procedures that significantly affect lift
+  tags:
+  - ground-loads
+  - subpart-c
+  - landing
+  - assumptions
+- id: cfr-25.479-d1-drag-with-maximum-vertical-reaction
+  title: Aft drag component combined with the maximum vertical ground reaction
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.479(d)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.479
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.479
+    notes: '"The landing gear and directly affected attaching structure must be designed for
+      the maximum vertical ground reaction combined with an aft acting drag component of not
+      less than 25% of this maximum vertical ground reaction."
+
+      "Directly affected attaching structure" is the wing gear support beam, which is why
+      this governs a WING weight item and not only a gear one.'
+  bound:
+    quantity: Aft drag component, as a fraction of the maximum vertical ground reaction
+    operator: '>='
+    value: 0.25
+    units: dimensionless
+  applicability:
+    applies_when: Landing gear and directly affected attaching structure, level landing
+  tags:
+  - ground-loads
+  - subpart-c
+  - landing
+  - gear-support
+- id: cfr-25.479-d2i-drift-vertical-component
+  title: Drift landing, vertical load component
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.479(d)(2)(i)
+    url: https://www.ecfr.gov/current/title-14/section-25.479
+    edition: &id001 2026-07-07
+    retrieved: &id002 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.479
+    notes: '"The most severe combination of loads that are likely to arise during a lateral
+      drift landing must be taken into account. In absence of a more rational analysis of
+      this condition, the following must be investigated: (i) A vertical load equal to 75%
+      of the maximum ground reaction of § 25.473 must be considered in combination with a
+      drag and side load of 40% and 25% respectively of that vertical load."
+
+      THE ANTECEDENTS ARE DIFFERENT AND IT MATTERS. The vertical is 75% of the MAXIMUM GROUND
+      REACTION; the drag and side are 40% and 25% of THAT REDUCED VERTICAL, not of the maximum.
+      Reading them against the maximum overstates drag and side by a third. The words "of
+      that vertical load" carry the whole distinction.
+
+      Note also that this is a fallback: the section asks for the most severe combination
+      likely to arise, and offers these numbers only "in absence of a more rational analysis".
+
+
+      COUNTER-EXAMPLE, not a test case. The misreading this entry exists to prevent: D_lb_if_read_against_maximum
+      = 40000 from inputs {''R_max_lb'': 100000}. Recorded because it was previously carried
+      as a test case whose `status` field held prose rather than an enum value.
+
+
+      SPLIT 2026-08-13. This was one entry whose `expression` held three equations separated
+      by semicolons, with implicit multiplication ("V = 0.75 R_max"), and whose test case
+      bound R_max_lb and expected V_lb against declared symbols R_max and V. Nothing could
+      evaluate it, and the `worked` status was therefore unearned. One equation per entry,
+      symbols bound exactly.'
+  formula:
+    expression: V = 0.75 * R_max
+    variables:
+    - &id003
+      symbol: V
+      description: Vertical load component in the drift landing condition
+      units: lb
+    - symbol: R_max
+      description: Maximum ground reaction from the § 25.473(a)(2) landing condition
+      units: lb
+  applicability:
+    applies_when: Lateral drift landing; sizes the gear and its attaching structure
+    superseded_by: &id004
+    - A more rational analysis of the condition, which the section prefers
+  test_cases:
+  - description: Vertical component at a 100,000 lb maximum ground reaction
+    inputs:
+      R_max: 100000.0
+    expected:
+      V: 75000.0
+    status: worked
+  tags: &id005
+  - ground-loads
+  - subpart-c
+  - landing
+  - gear-support
+- id: cfr-25.479-d2i-drift-drag-component
+  title: Drift landing, drag load component
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.479(d)(2)(i)
+    url: https://www.ecfr.gov/current/title-14/section-25.479
+    edition: *id001
+    retrieved: *id002
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.479
+    notes: 'Note the reference quantity: 0.40 of the DRIFT VERTICAL component V, not of the
+      maximum ground reaction R_max. Read against R_max the drag would be 40000 lb, 33% high.
+      That misreading was previously recorded in this file as a test case whose status field
+      held the words "NOT the requirement"; it is now stated here.'
+  formula:
+    expression: D = 0.40 * V
+    variables:
+    - symbol: D
+      description: Drag load component in the drift landing condition
+      units: lb
+    - *id003
+  applicability:
+    applies_when: Lateral drift landing; sizes the gear and its attaching structure
+    superseded_by: *id004
+  test_cases:
+  - description: Drag component, taken against the drift vertical component
+    inputs:
+      V: 75000.0
+    expected:
+      D: 30000.0
+    status: worked
+  tags: *id005
+- id: cfr-25.479-d2i-drift-side-component
+  title: Drift landing, side load component
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.479(d)(2)(i)
+    url: https://www.ecfr.gov/current/title-14/section-25.479
+    edition: *id001
+    retrieved: *id002
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.479
+    notes: As with the drag component, the 0.25 factor is referred to the drift vertical component
+      V and not to the maximum ground reaction.
+  formula:
+    expression: S = 0.25 * V
+    variables:
+    - symbol: S
+      description: Side load component in the drift landing condition
+      units: lb
+    - *id003
+  applicability:
+    applies_when: Lateral drift landing; sizes the gear and its attaching structure
+    superseded_by: *id004
+  test_cases:
+  - description: Side component, taken against the drift vertical component
+    inputs:
+      V: 75000.0
+    expected:
+      S: 18750.0
+    status: worked
+  tags: *id005
+- id: cfr-25.479-d2ii-drift-deflections
+  title: Shock absorber and tire deflections in the drift condition — not evaluated
+  kind: qualitative
+  source:
+    authority: 14 CFR
+    section: 25.479(d)(2)(ii)
+    url: https://www.ecfr.gov/current/title-14/section-25.479
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.479
+    notes: '"The shock absorber and tire deflections must be assumed to be 75% of the deflection
+      corresponding to the maximum ground reaction of § 25.473(a)(2). This load case need
+      not be considered in combination with flat tires."
+
+      NOT EVALUATED. Deflection sets the airframe attitude and the gear geometry at the instant
+      of the load, which matters for where the load points and how long the effective arm
+      is. A static beam sized on force magnitudes alone does not see it.'
+  applicability:
+    applies_when: The § 25.479(d)(2) drift condition
+  tags:
+  - ground-loads
+  - subpart-c
+  - landing
+  - not-evaluated
+  statement: The shock absorber and tire deflections must be assumed to be 75 percent of the
+    deflection corresponding to the maximum ground reaction of § 25.473(a)(2). This load case
+    need not be considered in combination with flat tires.
+- id: cfr-25.479-d3-loads-act-at-the-axle
+  title: Vertical and drag components act at the wheel axle centreline
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.479(d)(3)
+    url: https://www.ecfr.gov/current/title-14/section-25.479
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.479
+    notes: '"The combination of vertical and drag components is considered to be acting at
+      the wheel axle centerline."
+
+      A short sentence with a large consequence for support structure. The loads do not arrive
+      at the trunnion as a pure force: applied a strut length below it, drag arrives as a
+      COUPLE of drag times that length, and side load arrives as torsion. Structure that reacts
+      only the force is under-designed by whatever that couple is worth.
+
+      EVALUATED ONLY WHEN A STRUT LENGTH IS SUPPLIED, because strut length is a landing gear
+      dimension and this method takes wing geometry. The torsion is not carried at all.'
+  applicability:
+    applies_when: The § 25.479(d)(1) and (d)(2) ground load combinations
+  tags:
+  - ground-loads
+  - subpart-c
+  - landing
+  - gear-support
+  statement: The combination of vertical and drag components is considered to be acting at
+    the wheel axle centerline.

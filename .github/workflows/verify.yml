@@ -1,0 +1,51 @@
+name: verify
+
+# The corpus makes claims about primary sources and about its own arithmetic.
+# This workflow checks the second kind. The first kind is checked by a human
+# reading the source, and that is what docs/verification-log.md records.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: python -m pip install --quiet pyyaml jsonschema
+
+      - name: Schema, ids, cross-references, symbol declarations
+        run: python tools/validate.py
+
+      - name: Worked test cases reproduce
+        run: python tools/run_tests.py --verbose
+
+      - name: Build artifact is current
+        # constraints.json is committed so consumers can vendor a single file.
+        # Regenerating must be a no-op; if it is not, someone edited the YAML
+        # without rebuilding and the vendored artifact is stale.
+        run: |
+          python tools/build.py
+          if ! git diff --quiet -- dist/constraints.json; then
+            echo "::error::dist/constraints.json is stale — run python tools/build.py and commit the result"
+            git --no-pager diff --stat -- dist/constraints.json
+            exit 1
+          fi
+
+      - name: Consumer conformance (advisory)
+        # Reports where downstream parameter vocabularies diverge from
+        # parameters/. Advisory here because the consumer repos are not
+        # checked out in this job; it runs for real in their own CI.
+        run: python tools/check_consumers.py --report-only

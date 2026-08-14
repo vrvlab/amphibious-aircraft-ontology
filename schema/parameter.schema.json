@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/vrvlab/amphibious-aircraft-ontology/main/schema/parameter.schema.json",
+  "title": "Amphibious Aircraft Ontology — canonical parameter vocabulary",
+  "description": "The constraint corpus says what the regulations require. This says what the quantities in those requirements are called, what units they carry, and where their bounds come from. Consumers map their own names onto these; tools/check_consumers.py checks that the mapping still holds.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["name", "title", "units", "description", "used_by"],
+    "properties": {
+      "name": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+        "description": "Canonical dotted key. Stable; consumers pin it."
+      },
+      "title": { "type": "string", "minLength": 1 },
+      "symbol": {
+        "type": "string",
+        "description": "The symbol this parameter binds in constraint expressions, where one exists. This is the join between the vocabulary and the corpus."
+      },
+      "units": { "type": "string", "minLength": 1 },
+      "description": { "type": "string", "minLength": 1 },
+      "bounds": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "min": { "type": "number" },
+          "max": { "type": "number" },
+          "min_exclusive": { "type": "boolean", "default": false },
+          "max_exclusive": { "type": "boolean", "default": false }
+        }
+      },
+      "bounds_basis": {
+        "enum": ["regulatory", "mathematical", "conceptual"],
+        "description": "regulatory — the rule states it. mathematical — outside this range a governing expression is singular or undefined. conceptual — a sanity range, carrying no authority and not to be enforced as a rejection."
+      },
+      "bounds_rationale": { "type": "string" },
+      "used_by": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string" },
+        "description": "Constraint entry ids that consume this parameter. Checked to resolve."
+      },
+      "distinct_from": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Other canonical parameters this one is routinely and wrongly conflated with. The reason the vocabulary exists."
+      },
+      "notes": { "type": "string" }
+    }
+  }
+}

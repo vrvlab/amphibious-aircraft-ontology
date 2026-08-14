@@ -36,10 +36,13 @@
     expression: "n_min = max(2.5, min(3.8, 2.1 + 24000 / (W + 10000)))"
     latex: "n_{min} = \\max\\left(2.5,\\ \\min\\left(3.8,\\ 2.1 + \\frac{24000}{W + 10000}\\right)\\right)"
     variables:
-      - symbol: n
+      - symbol: n_min
         description: >-
-          Positive limit maneuvering load factor, for any speed up to Vn. The
-          expression yields the least value that satisfies the section.
+          Least positive limit maneuvering load factor that satisfies the
+          section, for any speed up to Vn. The regulation calls this quantity
+          n; it is named n_min here because the expression yields the minimum
+          acceptable value and not the design value, and code that binds this
+          symbol to "the load factor" is making the error 25.337(b) invites.
         units: dimensionless
       - symbol: W
         description: Design maximum takeoff weight
@@ -56,25 +59,35 @@
         25.337(d) — lower factors permitted where design features make exceeding
         them impossible in flight
       - 25.337(a) — where limited by maximum (static) lift coefficients
+  # Inputs bind the declared symbols exactly — W, not W_lb. Units come from the
+  # variable declaration above, which is the only place they cannot drift out of
+  # sync with the expression.
   test_cases:
     - description: Formula governs — mid transport range
-      inputs: {W_lb: 20000}
+      inputs: {W: 20000}
       expected: {n_min: 2.9000}
       status: worked
     - description: Formula governs — a real regional_tp gate result
-      inputs: {W_lb: 39280.53}
+      inputs: {W: 39280.53}
       expected: {n_min: 2.5870}
       status: worked
-    - description: Floor governs — raw expression falls below 2.5
-      inputs: {W_lb: 80000}
-      expected: {n_min: 2.5000, raw_expression: 2.3667}
+    - description: >-
+        Floor governs. The unclamped expression yields 2.3667 here, so the 2.5
+        floor is what the design must meet.
+      inputs: {W: 80000}
+      expected: {n_min: 2.5000}
       status: worked
-    - description: Relief cap governs — raw expression exceeds 3.8
-      inputs: {W_lb: 3000}
-      expected: {n_min: 3.8000, raw_expression: 3.9462}
+    - description: >-
+        Relief cap governs. The unclamped expression yields 3.9462, above which
+        25.337(b) requires no further increase.
+      inputs: {W: 3000}
+      expected: {n_min: 3.8000}
       status: worked
-    - description: Lower clamp crossover — raw expression equals 2.5 exactly
-      inputs: {W_lb: 50000}
+    - description: >-
+        Lower clamp crossover — the raw expression equals 2.5 exactly at
+        50,000 lb. Above this weight the floor governs, below it the formula
+        does, which is the boundary a class table of flat 2.5 gets wrong.
+      inputs: {W: 50000}
       expected: {n_min: 2.5000}
       status: worked
   tags: [flight-loads, subpart-c, load-factor]
@@ -90,18 +103,54 @@
     retrieved: 2026-08-04
   verification:
     status: verified
-    checked_against: eCFR versioner API, full XML for title-14 § 25.337
+    checked_against: >-
+      eCFR versioner API, full XML for title-14 § 25.337, issue 2026-07-07,
+      re-read 2026-08-13
     notes: >-
-      Stated as "may not be less than -1.0 at speeds up to VC". Negative is a
-      distinct design condition from the positive case and is frequently omitted
-      when § 25.337 is reduced to its positive formula alone.
+      Exact text: "The negative limit maneuvering load factor— (1) May not be
+      less than -1.0 at speeds up to VC". Negative is a distinct design
+      condition from the positive case and is frequently omitted when § 25.337
+      is reduced to its positive formula alone.
+    sign_convention: >-
+      CORRECTED 2026-08-13. This entry previously encoded `operator: "<="`
+      against `value: -1.0` while quoting "may not be less than -1.0" directly
+      above it. Those say opposite things. Read as signed algebra, "not less
+      than -1.0" is n >= -1.0, which would make the WEAKER design (n = -0.5)
+      the compliant one and reject the stronger — plainly not the rule's
+      intent. Read as the airworthiness requirement it is, the airplane must
+      withstand a negative factor of at least 1.0 in magnitude.
+
+      The bound is therefore restated on |n_neg|, which is true under either
+      reading and cannot be silently inverted by a consumer's sign convention.
+      The signed equivalent is n_neg <= -1.0 when n_neg is expressed as a
+      negative number; that form is recorded here rather than in the machine
+      field precisely because it depends on a convention the regulation never
+      states.
   bound:
-    quantity: Negative limit maneuvering load factor at speeds up to VC
-    operator: "<="
-    value: -1.0
+    quantity: >-
+      Magnitude of the negative limit maneuvering load factor the airplane must
+      withstand at speeds up to VC
+    operator: ">="
+    value: 1.0
     units: dimensionless
   applicability:
     applies_when: Speeds up to VC
+  test_cases:
+    - description: >-
+        A design carrying -1.0 exactly meets the requirement. Inputs are the
+        magnitude, which is what the bound is stated on.
+      via: bound
+      inputs: {value: 1.0}
+      expected: {compliant: true}
+      status: worked
+    - description: >-
+        A design carrying only -0.5 fails. Under the naive signed reading of
+        the regulation's words (n >= -1.0) this case would have passed, which
+        is the regression this test exists to catch.
+      via: bound
+      inputs: {value: 0.5}
+      expected: {compliant: false}
+      status: worked
   tags: [flight-loads, subpart-c, load-factor, negative]
 
 - id: cfr-25.337-c2-negative-varies-to-vd
@@ -123,6 +172,14 @@
   formula:
     expression: "n_neg(V) = n_neg_VC * (V_D - V) / (V_D - V_C)   for V_C <= V <= V_D"
     variables:
+      - symbol: n_neg
+        description: >-
+          Negative limit maneuvering load factor at speed V, in the range
+          V_C to V_D
+        units: dimensionless
+      - symbol: V
+        description: Airspeed at which the negative limit factor is evaluated
+        units: KEAS
       - symbol: n_neg_VC
         description: Negative limit maneuvering load factor at VC, per 25.337(c)(1)
         units: dimensionless
@@ -154,6 +211,11 @@
       these values in flight." This is why the 2.5 floor in (b) is not an
       absolute minimum for every Part 25 airplane, and why an automated sizing
       tool should treat (b) as the default path rather than an invariant.
+  statement: >-
+    Maneuvering load factors lower than those specified in § 25.337 may be used
+    if the airplane has design features that make it impossible to exceed those
+    values in flight. The relief must be earned by a design feature and
+    declared; it is not available by assertion.
   applicability:
     applies_when: Airplane has design features making the values impossible to exceed in flight
   tags: [flight-loads, subpart-c, load-factor, relief]
@@ -176,6 +238,12 @@
       coefficients, and pitching velocities appropriate to pull-up and steady
       turn maneuvers must be accounted for. A conceptual tool that applies only
       the (b) scalar is not evaluating this paragraph.
+  statement: >-
+    Except where limited by maximum (static) lift coefficients, the airplane is
+    assumed to be subjected to symmetrical maneuvers resulting in the limit
+    maneuvering load factors prescribed in § 25.337. Pitching velocities
+    appropriate to the corresponding pull-up and steady turn maneuvers must be
+    taken into account.
   applicability:
     applies_when: Symmetrical maneuvers
     superseded_by:

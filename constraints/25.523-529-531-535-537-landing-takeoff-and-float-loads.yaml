@@ -1,0 +1,713 @@
+# 14 CFR §§ 25.523, 25.529, 25.531, 25.535, 25.537
+# Text verified against eCFR issue 2026-07-07, retrieved 2026-08-13, via the
+# versioner API (api/versioner/v1/full/{date}/title-14.xml?...&section=NN).
+#
+# These five sections were the "not yet read" list in docs/verification-log.md.
+# § 25.531 was read first because it was already a DANGLING REFERENCE: the
+# encoded cfr-25.525-d-aerodynamic-lift carves out "the takeoff condition of
+# § 25.531" as its one exception, so the corpus was pointing at a section it
+# had never opened.
+#
+# Formulas in §§ 25.531 and 25.535 are published as raster images, like those in
+# §§ 25.527 and 25.533. Images EC28SE91.038, .042 and .043 were read directly.
+
+# ---------------------------------------------------------------------------
+# § 25.523 — Design weights and center of gravity positions
+# ---------------------------------------------------------------------------
+
+- id: cfr-25.523-a-design-weights
+  title: Which weight each water load condition is evaluated at
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.523(a)
+    url: https://www.ecfr.gov/current/title-14/section-25.523
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.523
+    notes: >-
+      Load conditions are met at EACH operating weight up to the design landing
+      weight, not only at the design landing weight. A tool that evaluates a
+      single point is not evaluating this section; the critical case need not be
+      the heaviest one, because the load factor expressions of § 25.527 fall
+      with W^(1/3) while the loads themselves rise with W.
+
+      The takeoff condition of § 25.531 is the stated exception and uses the
+      design water takeoff weight instead. So a complete water load assessment
+      needs two distinct weights, and the corpus's W symbol does not mean the
+      same thing in cfr-25.527-a1 (design landing weight) as in
+      cfr-25.531-b-takeoff-inertia-load-factor (design water takeoff weight).
+  statement: >-
+    The water load requirements must be met at each operating weight up to the
+    design landing weight, except that for the takeoff condition prescribed in
+    § 25.531 the design water takeoff weight — the maximum weight for water taxi
+    and takeoff run — must be used.
+  tags: [water-loads, subpart-c, design-weights]
+
+- id: cfr-25.523-b-critical-cg
+  title: Critical center of gravity positions must be considered
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.523(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.523
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.523
+    notes: >-
+      This is what makes r_x in cfr-25.527-a2 a swept quantity rather than a
+      single number: r_x is measured from the CG, so moving the CG within the
+      certified envelope changes K1/(1+r_x^2)^(2/3) at every station. A tool
+      that fixes the CG at one position is not evaluating this paragraph.
+  statement: >-
+    The critical centers of gravity within the limits for which certification is
+    requested must be considered to reach maximum design loads for each part of
+    the seaplane structure.
+  tags: [water-loads, subpart-c, center-of-gravity]
+
+# ---------------------------------------------------------------------------
+# § 25.529 — Hull and main float landing conditions
+# ---------------------------------------------------------------------------
+
+- id: cfr-25.529-a-symmetrical-landing-load-points
+  title: Where the resultant water load acts in symmetrical landings
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.529(a)
+    url: https://www.ecfr.gov/current/title-14/section-25.529
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.529
+    notes: >-
+      § 25.527 gives the load factor; this section gives the point and direction
+      of application, without which the load factor sizes nothing. The two bow
+      and stern fractions here are NOT the same stations as the bow and stern
+      breakpoints of Appendix B figure 2 — the figure runs to the extreme ends,
+      while the load is applied at one-fifth and at 85 percent. Reading K1 at
+      the figure's endpoint values for these cases overstates the bow case.
+  statement: >-
+    For symmetrical step, bow and stern landings the limit water reaction load
+    factors are those computed under § 25.527. The resultant water load is
+    applied at the keel and directed perpendicularly to the keel line, at:
+    the center of gravity for a step landing; one-fifth of the longitudinal
+    distance from the bow to the step for a bow landing; and 85 percent of the
+    longitudinal distance from the step to the stern post for a stern landing.
+  applicability:
+    applies_when: Symmetrical step, bow and stern landings
+    superseded_by:
+      - cfr-25.521-b-applicability
+  tags: [water-loads, subpart-c, landing]
+
+- id: cfr-25.529-b1-unsymmetrical-upward-component
+  title: Unsymmetrical landing, upward load component
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.529(b)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.529
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.529
+    notes: >-
+      Applies to hull and single float seaplanes. The upward component is
+      REDUCED to 0.75 of the symmetrical resultant, not increased — the
+      unsymmetrical case is critical for the side load and the sidewall path,
+      not for the vertical one.
+  bound:
+    quantity: Upward load component, as a fraction of the corresponding symmetrical resultant
+    operator: "=="
+    value: 0.75
+    units: dimensionless
+  applicability:
+    applies_when: Unsymmetrical step, bow and stern landings; hull and single float seaplanes
+    superseded_by:
+      - cfr-25.521-b-applicability
+  tags: [water-loads, subpart-c, landing, unsymmetrical]
+
+- id: cfr-25.529-b1-unsymmetrical-side-component
+  title: Unsymmetrical landing, side load component
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.529(b)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.529
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.529
+    notes: >-
+      Stated in the text rather than as an image: "a side component equal,
+      respectively, to 0.75 and 0.25 tan beta times the resultant load in the
+      corresponding symmetrical landing condition".
+
+      The side load GROWS with deadrise. A deep-V hull chosen to soften the
+      vertical impact of § 25.527 pays for it here, and the two effects pull in
+      opposite directions — which is why deadrise cannot be selected against the
+      vertical case alone.
+  formula:
+    expression: "F_side = 0.25 * tan(beta) * R_symmetrical"
+    variables:
+      - symbol: F_side
+        description: Side load component in the unsymmetrical landing condition
+        units: lb
+      - symbol: beta
+        description: Angle of dead rise at the station being considered
+        units: degrees
+      - symbol: R_symmetrical
+        description: >-
+          Resultant load in the corresponding symmetrical landing condition,
+          from cfr-25.529-a-symmetrical-landing-load-points
+        units: lb
+  applicability:
+    applies_when: Unsymmetrical landings; hull and single float seaplanes
+    superseded_by:
+      - cfr-25.521-b-applicability
+  test_cases:
+    - description: Side load at 20 degrees deadrise, 50,000 lb symmetrical resultant
+      inputs: {beta: 20.0, R_symmetrical: 50000.0}
+      expected: {F_side: 4549.6289}
+      status: worked
+    - description: >-
+        The same resultant on a 30 degree deadrise hull produces a 27% larger
+        side load — the deep-V penalty this paragraph imposes.
+      inputs: {beta: 30.0, R_symmetrical: 50000.0}
+      expected: {F_side: 7216.8784}
+      status: worked
+  tags: [water-loads, subpart-c, landing, unsymmetrical]
+
+- id: cfr-25.529-c-twin-float-unsymmetrical
+  title: Unsymmetrical landing, twin float seaplanes
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.529(c)
+    url: https://www.ecfr.gov/current/title-14/section-25.529
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.529
+    notes: >-
+      The side load is applied at ONE float only, not both. Combined with
+      cfr-25.525-c-twin-float-equivalent-hull, which sizes each float on half
+      the seaplane weight, this is the condition that sets the float strut and
+      carrythrough design.
+  statement: >-
+    The unsymmetrical loading consists of an upward load at the step of each
+    float of 0.75, and a side load of 0.25 tan beta at one float, times the step
+    landing load reached under § 25.527. The side load is directed inboard,
+    perpendicularly to the plane of symmetry midway between the keel and chine
+    lines of the float, at the same longitudinal station as the upward load.
+  applicability:
+    applies_when: Twin float seaplanes, unsymmetrical landing
+    superseded_by:
+      - cfr-25.521-b-applicability
+  tags: [water-loads, subpart-c, landing, unsymmetrical, twin-float]
+
+# ---------------------------------------------------------------------------
+# § 25.531 — Hull and main float takeoff condition
+# ---------------------------------------------------------------------------
+
+- id: cfr-25.531-a-zero-wing-lift
+  title: Aerodynamic wing lift assumed zero in the takeoff condition
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: 25.531(a)
+    url: https://www.ecfr.gov/current/title-14/section-25.531
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.531
+    notes: >-
+      THIS IS THE EXCEPTION cfr-25.525-d-aerodynamic-lift POINTS AT, and it is
+      not a small one: § 25.525(d) assumes lift equal to two-thirds of the
+      weight in every impact condition, and here it is zero. The wing carries
+      none of the airframe and the whole inertia load goes into the hull-to-wing
+      attachment. That is the design case for the carrythrough.
+
+      Until this section was read, the corpus asserted the exception without
+      knowing what it contained.
+  statement: >-
+    For the wing and its attachment to the hull or main float, the aerodynamic
+    wing lift is assumed to be zero, and a downward inertia load corresponding
+    to the load factor of cfr-25.531-b-takeoff-inertia-load-factor is applied.
+  applicability:
+    applies_when: Takeoff condition; wing and its attachment to the hull or main float
+    superseded_by:
+      - cfr-25.521-b-applicability
+  tags: [water-loads, subpart-c, takeoff]
+
+- id: cfr-25.531-b-cto-value
+  title: C_TO empirical seaplane operations factor, takeoff condition
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.531(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.531
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.531
+    notes: >-
+      C_TO = 0.004 is exactly one third of the C1 = 0.012 of § 25.527, and
+      unlike C1 it carries no floor: nothing in § 25.531 raises it the way
+      cfr-25.527-b2-step-load-factor-floor raises C1.
+  bound:
+    quantity: C_TO
+    operator: "=="
+    value: 0.004
+    units: dimensionless
+  applicability:
+    applies_when: Takeoff condition of § 25.531
+    superseded_by:
+      - cfr-25.521-b-applicability
+  tags: [water-loads, subpart-c, takeoff]
+
+- id: cfr-25.531-b-takeoff-inertia-load-factor
+  title: Downward inertia load factor in the takeoff condition
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.531(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.531
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: >-
+      eCFR versioner API full XML for title-14 § 25.531, plus the published
+      formula image EC28SE91.038 read directly
+    notes: >-
+      Algebraically identical in form to the step landing case of
+      cfr-25.527-a1, with three substitutions that all matter: C_TO = 0.004
+      replaces C1 = 0.012, V_S1 (takeoff) replaces V_S0 (landing), beta is taken
+      AT THE MAIN STEP specifically rather than at an arbitrary station, and W
+      is the design water takeoff weight rather than the design landing weight.
+
+      The regulation states W in pounds explicitly here, unlike § 25.337(b)
+      where the unit had to be inferred.
+  formula:
+    expression: "n = (C_TO * V_S1^2) / ((tan(beta)^(2/3)) * W^(1/3))"
+    latex: "n = \\frac{C_{TO} V_{S1}^2}{\\left(\\tan^{2/3}\\beta\\right) W^{1/3}}"
+    source_render: https://img.federalregister.gov/EC28SE91.038/EC28SE91.038_large.png
+    variables:
+      - symbol: n
+        description: Downward inertia load factor in the takeoff condition
+        units: dimensionless
+      - symbol: C_TO
+        description: Empirical seaplane operations factor for takeoff
+        units: dimensionless
+        resolves_to: cfr-25.531-b-cto-value
+      - symbol: V_S1
+        description: >-
+          Seaplane stalling speed at the design takeoff weight with the flaps
+          extended in the appropriate takeoff position
+        units: knots
+      - symbol: beta
+        description: Angle of dead rise AT THE MAIN STEP
+        units: degrees
+        resolves_to: Appendix B figure 1 (measurement convention; beta is a design input)
+      - symbol: W
+        description: >-
+          Design water takeoff weight — the maximum weight for water taxi and
+          takeoff run, per cfr-25.523-a-design-weights. Not the design landing
+          weight used in § 25.527.
+        units: lb
+  applicability:
+    applies_when: Takeoff condition; wing and its attachment to the hull or main float
+    superseded_by:
+      - cfr-25.521-b-applicability
+  test_cases:
+    - description: >-
+        Mid-size flying boat at the design water takeoff weight. Compare the
+        step landing case at the same geometry: C_TO being one third of C1
+        makes this load factor one third of it too.
+      inputs: {C_TO: 0.004, V_S1: 70.0, beta: 20.0, W: 30000.0}
+      expected: {n: 1.2374}
+      status: worked
+    - description: >-
+        A shallower step deadrise raises the factor: 12 degrees instead of 20
+        gives a 43% larger downward inertia load on the wing attachment.
+      inputs: {C_TO: 0.004, V_S1: 70.0, beta: 12.0, W: 30000.0}
+      expected: {n: 1.7711}
+      status: worked
+  tags: [water-loads, subpart-c, takeoff, load-factor]
+
+# ---------------------------------------------------------------------------
+# § 25.535 — Auxiliary float loads
+# ---------------------------------------------------------------------------
+
+- id: cfr-25.535-b-c5-value
+  title: C5 empirical constant, auxiliary float step loading
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.535(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.535
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.535
+  bound:
+    quantity: C5
+    operator: "=="
+    value: 0.0053
+    units: dimensionless
+  applicability:
+    applies_when: Auxiliary float step and bow loading
+    superseded_by:
+      - cfr-25.521-b-applicability
+  tags: [water-loads, subpart-c, auxiliary-float]
+
+- id: cfr-25.535-b-deadrise-floor
+  title: Auxiliary float deadrise floor of 15 degrees
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.535(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.535
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.535
+    notes: >-
+      "beta_S = angle of dead rise at a station 3/4 of the distance from the bow
+      to the step, but need not be less than 15 degrees."
+
+      This is relief, not a geometric limit. A float may physically have less
+      than 15 degrees of deadrise; the designer simply need not use the smaller
+      value in the load formula, which would otherwise blow up as tan beta
+      falls. It is the regulation's own guard against the singularity that
+      cfr-25.533-b1-keel-pressure has no equivalent protection from.
+  bound:
+    quantity: beta_S used in the cfr-25.535-b-step-load formula
+    operator: ">="
+    value: 15.0
+    units: degrees
+  applicability:
+    applies_when: Auxiliary float step and bow loading
+    superseded_by:
+      - cfr-25.521-b-applicability
+  tags: [water-loads, subpart-c, auxiliary-float, deadrise]
+
+- id: cfr-25.535-b-step-load
+  title: Auxiliary float step loading limit load
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.535(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.535
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: >-
+      eCFR versioner API full XML for title-14 § 25.535, plus the published
+      formula image EC28SE91.042 read directly
+    notes: >-
+      Applied in the plane of symmetry of the float at three-quarters of the
+      distance from the bow to the step, perpendicular to the keel. The same
+      magnitude is applied for the bow loading case of § 25.535(c), at one
+      quarter of that distance.
+
+      W here is the SEAPLANE design landing weight, not the float's own
+      displacement, and r_y is a ROLL radius of gyration ratio — the lateral
+      analogue of the pitch ratio r_x in cfr-25.527-a2. Substituting r_x is a
+      plausible and wrong reading.
+
+      The cap in cfr-25.535-b-submerged-load-cap applies to this result.
+  formula:
+    expression: "L = (C5 * V_S0^2 * W^(2/3)) / ((tan(beta_S)^(2/3)) * (1 + r_y^2)^(2/3))"
+    latex: "L = \\frac{C_5 V_{S0}^2 W^{2/3}}{\\tan^{2/3}\\beta_S \\left(1 + r_y^2\\right)^{2/3}}"
+    source_render: https://img.federalregister.gov/EC28SE91.042/EC28SE91.042_large.png
+    variables:
+      - symbol: L
+        description: Limit load on the auxiliary float
+        units: lb
+      - symbol: C5
+        description: Empirical constant
+        units: dimensionless
+        resolves_to: cfr-25.535-b-c5-value
+      - symbol: V_S0
+        description: >-
+          Seaplane stalling speed with landing flaps extended in the appropriate
+          position and with no slipstream effect
+        units: knots
+      - symbol: W
+        description: Seaplane design landing weight
+        units: lb
+      - symbol: beta_S
+        description: >-
+          Angle of dead rise at a station three-quarters of the distance from
+          the bow to the step, subject to the 15 degree floor of
+          cfr-25.535-b-deadrise-floor
+        units: degrees
+      - symbol: r_y
+        description: >-
+          Ratio of the lateral distance between the center of gravity and the
+          plane of symmetry of the float, to the radius of gyration in ROLL
+        units: dimensionless
+  applicability:
+    applies_when: Auxiliary float step loading, and by reference the bow loading of § 25.535(c)
+    superseded_by:
+      - cfr-25.521-b-applicability
+  test_cases:
+    - description: Wing-tip float on a 30,000 lb flying boat, 20 degree deadrise
+      inputs: {C5: 0.0053, V_S0: 65.0, W: 30000.0, beta_S: 20.0, r_y: 1.5}
+      expected: {L: 19329.3507}
+      status: worked
+    - description: >-
+        The 15 degree floor is what a shallow float gets. A true 8 degree
+        deadrise would give 36452 lb here; the floor caps the design load at
+        23708 lb, 35% lower. That is why cfr-25.535-b-deadrise-floor is relief
+        and not a geometric limit.
+      inputs: {C5: 0.0053, V_S0: 65.0, W: 30000.0, beta_S: 15.0, r_y: 1.5}
+      expected: {L: 23707.8886}
+      status: worked
+  tags: [water-loads, subpart-c, auxiliary-float]
+
+- id: cfr-25.535-b-submerged-load-cap
+  title: Auxiliary float load capped at three times displaced water weight
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.535(b)
+    url: https://www.ecfr.gov/current/title-14/section-25.535
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.535
+    notes: >-
+      "except that the value of L need not exceed three times the weight of the
+      displaced water when the float is completely submerged".
+
+      A physical ceiling on an empirical formula: once the float is fully under,
+      it cannot generate more reaction regardless of what the expression says.
+      This is the term that couples auxiliary float LOADS to auxiliary float
+      VOLUME, and therefore the one that stops a sizing loop from shrinking a
+      float to reduce its own design load.
+  bound:
+    quantity: L, the auxiliary float limit load of cfr-25.535-b-step-load
+    operator: "<="
+    value: "3 * (weight of water displaced by the fully submerged float)"
+    units: lb
+  applicability:
+    applies_when: Auxiliary float step and bow loading
+    superseded_by:
+      - cfr-25.521-b-applicability
+  tags: [water-loads, subpart-c, auxiliary-float]
+
+- id: cfr-25.535-f-immersed-vertical
+  title: Immersed float condition, vertical load component
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.535(f)
+    url: https://www.ecfr.gov/current/title-14/section-25.535
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: >-
+      eCFR versioner API full XML for title-14 § 25.535, plus the published
+      formula image EC28SE91.043 read directly
+    notes: >-
+      Applied at the centroid of the float cross section at one-third of the
+      distance from the bow to the step. This is plain buoyancy — the fully
+      submerged float displacing its own volume of water.
+
+      UNITS NOTE. The eCFR XML prints both rho and V as "ft.2", which is a
+      mangled superscript: the source has ft^3 in both places. Dimensional
+      analysis settles it — rho * g * V must yield lbf, so rho is slug/ft^3 and
+      V is ft^3. The corpus records the corrected units, not the rendered ones.
+  formula:
+    expression: "F_vertical = rho * g * V"
+    latex: "F_{vertical} = \\rho g V"
+    source_render: https://img.federalregister.gov/EC28SE91.043/EC28SE91.043_large.png
+    variables:
+      - symbol: F_vertical
+        description: Vertical load component in the immersed float condition
+        units: lb
+      - symbol: rho
+        description: Mass density of water
+        units: slug/ft^3
+      - symbol: g
+        description: Acceleration due to gravity
+        units: ft/s^2
+      - symbol: V
+        description: Volume of the float
+        units: ft^3
+  applicability:
+    applies_when: Immersed float condition
+    superseded_by:
+      - cfr-25.521-b-applicability
+  test_cases:
+    - description: >-
+        A 50 ft^3 float fully immersed in fresh water. rho = 1.9384 slug/ft^3
+        and g = 32.174 ft/s^2 are engineering values, not regulatory ones; the
+        result is the familiar 62.37 lb per cubic foot of displacement.
+      inputs: {rho: 1.9384, g: 32.174, V: 50.0}
+      expected: {F_vertical: 3118.3041}
+      status: worked
+  tags: [water-loads, subpart-c, auxiliary-float, immersed]
+
+- id: cfr-25.535-f-immersed-drag-and-side
+  title: Immersed float condition, aft and side load components
+  kind: formula
+  source:
+    authority: 14 CFR
+    section: 25.535(f)
+    url: https://www.ecfr.gov/current/title-14/section-25.535
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: >-
+      eCFR versioner API full XML for title-14 § 25.535, plus the published
+      formula image EC28SE91.043 read directly
+    notes: >-
+      Both components share one form, differing only in coefficient: C_x = 0.133
+      for the aft component and C_y = 0.106 for the side component. The
+      expression below is stated once with a generic C; bind C to whichever is
+      wanted.
+
+      K = 0.8, except that lower values may be used if it is shown that the
+      floats are incapable of submerging at a speed of 0.8 V_S0 in normal
+      operations.
+
+      UNIT AMBIGUITY, RECORDED RATHER THAN RESOLVED. This is the only water load
+      formula in Subpart C written in genuine physical quantities — it contains
+      an explicit rho and a dynamic-pressure form (rho/2) * area * speed^2 —
+      rather than being an empirical fit whose constants silently absorb the
+      units. Every other expression here takes V_S0 or V_S1 in knots because the
+      empirical constant was fitted that way. Here the dimensions must close on
+      their own, and they only do so with the speed in ft/s: slug/ft^3 * ft^2 *
+      (ft/s)^2 = lbf. The regulation's own glossary nevertheless says knots, and
+      using knots directly changes the answer by a factor of 1.688^2 = 2.85.
+
+      The corpus does not assert which is correct, because the section does not
+      say and no primary source consulted resolves it. The test case below is
+      therefore `pending`, not `worked`. See docs/verification-log.md, Round 3,
+      and the open item it records.
+  formula:
+    expression: "F = C * (rho / 2) * V^(2/3) * (K * V_S0)^2"
+    latex: "F = C \\frac{\\rho}{2} V^{2/3} \\left(K V_{S0}\\right)^2"
+    source_render: https://img.federalregister.gov/EC28SE91.043/EC28SE91.043_large.png
+    variables:
+      - symbol: F
+        description: Aft or side load component, according to which coefficient C is bound
+        units: lb
+      - symbol: C
+        description: >-
+          Force coefficient. C_x = 0.133 for the aft (drag) component, C_y =
+          0.106 for the side component.
+        units: dimensionless
+      - symbol: rho
+        description: Mass density of water
+        units: slug/ft^3
+      - symbol: V
+        description: Volume of the float
+        units: ft^3
+      - symbol: K
+        description: >-
+          Submergence factor, 0.8, except that lower values may be used if the
+          floats are shown incapable of submerging at 0.8 V_S0 in normal
+          operations
+        units: dimensionless
+      - symbol: V_S0
+        description: >-
+          Seaplane stalling speed with landing flaps extended and no slipstream
+          effect. UNIT UNRESOLVED — the glossary says knots, dimensional closure
+          requires ft/s. See the verification notes.
+        units: knots or ft/s (unresolved)
+  applicability:
+    applies_when: Immersed float condition
+    superseded_by:
+      - cfr-25.521-b-applicability
+  test_cases:
+    - description: >-
+        Aft component on a 50 ft^3 float. Held pending until the speed unit is
+        resolved against a source that states it: with V_S0 = 65 kt taken
+        literally the result is 4730.6 lb, and with the same speed converted to
+        109.71 ft/s it is 13478.5 lb.
+      via: cfr-25.535-f-immersed-drag-and-side
+      inputs: {C: 0.133, rho: 1.9384, V: 50.0, K: 0.8, V_S0: 65.0}
+      expected: {F: 4730.6237}
+      status: pending
+  tags: [water-loads, subpart-c, auxiliary-float, immersed, unresolved-units]
+
+- id: cfr-25.535-g-auxiliary-float-k2
+  title: Auxiliary float bottom pressures use K2 = 1.0
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.535(g)
+    url: https://www.ecfr.gov/current/title-14/section-25.535
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.535
+    notes: >-
+      "The float bottom pressures must be established under § 25.533, except
+      that the value of K2 in the formulae may be taken as 1.0."
+
+      So the § 25.533 pressure formulas apply to auxiliary floats with the
+      station weighting switched off entirely — no bow factor of 2.0, no
+      interior minimum of 0.75. A tool that reuses its hull K2 lookup for
+      auxiliary floats will over-predict the bow and under-predict mid-forebody.
+      The deadrise to use is beta_S from § 25.535(b), not the hull's.
+  bound:
+    quantity: K2 in the § 25.533 pressure formulas, applied to auxiliary floats
+    operator: "=="
+    value: 1.0
+    units: dimensionless
+  applicability:
+    applies_when: Auxiliary float bottom pressures
+    superseded_by:
+      - cfr-25.521-b-applicability
+  tags: [water-loads, subpart-c, auxiliary-float, pressure]
+
+# ---------------------------------------------------------------------------
+# § 25.537 — Seawing loads
+# ---------------------------------------------------------------------------
+
+- id: cfr-25.537-seawing-test-data
+  title: Seawing loads must be based on test data
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: "25.537"
+    url: https://www.ecfr.gov/current/title-14/section-25.537
+    edition: 2026-07-07
+    retrieved: 2026-08-13
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.537
+    notes: >-
+      The section is one sentence and supplies no method at all. It is encoded
+      because its emptiness is load-bearing: a seawing configuration has NO
+      default analytical path in Subpart C, so a tool asked to size one must
+      decline rather than fall back on the hull formulas. This closes the last
+      of the previously unread §§ 25.523-25.537.
+  statement: >-
+    Seawing design loads must be based on applicable test data.
+  applicability:
+    applies_when: Seawing configurations
+  tags: [water-loads, subpart-c, seawing, no-default-method]

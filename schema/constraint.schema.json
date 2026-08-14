@@ -5,30 +5,59 @@
   "description": "A constraint file is a list of entries. Representation-neutral by design: this projects into OWL/RDF, SysML, or code. This schema is normative and is enforced in CI; schema/README.md is the prose companion, not the source of truth.",
   "type": "array",
   "minItems": 1,
-  "items": { "$ref": "#/$defs/constraint" },
-
+  "items": {
+    "$ref": "#/$defs/constraint"
+  },
   "$defs": {
     "constraint": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title", "kind", "source", "verification"],
+      "required": [
+        "id",
+        "title",
+        "kind",
+        "source",
+        "verification"
+      ],
       "properties": {
         "id": {
           "type": "string",
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
           "description": "Stable slug, e.g. cfr-25.527-a1. Must be unique across the whole corpus, not just within a file. Never reuse or repurpose an id: downstream consumers pin them."
         },
-        "title": { "type": "string", "minLength": 1 },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
         "kind": {
-          "enum": ["formula", "bound", "cardinality", "assertion", "qualitative", "table"],
+          "enum": [
+            "formula",
+            "bound",
+            "cardinality",
+            "assertion",
+            "qualitative",
+            "table"
+          ],
           "description": "`table` covers requirements the CFR publishes as a lookup rather than an expression — § 25.807's exit dimensions and seats-per-exit-pair, for instance. It was invented downstream in flightforge's vendored copies before this schema existed, and is adopted here rather than rewritten, because a table really is what the regulation contains."
         },
-        "source": { "$ref": "#/$defs/source" },
-        "verification": { "$ref": "#/$defs/verification" },
-        "formula": { "$ref": "#/$defs/formula" },
-        "bound": { "$ref": "#/$defs/bound" },
-        "table": { "$ref": "#/$defs/table" },
-        "applicability": { "$ref": "#/$defs/applicability" },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "verification": {
+          "$ref": "#/$defs/verification"
+        },
+        "formula": {
+          "$ref": "#/$defs/formula"
+        },
+        "bound": {
+          "$ref": "#/$defs/bound"
+        },
+        "table": {
+          "$ref": "#/$defs/table"
+        },
+        "applicability": {
+          "$ref": "#/$defs/applicability"
+        },
         "breakpoints": {
           "type": "array",
           "minItems": 2,
@@ -36,11 +65,20 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["station", "value"],
+            "required": [
+              "station",
+              "value"
+            ],
             "properties": {
-              "station": { "type": "string", "description": "Prose label as printed on the figure." },
+              "station": {
+                "type": "string",
+                "description": "Prose label as printed on the figure."
+              },
               "body": {
-                "enum": ["forebody", "afterbody"],
+                "enum": [
+                  "forebody",
+                  "afterbody"
+                ],
                 "description": "Which body the station lies on. The forebody/afterbody split is what carries the discontinuity at the main step, which a single normalised axis cannot represent."
               },
               "t": {
@@ -49,7 +87,9 @@
                 "maximum": 1,
                 "description": "Normalised position within that body: 0 at its forward end, 1 at its aft end. Supplying body and t is what makes the figure machine-usable rather than prose; tools/run_tests.py interpolates on them."
               },
-              "value": { "type": "number" }
+              "value": {
+                "type": "number"
+              }
             }
           }
         },
@@ -61,46 +101,157 @@
         "test_cases": {
           "type": "array",
           "minItems": 1,
-          "items": { "$ref": "#/$defs/test_case" }
+          "items": {
+            "$ref": "#/$defs/test_case"
+          }
         },
         "tags": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        },
+        "history": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Superseded versions of this entry's substance, most recent first. Present only where the REGULATION changed — not for editorial changes to our own encoding, which belong in git. A certification basis is pinned to an amendment level, so 'what did this require in 2015?' is an engineering question, and tools/as_of.py answers it from here.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "effective_from",
+              "effective_to",
+              "amendment",
+              "change"
+            ],
+            "properties": {
+              "effective_from": {
+                "$ref": "#/$defs/date",
+                "description": "When the superseded text took effect."
+              },
+              "effective_to": {
+                "$ref": "#/$defs/date",
+                "description": "When it stopped applying — the effective date of the amendment that replaced it."
+              },
+              "amendment": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The amendment that ended it, with its Federal Register citation."
+              },
+              "superseded_value": {
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "description": "What the entry's bound value or expression used to be."
+              },
+              "change": {
+                "type": "string",
+                "minLength": 1,
+                "description": "What changed, and what it means for anything built on the old text."
+              },
+              "substantive": {
+                "type": "boolean",
+                "default": true,
+                "description": "False for a change that cannot alter a computed result."
+              }
+            }
+          }
         }
       },
-
       "allOf": [
         {
-          "if": { "properties": { "kind": { "const": "formula" } }, "required": ["kind"] },
-          "then": { "required": ["formula"] }
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "formula"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "formula"
+            ]
+          }
         },
         {
           "if": {
-            "properties": { "kind": { "enum": ["bound", "cardinality"] } },
-            "required": ["kind"]
+            "properties": {
+              "kind": {
+                "enum": [
+                  "bound",
+                  "cardinality"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
           },
-          "then": { "required": ["bound"] }
+          "then": {
+            "required": [
+              "bound"
+            ]
+          }
         },
         {
           "if": {
-            "properties": { "kind": { "enum": ["assertion", "qualitative"] } },
-            "required": ["kind"]
+            "properties": {
+              "kind": {
+                "enum": [
+                  "assertion",
+                  "qualitative"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
           },
-          "then": { "required": ["statement"] }
+          "then": {
+            "required": [
+              "statement"
+            ]
+          }
         },
         {
-          "if": { "properties": { "kind": { "const": "table" } }, "required": ["kind"] },
-          "then": { "required": ["table"] }
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "table"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "table"
+            ]
+          }
         },
         {
           "if": {
             "properties": {
               "verification": {
-                "properties": { "status": { "const": "interpretation" } },
-                "required": ["status"]
+                "properties": {
+                  "status": {
+                    "const": "interpretation"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
               }
             },
-            "required": ["verification"]
+            "required": [
+              "verification"
+            ]
           },
           "then": {
             "properties": {
@@ -113,52 +264,82 @@
         }
       ]
     },
-
     "source": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["authority", "section", "edition", "retrieved"],
+      "required": [
+        "authority",
+        "section",
+        "edition",
+        "retrieved"
+      ],
       "properties": {
         "authority": {
           "type": "string",
           "description": "\"14 CFR\" | \"CS-25\" | \"ANC-3\" | \"none\" for an interpretation with no regulatory basis."
         },
-        "section": { "type": "string" },
-        "url": { "type": "string", "description": "Canonical primary-source URL. Empty string only when authority is \"none\"." },
-        "edition": { "$ref": "#/$defs/date" },
-        "retrieved": { "$ref": "#/$defs/date" }
+        "section": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "description": "Canonical primary-source URL. Empty string only when authority is \"none\"."
+        },
+        "edition": {
+          "$ref": "#/$defs/date"
+        },
+        "retrieved": {
+          "$ref": "#/$defs/date"
+        }
       }
     },
-
     "verification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "checked_against"],
+      "required": [
+        "status",
+        "checked_against"
+      ],
       "properties": {
         "status": {
-          "enum": ["verified", "partial", "unverified", "interpretation"],
+          "enum": [
+            "verified",
+            "partial",
+            "unverified",
+            "interpretation"
+          ],
           "description": "verified — matches primary regulatory text exactly. partial — text verified, but depends on a source not yet read. unverified — from a secondary source. interpretation — an engineering reading NOT stated in the regulation."
         },
-        "checked_against": { "type": "string", "minLength": 1, "description": "What was actually read. \"the regulation\" is not an answer; name the endpoint, the issue date, or the image id." },
-        "notes": { "type": "string" },
+        "checked_against": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What was actually read. \"the regulation\" is not an answer; name the endpoint, the issue date, or the image id."
+        },
+        "notes": {
+          "type": "string"
+        },
         "sign_convention": {
           "type": "string",
           "description": "Present only where the regulation's plain wording and its engineering reading differ in sign or in magnitude-vs-signed form. Stating it is mandatory there: an operator that silently contradicts the quoted text is the failure mode this corpus exists to prevent."
         }
       }
     },
-
     "formula": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["expression", "variables"],
+      "required": [
+        "expression",
+        "variables"
+      ],
       "properties": {
         "expression": {
           "type": "string",
           "minLength": 1,
           "description": "Plain-text math, unambiguous ordering. Where the entry carries test_cases, this must be evaluable by tools/run_tests.py."
         },
-        "latex": { "type": "string" },
+        "latex": {
+          "type": "string"
+        },
         "source_render": {
           "type": "string",
           "description": "URL of the published image, when the regulation publishes the formula as a raster rather than as text. Its presence is the claim that the image was read."
@@ -170,43 +351,88 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["symbol", "description", "units"],
+            "required": [
+              "symbol",
+              "description",
+              "units"
+            ],
             "properties": {
-              "symbol": { "type": "string", "minLength": 1 },
-              "description": { "type": "string", "minLength": 1 },
-              "units": { "type": "string", "minLength": 1, "description": "Or \"dimensionless\"." },
-              "resolves_to": { "type": "string", "description": "For graph-valued or cross-referenced terms: the entry id or figure that supplies the value." }
+              "symbol": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "units": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Or \"dimensionless\"."
+              },
+              "resolves_to": {
+                "type": "string",
+                "description": "For graph-valued or cross-referenced terms: the entry id or figure that supplies the value."
+              }
             }
           }
         }
       }
     },
-
     "bound": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["quantity", "operator", "value", "units"],
+      "required": [
+        "quantity",
+        "operator",
+        "value",
+        "units"
+      ],
       "properties": {
-        "quantity": { "type": "string", "minLength": 1 },
+        "quantity": {
+          "type": "string",
+          "minLength": 1
+        },
         "operator": {
-          "enum": [">=", "<=", ">", "<", "==", "range"],
+          "enum": [
+            ">=",
+            "<=",
+            ">",
+            "<",
+            "==",
+            "range"
+          ],
           "description": "\"==\" only. \"=\" is not in the vocabulary — it reads as assignment and has already appeared in downstream copies of this schema."
         },
-        "value": { "type": ["number", "string"], "description": "A string when the bound is symbolic, e.g. \"0.75 * P_k\"." },
-        "units": { "type": "string", "minLength": 1 }
+        "value": {
+          "type": [
+            "number",
+            "string"
+          ],
+          "description": "A string when the bound is symbolic, e.g. \"0.75 * P_k\"."
+        },
+        "units": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
-
     "table": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["columns", "rows"],
+      "required": [
+        "columns",
+        "rows"
+      ],
       "description": "A lookup published by the regulation as a table. Rows are positional against columns so that a consumer can index without parsing prose.",
       "properties": {
         "columns": {
           "type": "array",
           "minItems": 2,
-          "items": { "type": "string", "minLength": 1 }
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         },
         "rows": {
           "type": "array",
@@ -214,47 +440,71 @@
           "items": {
             "type": "array",
             "minItems": 2,
-            "items": { "type": ["string", "number", "null"] }
+            "items": {
+              "type": [
+                "string",
+                "number",
+                "null"
+              ]
+            }
           }
         },
-        "units": { "type": "string" }
+        "units": {
+          "type": "string"
+        }
       }
     },
-
     "applicability": {
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
       "description": "Conditions under which this constraint does not apply. § 25.521(b) makes most of Subpart C a default path, not a hard requirement.",
       "properties": {
-        "applies_when": { "type": "string" },
+        "applies_when": {
+          "type": "string"
+        },
         "superseded_by": {
           "type": "array",
           "minItems": 1,
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
-
     "test_case": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["description", "inputs", "expected", "status"],
+      "required": [
+        "description",
+        "inputs",
+        "expected",
+        "status"
+      ],
       "properties": {
-        "description": { "type": "string", "minLength": 1 },
-        "inputs": { "type": "object" },
-        "expected": { "type": "object" },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputs": {
+          "type": "object"
+        },
+        "expected": {
+          "type": "object"
+        },
         "via": {
           "type": "string",
           "description": "How to evaluate this case. Omitted: use this entry's own formula, or its breakpoints if it has them. \"bound\": check this entry's own bound predicate against inputs.value. Any other value: the id of the entry whose formula supplies the arithmetic — used where a bound constrains a quantity that another entry computes, so the check stays a real evaluation instead of a restated constant."
         },
         "status": {
-          "enum": ["worked", "pending"],
+          "enum": [
+            "worked",
+            "pending"
+          ],
           "description": "\"worked\" is earned by tools/run_tests.py, not asserted by an author. CI fails if a worked case does not reproduce."
         }
       }
     },
-
     "date": {
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"

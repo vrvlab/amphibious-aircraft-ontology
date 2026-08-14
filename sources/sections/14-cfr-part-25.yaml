@@ -1,0 +1,291 @@
+# Source registry — 14 CFR Part 25.
+#
+# One record per regulatory SECTION, not per constraint entry. Sixty-six entries
+# cite eighteen sections, so edition metadata carried on each entry would be
+# duplicated roughly fivefold and would drift apart the first time one copy was
+# updated and another was not.
+#
+# WHY THIS EXISTS
+#
+# A constant is not a fact. It is a fact as of an issue date.
+#
+# 14 CFR 25.535(d) specified a side load coefficient of 3.25 tan beta from 1964
+# until 2022, when Amdt. 25-148 corrected it to 0.25 -- a thirteenfold change
+# that stood for fifty-eight years. The same amendment changed 25.525(b) from
+# citing 25.533(b) to citing 25.533(c), moving which pressure case governs a
+# distributed load. Neither change announced itself. Both were found by diffing
+# the regulation against itself across dates.
+#
+# So each record carries a DIGEST of the section text as it stood at `edition`.
+# tools/check_editions.py re-fetches the section and compares. Any change to the
+# regulation -- amended, corrected, or silently re-rendered -- shows up as a
+# digest mismatch, whether or not the amendment citation line moved with it.
+#
+# FIELDS
+#
+#   edition            eCFR issue date the text was read from
+#   retrieved          when it was actually fetched
+#   effective_from     date the CURRENT text took effect, from the last
+#                      amendment in the citation line, or the original adoption
+#   amendment_history  the bracketed FR citation line, verbatim. This is the
+#                      authoritative amendment list and is quoted rather than
+#                      parsed into fields, because the parse is lossy and the
+#                      line is short.
+#   text_sha256        sha256 of the section text, tags stripped and whitespace
+#                      collapsed, first 16 hex characters
+#   text_chars         length of that normalised text, a cheap corroborating
+#                      check that a digest mismatch is a real edit
+#
+# WHY APPENDIX B HAS NO RECORD HERE. It has no text to digest. Its entire text
+# content is twenty-one characters -- the words "Appendix B to Part 25" -- and
+# everything else in it is three images. The versioner's `appendix=` endpoint
+# looked broken when it returned an empty document; it was not, there is simply
+# nothing to return. Appendix B lives in sources/figures/ instead, where the
+# image bytes are digested, and that is the only verification available for it.
+#
+# A NOTE ON HORIZONS. eCFR's own version history begins 2016-12-30; everything
+# before that is a single baseline snapshot. The citation line does not have
+# that limit -- it reaches back to original adoption in 1964 -- which is why it
+# is stored verbatim rather than reconstructed from the versions API.
+
+- section: "25.337"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.337
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1970-04-08
+  amendment_history: >-
+    [Doc. No. 5066, 29 FR 18291, Dec. 24, 1964, as amended by Amdt. 25-23,
+    35 FR 5672, Apr. 8, 1970]
+  text_sha256: "d571d0a191442772"
+  text_chars: 1045
+
+- section: "25.345"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.345
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 2014-12-11
+  amendment_history: >-
+    [Doc. No. 5066, 29 FR 18291, Dec. 24, 1964, as amended by Amdt. 25-46,
+    43 FR 50595, Oct. 30, 1978; Amdt. 25-72, 55 FR 37607, Sept. 17, 1990;
+    Amdt. 25-86, 61 FR 5221, Feb. 9, 1996; Amdt. 25-91, 62 FR 40704, July
+    29, 1997; Amdt. 25-141, 79 FR 73468, Dec. 11, 2014]
+  text_sha256: "475b51a8cbfc3b9a"
+  text_chars: 2337
+
+- section: "25.349"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.349
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1998-02-23
+  amendment_history: >-
+    [Doc. No. 5066, 29 FR 18291, Dec. 24, 1964, as amended by Amdt. 25-23,
+    35 FR 5672, Apr. 8, 1970; Amdt. 25-86, 61 FR 5222, Feb. 9, 1996; Amdt.
+    25-94, 63 FR 8848, Feb. 23, 1998]
+  text_sha256: "b22f73bfe1570d3c"
+  text_chars: 2194
+
+- section: "25.457"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.457
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1964-12-24
+  amendment_history: null
+  text_sha256: "04d4a5fad24ee8af"
+  text_chars: 281
+  notes: >-
+    No citation line. Unamended since 1964.
+
+- section: "25.473"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.473
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 2001-05-16
+  amendment_history: >-
+    [Amdt. 25-91, 62 FR 40705, July 29, 1997; Amdt. 25-91, 62 FR 45481, Aug.
+    27, 1997; Amdt. 25-103, 66 FR 27394, May 16, 2001]
+  text_sha256: "930025eba6b45b8d"
+  text_chars: 1533
+  notes: >-
+    Citation line begins at Amdt. 25-91 rather than the 1964 adoption, so the
+    section was substantially restated in 1997.
+
+- section: "25.479"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.479
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1997-08-27
+  amendment_history: >-
+    [Amdt. 25-91, 62 FR 40705, July 29, 1997; Amdt. 25-91, 62 FR 45481, Aug.
+    27, 1997]
+  text_sha256: "ce08d59e8be94831"
+  text_chars: 2585
+  notes: >-
+    Citation line begins at Amdt. 25-91; substantially restated in 1997.
+
+- section: "25.521"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.521
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1964-12-24
+  amendment_history: null
+  text_sha256: "bc975e57b821af87"
+  text_chars: 518
+  notes: >-
+    No citation line. Unamended since 1964 -- notable, because 25.521(b) is
+    the paragraph that makes the whole of 25.523-25.537 defeasible.
+
+- section: "25.523"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.523
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1970-04-08
+  amendment_history: >-
+    [Doc. No. 5066, 29 FR 18291, Dec. 24, 1964, as amended by Amdt. 25-23,
+    35 FR 5673, Apr. 8, 1970]
+  text_sha256: "d1972be8b55f06f8"
+  text_chars: 641
+
+- section: "25.525"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.525
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 2023-01-18
+  amendment_history: >-
+    [Doc. No. 5066, 29 FR 18291, Dec. 24, 1964, as amended by Doc. No.
+    FAA-2022-1355, Amdt. 25-148, 87 FR 75710, Dec. 9, 2022; 88 FR 2813, Jan.
+    18, 2023]
+  text_sha256: "445f2e4860d930b6"
+  text_chars: 984
+  notes: >-
+    Amended by Amdt. 25-148 in 2022: paragraph (b) changed its cross-reference
+    from 25.533(b) to 25.533(c), moving the floor on distributed loads from the
+    LOCAL pressure case to the DISTRIBUTED one. Found by diffing, not announced.
+
+- section: "25.527"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.527
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1970-04-08
+  amendment_history: >-
+    [Doc. No. 5066, 29 FR 18291, Dec. 24, 1964, as amended by Amdt. 25-23,
+    35 FR 5673, Apr. 8, 1970]
+  text_sha256: "513230c7de66e01a"
+  text_chars: 1670
+
+- section: "25.529"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.529
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1964-12-24
+  amendment_history: null
+  text_sha256: "56403df0242c931a"
+  text_chars: 1978
+  notes: >-
+    No citation line. Unamended since the original adoption of Part 25 in
+    1964; the part-level citation covers it.
+
+- section: "25.531"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.531
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1970-04-08
+  amendment_history: >-
+    [Doc. No. 5066, 29 FR 18291, Dec. 24, 1964, as amended by Amdt. 25-23,
+    35 FR 5673, Apr. 8, 1970]
+  text_sha256: "313272bdc327ca99"
+  text_chars: 691
+
+- section: "25.533"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.533
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1970-04-08
+  amendment_history: >-
+    [Doc. No. 5066, 29 FR 18291, Dec. 24, 1964, as amended by Amdt. 25-23,
+    35 FR 5673, Apr. 8, 1970]
+  text_sha256: "098f21326d184496"
+  text_chars: 3248
+
+- section: "25.535"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.535
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 2023-01-18
+  amendment_history: >-
+    [Doc. No. 5066, 29 FR 18291, Dec. 24, 1964, as amended by Amdt. 25-23,
+    35 FR 5673, Apr. 8, 1970; Amdt. 25-148, 87 FR 75710, Dec. 9, 2022; 88 FR
+    2813, Jan. 18, 2023]
+  text_sha256: "e8b39bc61d89e321"
+  text_chars: 3530
+  notes: >-
+    Amended by Amdt. 25-148 in 2022: paragraph (d) changed 3.25 tan beta to
+    0.25 tan beta. See cfr-25.535-d-unsymmetrical-step-loading, which carries
+    the superseded value in its history block.
+
+- section: "25.537"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.537
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1964-12-24
+  amendment_history: null
+  text_sha256: "3a7c8d9dbea39466"
+  text_chars: 83
+  notes: >-
+    No citation line. Unamended since 1964, and one sentence long.
+
+- section: "25.751"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.751
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1964-12-24
+  amendment_history: null
+  text_sha256: "9499ba141c82fe75"
+  text_chars: 269
+  notes: >-
+    No citation line. Unamended since 1964.
+
+- section: "25.755"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.755
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 1964-12-24
+  amendment_history: null
+  text_sha256: "4e5687b8fe0ea4e4"
+  text_chars: 401
+  notes: >-
+    No citation line. Unamended since 1964.
+
+- section: "25.807"
+  authority: 14 CFR
+  url: https://www.ecfr.gov/current/title-14/section-25.807
+  edition: 2026-07-07
+  retrieved: 2026-08-14
+  effective_from: 2004-05-03
+  amendment_history: >-
+    [Amdt. 25-72, 55 FR 29781, July 20, 1990, as amended by Amdt. 25-88, 61
+    FR 57956, Nov. 8, 1996; 62 FR 1817, Jan. 13, 1997; Amdt. 25-94, 63 FR
+    8848, Feb. 23, 1998; 63 FR 12862, Mar. 16, 1998; Amdt. 25-114, 69 FR
+    24502, May 3, 2004]
+  text_sha256: "5211ef551746f351"
+  text_chars: 10084
+  notes: >-
+    Heavily amended -- five amendments between 1990 and 2004, and the citation
+    line begins at Amdt. 25-72 rather than at original adoption.
+

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/vrvlab/amphibious-aircraft-ontology/main/schema/figure.schema.json",
+  "title": "Amphibious Aircraft Ontology — published figure registry",
+  "description": "One record per raster image the regulation publishes in place of text. The equations of §§ 25.527, 25.531, 25.533 and 25.535 are all published this way, and the whole of Appendix B is three images and a title — its text content is twenty-one characters. A digest of the image bytes is therefore the only verification available for the Appendix B figures, and the only check anywhere that catches a figure being redrawn while the surrounding text stands unchanged. Normative and enforced by tools/validate.py.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "url", "belongs_to", "citation", "depicts", "sha256", "bytes", "retrieved", "read_by"],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^EC[0-9A-Z]+\\.[0-9]+$",
+        "description": "The FAA's own image identifier, e.g. EC28SE91.056. Used verbatim in constraint verification notes, so it is the join between an entry and the picture it was read from."
+      },
+      "url": { "type": "string", "pattern": "^https://", "description": "Canonical fetch URL — the Federal Register PNG, which is what was actually read." },
+      "alternate_url": { "type": "string", "description": "The eCFR GIF of the same figure. Recorded as a fallback; not digested, since the two encodings differ byte-wise while depicting the same figure." },
+      "belongs_to": { "type": "string", "minLength": 1, "description": "Section number, or \"Appendix B\"." },
+      "citation": { "type": "string", "minLength": 1 },
+      "depicts": { "type": "string", "minLength": 1, "description": "What the image shows, in one line. A reader who cannot load the image should still know what it was." },
+      "sha256": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{16}$",
+        "description": "First 16 hex characters of the sha256 of the image BYTES as fetched. Meaningful only because the server was checked to send a byte-stable file with an ETag rather than re-rendering per request."
+      },
+      "bytes": { "type": "integer", "minimum": 1 },
+      "width": { "type": "integer", "minimum": 1 },
+      "height": { "type": "integer", "minimum": 1 },
+      "last_modified": {
+        "$ref": "#/$defs/date",
+        "description": "The HTTP Last-Modified header. Evidence about the FILE, not the regulation — it records when the image was last written to that server, not when the figure was adopted."
+      },
+      "retrieved": { "$ref": "#/$defs/date" },
+      "read_by": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string" },
+        "description": "Constraint entry ids that were read from this image. Checked to resolve — an unread figure in the registry is dead weight, and an entry citing an unregistered figure has an undigested source."
+      },
+      "notes": { "type": "string" }
+    }
+  },
+
+  "$defs": {
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+  }
+}

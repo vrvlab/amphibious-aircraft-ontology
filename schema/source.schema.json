@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/vrvlab/amphibious-aircraft-ontology/main/schema/source.schema.json",
+  "title": "Amphibious Aircraft Ontology — source registry",
+  "description": "One record per regulatory section: which issue of the text was read, when it took effect, its full amendment history, and a digest of the text itself. Constraint entries name a section; this says what that section said and when. Normative and enforced by tools/validate.py.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["section", "authority", "edition", "retrieved", "effective_from", "text_sha256", "text_chars"],
+    "properties": {
+      "section": {
+        "type": "string",
+        "pattern": "^[0-9]+\\.[0-9]+$",
+        "description": "Bare section number, e.g. \"25.535\". Constraint entries cite paragraphs (\"25.535(d)\"); the registry is keyed on the section they belong to."
+      },
+      "authority": { "type": "string", "minLength": 1 },
+      "url": { "type": "string" },
+      "edition": {
+        "$ref": "#/$defs/date",
+        "description": "eCFR issue date the text was read from. Every constraint entry citing this section must declare the same edition — checked, so a partially re-verified section cannot pass unnoticed."
+      },
+      "retrieved": { "$ref": "#/$defs/date" },
+      "effective_from": {
+        "$ref": "#/$defs/date",
+        "description": "Date the CURRENT text took effect — the last amendment in the citation line, or original adoption if never amended. This is what a certification basis is pinned against: an aircraft is certified to Part 25 as amended through a stated amendment level, not to whatever the section says today."
+      },
+      "amendment_history": {
+        "type": ["string", "null"],
+        "description": "The bracketed Federal Register citation line, verbatim. Null when the section carries none, which means it has not been amended since the part was adopted. Quoted rather than parsed into fields: the parse is lossy and the line is short."
+      },
+      "text_sha256": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{16}$",
+        "description": "First 16 hex characters of the sha256 of the section text with tags stripped and whitespace collapsed. This is the drift tripwire: any edit to the regulation changes it, including one that leaves the amendment citation line untouched."
+      },
+      "text_chars": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Length of that normalised text. Corroborates a digest mismatch — a one-character correction and a wholesale restatement are both digest changes, and this distinguishes them at a glance."
+      },
+      "notes": { "type": "string" }
+    }
+  },
+
+  "$defs": {
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+  }
+}

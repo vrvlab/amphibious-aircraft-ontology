@@ -152,3 +152,97 @@ quietly fixed or quietly introduced without this repo noticing.
 An entry that is not a quantity a tool holds — a recorded consequence of modelling, kept
 next to the parameter it concerns. Exempt from implementation-coverage checks, since there
 is nothing for a tool to declare.
+
+---
+
+# Source registry
+
+[`source.schema.json`](source.schema.json) — one record per regulatory **section**, in
+[`sources/`](../sources/), enforced by the same validator.
+
+Sixty-seven entries cite eighteen sections. Edition metadata carried on each entry would
+be duplicated roughly fivefold and would drift apart the first time one copy was updated
+and another was not, so it is normalised here instead. `tools/validate.py` joins the two:
+every entry citing a section must declare the same `edition` as the registry record, so a
+partially re-verified section cannot pass unnoticed.
+
+## Why a digest
+
+A constant is not a fact. It is a fact as of an issue date.
+
+§ 25.535(d) specified a side load coefficient of `3.25 tan β` from 1964 until 2022, when
+Amdt. 25-148 corrected it to `0.25` — a thirteenfold change, inside a rule described as
+fixing typographical errors. The same amendment changed § 25.525(b) from citing
+§ 25.533(b) to citing § 25.533(c), moving which pressure case governs a distributed load.
+Neither announced itself.
+
+So each record stores `text_sha256`, a digest of the section text with markup stripped and
+whitespace collapsed. [`tools/check_editions.py`](../tools/check_editions.py) re-fetches
+and compares. **The digest is the only one of its three checks that catches a correction
+which never touched the amendment citation line** — which is the class of change that hid
+the § 25.535(d) error for fifty-eight years.
+
+`text_chars` sits beside it so a mismatch can be read at a glance: a one-character
+correction and a wholesale restatement are both digest changes, and the length
+distinguishes them.
+
+## `effective_from` versus `edition`
+
+`edition` is the eCFR issue this repo read. `effective_from` is the date the text became
+law. They answer different questions, and the second is the one certification cares about
+— an aircraft is certified to Part 25 *as amended through* a stated amendment level.
+
+## Horizons
+
+eCFR's own version history begins **2016-12-30**; everything before is one baseline
+snapshot. The bracketed Federal Register citation line has no such limit — it reaches back
+to original adoption — which is why `amendment_history` stores it verbatim rather than
+reconstructing it from the versions API. A section with `amendment_history: null` has not
+been amended since the part was adopted.
+
+---
+
+# Figure registry
+
+[`figure.schema.json`](figure.schema.json) — one record per raster image the regulation
+publishes in place of text, in [`sources/figures/`](../sources/figures/).
+
+The equations of §§ 25.527, 25.531, 25.533 and 25.535 are all published as images: the
+paragraph says *"computed as follows:"*, renders a PNG, and then defines the variables.
+
+**Appendix B is the extreme case.** Its entire text content is twenty-one characters —
+the words "Appendix B to Part 25". Everything else in it is three images. That is why the
+versioner's `appendix=` endpoint looked like it was returning an empty document: it was
+not failing, there is genuinely nothing to return. Appendix B has no record in
+`sources/sections/` for the same reason, and its verification rests entirely on the image
+digests here.
+
+`sha256` is over the image **bytes** as fetched. That is only meaningful because the
+server was checked, against repeated fetches, to send a byte-stable file with an ETag
+rather than re-rendering per request — a digest over a re-encoded image would be noise.
+
+## What the image digest catches that nothing else does
+
+A figure redrawn, replaced, or re-rendered while the regulatory text stands untouched. A
+breakpoint moving on figure 2 would change every K1 and K2 in the corpus and would not
+alter one character of § 25.527, so no text digest, citation line or amendment date would
+notice.
+
+`tools/validate.py` enforces the join in both directions: every `EC…` identifier appearing
+anywhere in an entry must have a registry record, and every record's `read_by` must name
+entries that exist. An image read but not digested is an unverifiable source; a digested
+image nothing reads is dead weight.
+
+`last_modified` is the HTTP header, and is evidence about the *file* rather than the
+regulation — when the image was last written to that server, not when the figure was
+adopted.
+
+## `history` on a constraint entry
+
+Where a *value* changed, the entry itself carries a `history` block with the superseded
+value, the amendment that ended it, and what the change means for anything built on the old
+text. [`tools/as_of.py`](../tools/as_of.py) reads those to answer "what did this require on
+date D", and reports sections it *cannot* answer for rather than passing over them.
+
+Reserve `history` for changes in the **regulation**. Changes to our own encoding belong in
+git.

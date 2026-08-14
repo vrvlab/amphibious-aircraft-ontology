@@ -12,6 +12,11 @@ Checks the things that rot silently:
   - units are QUDT IRIs from the known set, and the symbol agrees
   - every cross-reference inside a constraint resolves
   - every symbol used in a formula expression is declared in that entry
+  - every section a constraint cites has a record in sources/sections/, and the
+    entry's edition matches the registry's
+  - every published figure a constraint reads from is registered in
+    sources/figures/ with a digest, and every registered figure is read by
+    something
 
 The last two exist because entries do not inherit from their siblings:
 cfr-25.527-a2 must be resolvable without knowing cfr-25.527-a1 exists, since a
@@ -42,8 +47,23 @@ except ImportError:  # pragma: no cover
 ROOT = Path(__file__).resolve().parent.parent
 CONSTRAINTS = ROOT / "constraints"
 PARAMETERS = ROOT / "parameters"
+SOURCES = ROOT / "sources" / "sections"
+FIGURES = ROOT / "sources" / "figures"
 CONSTRAINT_SCHEMA = ROOT / "schema" / "constraint.schema.json"
 PARAMETER_SCHEMA = ROOT / "schema" / "parameter.schema.json"
+SOURCE_SCHEMA = ROOT / "schema" / "source.schema.json"
+FIGURE_SCHEMA = ROOT / "schema" / "figure.schema.json"
+
+#: The FAA's image identifiers, wherever they appear in an entry. The corpus
+#: cites them in verification notes as well as in formula.source_render, and an
+#: image read but not digested is an unverifiable source.
+_FIGURE_RE = re.compile(r"\bEC[0-9A-Z]+\.[0-9]+\b")
+
+#: A constraint cites a paragraph ("25.535(d)"); the registry is keyed on the
+#: section it belongs to. Entries whose section is an appendix have no registry
+#: record, because the appendix is not retrievable from the versioner the way a
+#: numbered section is — its figures were read from published images instead.
+_SECTION_RE = re.compile(r"^(\d+\.\d+)")
 
 RELATIONSHIPS = {"identical", "discretization", "subset", "derived", "selects"}
 STATUSES = {"verified", "partial", "unverified", "interpretation"}
@@ -131,6 +151,38 @@ def main() -> int:
     parameter_validator = Draft202012Validator(
         json.loads(PARAMETER_SCHEMA.read_text(encoding="utf-8"))
     )
+    source_validator = Draft202012Validator(
+        json.loads(SOURCE_SCHEMA.read_text(encoding="utf-8"))
+    )
+    figure_validator = Draft202012Validator(
+        json.loads(FIGURE_SCHEMA.read_text(encoding="utf-8"))
+    )
+
+    # ---- source registry -------------------------------------------------
+    registry: dict[str, dict] = {}
+    for path in sorted(SOURCES.glob("*.yaml")):
+        records = load(path)
+        for err in source_validator.iter_errors(records):
+            where = "".join(f"[{p!r}]" for p in err.absolute_path)
+            errors.append(f"{path.name}{where}: {err.message}")
+        for rec in records:
+            sec = rec.get("section")
+            if sec in registry:
+                errors.append(f"{path.name}: duplicate source record for {sec!r}")
+            registry[sec] = rec
+
+    # ---- figure registry -------------------------------------------------
+    figures: dict[str, dict] = {}
+    for path in sorted(FIGURES.glob("*.yaml")):
+        records = load(path)
+        for err in figure_validator.iter_errors(records):
+            where = "".join(f"[{p!r}]" for p in err.absolute_path)
+            errors.append(f"{path.name}{where}: {err.message}")
+        for rec in records:
+            fid = rec.get("id")
+            if fid in figures:
+                errors.append(f"{path.name}: duplicate figure record for {fid!r}")
+            figures[fid] = rec
 
     constraint_ids: set[str] = set()
     parameter_ids: set[str] = set()
@@ -157,6 +209,27 @@ def main() -> int:
             st = (entry.get("verification") or {}).get("status")
             if st not in STATUSES:
                 errors.append(f"{cid}: verification.status {st!r} not in {sorted(STATUSES)}")
+
+            # Join to the source registry. An entry that cites a section
+            # nobody has registered has no recorded edition, no amendment
+            # history and no drift tripwire — which is how a corpus ends up
+            # quoting a superseded value without noticing.
+            src = entry.get("source") or {}
+            if src.get("authority") == "none":
+                continue  # an interpretation with no regulatory basis
+            m = _SECTION_RE.match(str(src.get("section", "")))
+            if not m:
+                continue  # appendix or non-numbered citation
+            sec = m.group(1)
+            if sec not in registry:
+                errors.append(
+                    f"{cid}: cites § {sec} but sources/ has no record for it"
+                )
+            elif str(src.get("edition")) != str(registry[sec].get("edition")):
+                errors.append(
+                    f"{cid}: edition {src.get('edition')} disagrees with the "
+                    f"sources/ record for § {sec} ({registry[sec].get('edition')})"
+                )
 
     # Cross-references inside constraints. Only tokens that look like corpus
     # ids are checked; "more rational analysis" is prose and is meant to be.
@@ -235,8 +308,28 @@ def main() -> int:
             if not entry.get("regulatory_mapping"):
                 warnings.append(f"{pid}: no regulatory_mapping")
 
+    # Every figure an entry reads from must be digested, and every digested
+    # figure must be read by something that exists.
+    for path, entries in constraints:
+        for entry in entries:
+            for fid in sorted(set(_FIGURE_RE.findall(json.dumps(entry)))):
+                if fid not in figures:
+                    errors.append(
+                        f"{entry.get('id')}: reads figure {fid} but "
+                        f"sources/figures/ has no record for it"
+                    )
+    for fid, rec in figures.items():
+        for cid in rec.get("read_by", []):
+            if cid not in constraint_ids:
+                errors.append(f"figure {fid}: read_by names unknown entry {cid!r}")
+
     if not quiet:
-        print(f"constraints: {len(constraint_ids)}   parameters: {len(parameter_ids)}")
+        print(
+            f"constraints: {len(constraint_ids)}   "
+            f"parameters: {len(parameter_ids)}   "
+            f"sections: {len(registry)}   "
+            f"figures: {len(figures)}"
+        )
     for w in warnings:
         print(f"  warning: {w}")
     if errors:

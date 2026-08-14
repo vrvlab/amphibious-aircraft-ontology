@@ -98,8 +98,18 @@ issue when the regulation moves. An upstream outage should not fail an unrelated
 
 `as_of.py` answers the question a design review actually asks, because an aircraft is
 certified to Part 25 *as amended through a stated amendment level* — not to whatever the
-section says today. Where the corpus cannot answer, it says so: ask it about 1995 and it
-names five sections amended since, whose earlier text nobody here has characterised.
+section says today.
+
+Its horizon is **1997**, established by diffing the govinfo annual CFR editions rather
+than eCFR, whose own history starts only in 2016. Above that date an entry with no
+`history` block is unchanged *because the comparison was made*. Below it the tool says the
+corpus cannot speak, rather than returning a confident answer it has not earned — govinfo
+publishes no title-14 granule for 1996, and Amdt. 25-23 (1970), 25-46 (1978) and 25-72
+(1990) predate the Federal Register's online archive too.
+
+That exercise found that **§ 25.479 had no lateral drift landing condition at all** until
+Amdt. 25-103 added it in 2001, so an airplane certified below that amendment was never
+required to show the case.
 
 ## What's here now
 

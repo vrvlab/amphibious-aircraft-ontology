@@ -13,12 +13,11 @@ on the date asked for.
     python3 tools/as_of.py 2015-06-01
     python3 tools/as_of.py 2015-06-01 --json
 
-Coverage is only as good as the history recorded. An entry with no `history`
-block is *asserted* unchanged over the period its source registry record covers,
-and that assertion is checked no further back than eCFR's own version history
-reaches — 2016-12-30. Before that date the citation line is the only evidence,
-and a section whose citation line shows an amendment this corpus has not
-characterised is reported as a gap rather than passed over silently.
+Coverage is only as good as the evidence held. Each section in `sources/` carries
+a `history_verified_from` date: the earliest edition its text has actually been
+compared against. Above that date, an entry with no `history` block is unchanged
+because the comparison was made. Below it, the corpus cannot speak, and says so
+rather than returning a confident answer it has not earned.
 """
 
 from __future__ import annotations
@@ -36,7 +35,7 @@ except ImportError:  # pragma: no cover
 
 ROOT = Path(__file__).resolve().parents[1]
 CONSTRAINTS = ROOT / "constraints"
-SOURCES = ROOT / "sources"
+SOURCES = ROOT / "sources" / "sections"
 
 #: eCFR's own version history begins here. Older changes are visible only
 #: through the amendment citation line.
@@ -92,6 +91,12 @@ def main() -> int:
 
     entries = load(CONSTRAINTS)
     registry = {r["section"]: r for r in load(SOURCES)}
+    if not registry:
+        # An empty registry silently disables every horizon check below, which
+        # would report full confidence for dates nothing has been verified at.
+        print(f"no source records found under {SOURCES.relative_to(ROOT)} — cannot "
+              f"report what has and has not been verified")
+        return 1
 
     differed: list[dict] = []
     for e in entries:
@@ -111,23 +116,21 @@ def main() -> int:
                     "change": " ".join(str(h["change"]).split()),
                 })
 
-    # Sections amended before our history reaches, or before eCFR's horizon.
+    # Below a section's verified horizon the corpus holds no evidence either
+    # way. Reporting that is the point: silence would read as "unchanged".
     gaps: list[str] = []
-    characterised = {
-        _SECTION_RE.match(d["section"]).group(1)
-        for d in differed
-        if _SECTION_RE.match(d["section"])
-    }
     for sec, rec in sorted(registry.items()):
-        for d in citation_dates(rec.get("amendment_history")):
-            if when < d and sec not in characterised:
-                gaps.append(
-                    f"§ {sec} was amended {d.isoformat()}, after the date asked "
-                    f"for, and no entry records what it said before. "
-                    f"{'Pre-dates eCFR version history; ' if d < ECFR_HORIZON else ''}"
-                    f"citation line: {' '.join(rec['amendment_history'].split())[:120]}"
-                )
-                break
+        horizon = rec.get("history_verified_from")
+        if horizon and when < as_date(horizon):
+            cite = rec.get("amendment_history")
+            amendments = [d for d in citation_dates(cite) if d > when]
+            gaps.append(
+                f"§ {sec}: text has only been compared back to {horizon}, so the "
+                f"corpus cannot say what it required on this date"
+                + (f" — its citation line records {len(amendments)} amendment(s) "
+                   f"after it ({', '.join(d.isoformat() for d in amendments)})"
+                   if amendments else " — its citation line records no later amendment")
+            )
 
     if want_json:
         print(json.dumps(
@@ -149,14 +152,18 @@ def main() -> int:
         print("No entry has a recorded history covering that date.\n")
 
     if gaps:
-        print(f"{len(gaps)} section(s) amended after that date with no recorded history —")
-        print("the corpus cannot say what these required then:\n")
+        print(f"{len(gaps)} section(s) fall below their verified horizon:\n")
         for g in gaps:
             print(f"  ! {g}")
         print()
-
-    print("An entry with no history block is asserted unchanged. That assertion is")
-    print("only checked back to 2016-12-30, where eCFR's version history begins.")
+        print("For these the corpus holds no evidence either way. Closing them means")
+        print("reading the Federal Register issues named in the citation line —")
+        print("govinfo publishes no CFR granule for this title before 1997.")
+    else:
+        print("Every section has been compared back past this date, so an entry with")
+        print("no history block above is unchanged rather than merely unexamined.")
+        print("The comparison is between editions at the ends of the window: it")
+        print("detects net change, not a value that changed and changed back.")
     return 0
 
 

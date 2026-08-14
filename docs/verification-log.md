@@ -496,9 +496,114 @@ about the contents of figure 2, that is not a hypothetical failure mode.
 `tools/validate.py` now enforces the join both ways: every `EC…` identifier appearing in
 an entry must have a registry record, and every record's `read_by` must resolve.
 
+## Round 6 — the pre-2017 gap, and an error of ours it uncovered (2026-08-14)
+
+**Source:** govinfo annual CFR granules, `CFR-1997-title14-vol1` and
+`CFR-2016-title14-vol1`, XML, compared against each other and against current eCFR.
+
+Round 5 recorded that eCFR's version history begins 2016-12-30 and that everything
+earlier was visible only as a date in a citation line. That was true of *eCFR*. It is not
+true of the record: **govinfo publishes annual CFR editions, and the earliest XML granule
+for title 14 is 1997.** Diffing 1997 against 2016 closes twenty years of the gap
+mechanically, in one consistent source.
+
+The five sections whose citation lines show no amendment — 25.457, 25.521, 25.525(pre-2022),
+25.537, 25.751, 25.755 — come out byte-identical across the window. That is the method
+validating itself: a technique that reported spurious change on a section nobody amended
+would not be worth running.
+
+### An error of ours, found on the way
+
+§ 25.807(g) was encoded with **every value doubled**.
+
+The regulation prints: *"the maximum number of passenger seats permitted FOR EACH EXIT of
+a specific type installed IN EACH SIDE of the fuselage is as follows: Type A 110, Type B
+75, Type C 55, Type I 45, Type II 40, Type III 35, Type IV 9."*
+
+The corpus carried 220, 150, 110, 90, 80, 70, 18 as `cfr-25.807-g1-seats-per-exit-pair`,
+units "seats per pair" — and asserted in its own notes that *"halving a pair's allowance
+to get a per-exit number is a reading the table does not support"*. That is exactly
+backwards. Both the 1997 and 2016 editions print the per-exit values, independently
+corroborating it.
+
+**How it survived.** The entry was authored downstream in flightforge and upstreamed in
+an earlier round. Upstreaming normalised its structure — the operator vocabulary, an
+unquoted section number, a `status` field holding prose — and marked the result
+`verified` without re-reading its numbers against primary source. **Structural
+normalisation is not verification.** Marking it verified asserted a check that had not
+happened.
+
+Corrected to `cfr-25.807-g-seats-per-exit` with the printed values. The doubled figures
+are a correct derivation for a pair of exits and are kept as
+`interp-25.807-g-seats-per-exit-pair`, which also records that § 25.807(g)(1) through
+(g)(9) further restrict the allowance in ways the doubling does not capture.
+
+**Process change: upstreaming a file from a downstream repository does not inherit its
+verification status.** A `verified` entry means someone read the primary source for that
+entry. Adopting an entry means reading it again.
+
+### § 25.479 gained a whole design case in 2001
+
+The largest substantive finding. Amdt. 25-103 (66 FR 27394, 16 May 2001) **added the
+lateral drift landing condition**. Before it, § 25.479 ran (a) level attitude, (b)
+downwind landings, (c) spin-up/springback combinations, (d) tail-wheel attitude, (e)
+nose-wheel attitudes — and stopped.
+
+`cfr-25.479-d2i-drift-{vertical,drag,side}-component` and `cfr-25.479-d2ii-drift-deflections`
+therefore have no predecessor: an airplane certified below Amdt. 25-103 was not required
+to show the case at all. Their `history` blocks carry a null `superseded_value` and say so.
+
+The same amendment moved the 25 percent aft drag from § 25.479(c)(2) to (d)(1), and moved
+the 0.8 friction cap out of § 25.479 entirely into § 25.473(e).
+
+### § 25.473 was restated, and its lift assumption narrowed
+
+Also Amdt. 25-103. The 10 fps and 6 fps descent velocities are unchanged, but their
+paragraphs moved from (a)(1)(ii) and (a)(1)(iii) to (a)(2) and (a)(3), and the section was
+retitled from "Ground load conditions and assumptions" to "Landing load conditions and
+assumptions".
+
+Substantively: the lift assumption was unconditional and acted through the centre of
+gravity. It is now granted *"unless the presence of systems or procedures significantly
+affects the lift"*, with the centre-of-gravity clause dropped. A design with automatic
+ground spoilers may claim less lift relief now than the pre-2001 rule allowed, which
+raises gear and support loads.
+
+### Everything else in the window
+
+§§ 25.337, 25.523, 25.527, 25.529, 25.531, 25.533 and 25.535 differ between 1997 and 2016
+only in typesetting: quotation marks around symbols removed, spacing around `=`
+normalised, `Appendix` lowercased, a line-break hyphen in "Unsymmet-rical" closed up, and
+in § 25.349 two OCR corrections ("reaching" → "reacting", "fores." → "forces."). **No
+constant in any water-load section changed.** § 25.345 and § 25.807 changed in wording and
+structure with no change to any encoded value.
+
+### What is recorded, and what is still open
+
+Every section record now carries `history_verified_from: 1997-01-01` and a
+`history_method` stating how it was established. `tools/as_of.py` reports against that
+horizon instead of guessing from citation dates: above it, an entry with no `history`
+block is unchanged *because the comparison was made*; below it, the tool says the corpus
+cannot speak.
+
+Two limits, both stated in the tool's own output rather than left implicit:
+
+1. **Endpoint comparison.** 1997 against 2016 detects net change across the window, not a
+   value that changed and changed back inside it.
+2. **1997 is a hard floor for this method.** govinfo publishes no title-14 granule for
+   1996. Amdt. 25-23 (1970), 25-46 (1978) and 25-72 (1990) predate the Federal Register's
+   own online archive as well, so those three need printed sources.
+
+Fixing `as_of.py` also surfaced a latent bug: it still pointed at `sources/` after Round
+5 moved the records into `sources/sections/`, so its registry loaded empty and it reported
+full confidence for every date. It now fails loudly on an empty registry, because a
+silently empty registry is worse than no tool.
+
 ## Open items
 
-- [ ] **Characterise pre-2017 amendments** for §§ 25.345, 25.349, 25.473, 25.479 and 25.807 by reading the Federal Register issues named in their citation lines. eCFR cannot help below its 2016-12-30 horizon, and `as_of.py` reports these as gaps
+- [x] ~~Characterise pre-2017 amendments for §§ 25.345, 25.349, 25.473, 25.479, 25.807~~ — closed to 1997 by diffing govinfo annual CFR granules; substantive changes recorded in `history` blocks
+- [ ] **Below 1997 nothing has been compared.** Amdt. 25-23 (1970), 25-46 (1978) and 25-72 (1990) predate both the govinfo CFR granules and the Federal Register online archive, so they need printed sources — a library, not an API
+- [ ] The 1997-to-2016 comparison is endpoint-only. A value that changed and changed back inside the window would not be seen; closing that means walking the annual editions year by year
 - [x] ~~Appendix B has no `sources/` record and no digest~~ — it has no text to digest: twenty-one characters, the rest images. All eleven published figures are now digested by their bytes in `sources/figures/`
 - [ ] Trace the empirical provenance of the Appendix B figure 2 breakpoints (1964 rulemaking, Doc. No. 5066; likely NACA tank data)
 - [ ] Independent second reading of Appendix B figure 2 values

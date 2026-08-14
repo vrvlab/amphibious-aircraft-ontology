@@ -12,6 +12,8 @@ Checks the things that rot silently:
   - units are QUDT IRIs from the known set, and the symbol agrees
   - every cross-reference inside a constraint resolves
   - every symbol used in a formula expression is declared in that entry
+  - every section a constraint cites has a record in sources/, and the entry's
+    edition matches the registry's
 
 The last two exist because entries do not inherit from their siblings:
 cfr-25.527-a2 must be resolvable without knowing cfr-25.527-a1 exists, since a
@@ -42,8 +44,16 @@ except ImportError:  # pragma: no cover
 ROOT = Path(__file__).resolve().parent.parent
 CONSTRAINTS = ROOT / "constraints"
 PARAMETERS = ROOT / "parameters"
+SOURCES = ROOT / "sources"
 CONSTRAINT_SCHEMA = ROOT / "schema" / "constraint.schema.json"
 PARAMETER_SCHEMA = ROOT / "schema" / "parameter.schema.json"
+SOURCE_SCHEMA = ROOT / "schema" / "source.schema.json"
+
+#: A constraint cites a paragraph ("25.535(d)"); the registry is keyed on the
+#: section it belongs to. Entries whose section is an appendix have no registry
+#: record, because the appendix is not retrievable from the versioner the way a
+#: numbered section is — its figures were read from published images instead.
+_SECTION_RE = re.compile(r"^(\d+\.\d+)")
 
 RELATIONSHIPS = {"identical", "discretization", "subset", "derived", "selects"}
 STATUSES = {"verified", "partial", "unverified", "interpretation"}
@@ -131,6 +141,22 @@ def main() -> int:
     parameter_validator = Draft202012Validator(
         json.loads(PARAMETER_SCHEMA.read_text(encoding="utf-8"))
     )
+    source_validator = Draft202012Validator(
+        json.loads(SOURCE_SCHEMA.read_text(encoding="utf-8"))
+    )
+
+    # ---- source registry -------------------------------------------------
+    registry: dict[str, dict] = {}
+    for path in sorted(SOURCES.glob("*.yaml")):
+        records = load(path)
+        for err in source_validator.iter_errors(records):
+            where = "".join(f"[{p!r}]" for p in err.absolute_path)
+            errors.append(f"{path.name}{where}: {err.message}")
+        for rec in records:
+            sec = rec.get("section")
+            if sec in registry:
+                errors.append(f"{path.name}: duplicate source record for {sec!r}")
+            registry[sec] = rec
 
     constraint_ids: set[str] = set()
     parameter_ids: set[str] = set()
@@ -157,6 +183,27 @@ def main() -> int:
             st = (entry.get("verification") or {}).get("status")
             if st not in STATUSES:
                 errors.append(f"{cid}: verification.status {st!r} not in {sorted(STATUSES)}")
+
+            # Join to the source registry. An entry that cites a section
+            # nobody has registered has no recorded edition, no amendment
+            # history and no drift tripwire — which is how a corpus ends up
+            # quoting a superseded value without noticing.
+            src = entry.get("source") or {}
+            if src.get("authority") == "none":
+                continue  # an interpretation with no regulatory basis
+            m = _SECTION_RE.match(str(src.get("section", "")))
+            if not m:
+                continue  # appendix or non-numbered citation
+            sec = m.group(1)
+            if sec not in registry:
+                errors.append(
+                    f"{cid}: cites § {sec} but sources/ has no record for it"
+                )
+            elif str(src.get("edition")) != str(registry[sec].get("edition")):
+                errors.append(
+                    f"{cid}: edition {src.get('edition')} disagrees with the "
+                    f"sources/ record for § {sec} ({registry[sec].get('edition')})"
+                )
 
     # Cross-references inside constraints. Only tokens that look like corpus
     # ids are checked; "more rational analysis" is prose and is meant to be.
@@ -236,7 +283,11 @@ def main() -> int:
                 warnings.append(f"{pid}: no regulatory_mapping")
 
     if not quiet:
-        print(f"constraints: {len(constraint_ids)}   parameters: {len(parameter_ids)}")
+        print(
+            f"constraints: {len(constraint_ids)}   "
+            f"parameters: {len(parameter_ids)}   "
+            f"sources: {len(registry)}"
+        )
     for w in warnings:
         print(f"  warning: {w}")
     if errors:

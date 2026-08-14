@@ -152,3 +152,60 @@ quietly fixed or quietly introduced without this repo noticing.
 An entry that is not a quantity a tool holds — a recorded consequence of modelling, kept
 next to the parameter it concerns. Exempt from implementation-coverage checks, since there
 is nothing for a tool to declare.
+
+---
+
+# Source registry
+
+[`source.schema.json`](source.schema.json) — one record per regulatory **section**, in
+[`sources/`](../sources/), enforced by the same validator.
+
+Sixty-seven entries cite eighteen sections. Edition metadata carried on each entry would
+be duplicated roughly fivefold and would drift apart the first time one copy was updated
+and another was not, so it is normalised here instead. `tools/validate.py` joins the two:
+every entry citing a section must declare the same `edition` as the registry record, so a
+partially re-verified section cannot pass unnoticed.
+
+## Why a digest
+
+A constant is not a fact. It is a fact as of an issue date.
+
+§ 25.535(d) specified a side load coefficient of `3.25 tan β` from 1964 until 2022, when
+Amdt. 25-148 corrected it to `0.25` — a thirteenfold change, inside a rule described as
+fixing typographical errors. The same amendment changed § 25.525(b) from citing
+§ 25.533(b) to citing § 25.533(c), moving which pressure case governs a distributed load.
+Neither announced itself.
+
+So each record stores `text_sha256`, a digest of the section text with markup stripped and
+whitespace collapsed. [`tools/check_editions.py`](../tools/check_editions.py) re-fetches
+and compares. **The digest is the only one of its three checks that catches a correction
+which never touched the amendment citation line** — which is the class of change that hid
+the § 25.535(d) error for fifty-eight years.
+
+`text_chars` sits beside it so a mismatch can be read at a glance: a one-character
+correction and a wholesale restatement are both digest changes, and the length
+distinguishes them.
+
+## `effective_from` versus `edition`
+
+`edition` is the eCFR issue this repo read. `effective_from` is the date the text became
+law. They answer different questions, and the second is the one certification cares about
+— an aircraft is certified to Part 25 *as amended through* a stated amendment level.
+
+## Horizons
+
+eCFR's own version history begins **2016-12-30**; everything before is one baseline
+snapshot. The bracketed Federal Register citation line has no such limit — it reaches back
+to original adoption — which is why `amendment_history` stores it verbatim rather than
+reconstructing it from the versions API. A section with `amendment_history: null` has not
+been amended since the part was adopted.
+
+## `history` on a constraint entry
+
+Where a *value* changed, the entry itself carries a `history` block with the superseded
+value, the amendment that ended it, and what the change means for anything built on the old
+text. [`tools/as_of.py`](../tools/as_of.py) reads those to answer "what did this require on
+date D", and reports sections it *cannot* answer for rather than passing over them.
+
+Reserve `history` for changes in the **regulation**. Changes to our own encoding belong in
+git.

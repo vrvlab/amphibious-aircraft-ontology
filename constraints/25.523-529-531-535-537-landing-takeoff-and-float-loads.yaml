@@ -904,6 +904,25 @@
       inputs: {beta: 20.0, L: 19329.3507}
       expected: {F_side: 1758.8271}
       status: worked
+  history:
+    - effective_from: 1964-12-24
+      effective_to: 2022-12-09
+      amendment: >-
+        Amdt. 25-148, Doc. No. FAA-2022-1355, 87 FR 75710 (9 December 2022),
+        corrected at 88 FR 2813 (18 January 2023)
+      superseded_value: "3.25 * tan(beta) * L"
+      substantive: true
+      change: >-
+        The side load coefficient was 3.25, not 0.25 — a factor of thirteen.
+        An airplane whose certification basis is Part 25 at any amendment level
+        below 25-148 was judged against the larger figure, so a design review
+        reading this entry for such an aircraft must use the history value and
+        not the current one. On the worked float of cfr-25.535-b-step-load that
+        is 22864.75 lb rather than 1758.83 lb.
+
+        The correction arrived inside a Miscellaneous Amendments rule described
+        as addressing typographical and editorial errors. Nothing about the
+        publication signalled that a load had moved by an order of magnitude.
   tags: [water-loads, subpart-c, auxiliary-float, unsymmetrical, amended]
 
 - id: cfr-25.535-e-unsymmetrical-bow-loading

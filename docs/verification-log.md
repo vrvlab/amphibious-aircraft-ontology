@@ -366,8 +366,113 @@ The corpus now has **no `pending` test cases**: 41 worked cases, all reproducing
 | Gudmundsson, *General Aviation Aircraft Design*, App. C3 | Publisher's copy decommissioned; no accessible text. |
 | CS-25.535 | A search summary asserted EASA reads `0.25`, but no primary EASA text was obtained. **Not recorded as a finding** — a secondary claim about a harmonised text is exactly what this corpus does not accept. |
 
+## Round 5 — the corpus learns to notice when the regulation moves (2026-08-14)
+
+**Source:** eCFR versioner API (`/full/` for text, `/versions/` for amendment dates),
+Title 14 Part 25; and the typeset printed CFR where the XML is unreliable.
+
+Round 4 found that § 25.535(d) had been wrong in the regulation for fifty-eight years.
+That raised a question Round 4 did not answer: **how would we ever have known?** We found
+it by accident, while chasing an unrelated units question. Nothing in the corpus, and
+nothing in the FAA's publication of the correction, would have told us.
+
+This round makes that a machine's job.
+
+### A second change from the same amendment, found by looking properly
+
+Querying the eCFR versions API for every section the corpus cites showed that Amdt. 25-148
+touched **two** of them, not one. § 25.525 had been amended on the same day and the corpus
+had not noticed.
+
+Diffing § 25.525 across the amendment:
+
+> **(b)** … using pressures not less than those prescribed in § 25.533~~(b)~~ **(c)**.
+
+That is not cosmetic. § 25.533(b) is the **local** pressure case, sizing plating and
+stringers; § 25.533(c) is the **distributed** case, sizing frames, keel and chine.
+Distributing a resultant water load over the bottom is a distributed-pressure problem, so
+the correction moves the floor onto the right design case.
+
+The corpus had already made exactly that distinction the headline note of
+`cfr-25.533-c1-c4-value` — *"Distributed pressures are for design of the frames, keel and
+chine structure — a different design case from the local pressures in (b) … Conflating the
+two is a common error"* — without knowing the FAA had just corrected the regulation in the
+same direction.
+
+**§ 25.525(b) was missing from the corpus entirely.** It is now
+`cfr-25.525-b-load-distribution-pressure-floor`, with the superseded reference in its
+`history` block.
+
+### `sources/` — one record per section
+
+Sixty-seven entries cite eighteen sections. Edition metadata on each entry would be
+duplicated fivefold and drift, so it is normalised into a registry carrying, per section:
+the issue read, the date the current text took effect, the verbatim Federal Register
+citation line, and **a digest of the section text**.
+
+`tools/validate.py` joins the two, so an entry cannot claim an edition its section's record
+disagrees with. Perturbing one registry edition raises the mismatch on all fifty-nine
+entries citing those sections.
+
+### `tools/check_editions.py` — drift detection against the regulation
+
+`check_consumers.py` asks whether the consumers still match what this repo says about them.
+This asks the harder question in the other direction. Three checks:
+
+| Check | Catches |
+| --- | --- |
+| Citation line unchanged | A recorded amendment |
+| Versions API reports no later amendment | An amendment not yet in the citation line |
+| **Text digest unchanged** | Everything else — including a correction that never touched the citation line |
+
+The third is the one that matters, and it is why the registry stores a digest at all.
+
+**Tested against the real event.** Pointing the § 25.535 record at the 2022 issue — as if
+we had verified against the pre-amendment text — fires all three checks independently:
+digest `e8b39bc61d89e321` recorded against `79adb0d4393fa85c` live, 3530 chars against
+3464, the citation line short by two amendments, and the versions API reporting
+2022-12-09 and 2023-01-18. The tool would have caught the fifty-eight-year error on the
+day it was corrected.
+
+It runs weekly rather than on push, and opens an issue. An eCFR outage must not fail a
+build that has nothing to do with it.
+
+All eighteen sections currently verify clean against live eCFR.
+
+### `tools/as_of.py` — what did it say then?
+
+An aircraft is certified to Part 25 *as amended through a stated amendment level*, not to
+whatever the section says today. A corpus that can only answer "what does it require now?"
+cannot be used to review an in-service type.
+
+Entries whose value changed carry a `history` block. Asked about 2015-06-01, the corpus
+now reports both Amdt. 25-148 changes with their superseded values.
+
+**Where it cannot answer, it says so.** Asked about 1995 it names five sections — 25.345,
+25.349, 25.473, 25.479, 25.807 — amended since that date and whose earlier text nobody
+here has characterised. Silence there would be worse than a gap report: it would read as
+"unchanged".
+
+### The horizon problem, recorded rather than hidden
+
+eCFR's version history begins **2016-12-30**. Everything earlier is a single baseline
+snapshot, so the versions API cannot see the 1964–2016 record at all. The bracketed
+citation line can — it reaches back to original adoption — which is why
+`amendment_history` stores it verbatim rather than reconstructing it.
+
+This means the corpus's confidence is not uniform in time. Changes since 2017 are
+detectable three ways. Changes between 1964 and 2016 are visible only as an amendment
+*date* in the citation line, with no text to diff against. `as_of.py` reports those as
+gaps for exactly that reason.
+
+Closing them means reading the historical Federal Register issues named in each citation
+line. That is now the largest open item in this repository, and § 25.807 — five amendments
+between 1990 and 2004 — is the worst of it.
+
 ## Open items
 
+- [ ] **Characterise pre-2017 amendments** for §§ 25.345, 25.349, 25.473, 25.479 and 25.807 by reading the Federal Register issues named in their citation lines. eCFR cannot help below its 2016-12-30 horizon, and `as_of.py` reports these as gaps
+- [ ] Appendix B is not retrievable from the versioner by the `appendix=` parameter, so it has no `sources/` record and no digest. Its figures were read from published images, which have stable URLs — digest those instead
 - [ ] Trace the empirical provenance of the Appendix B figure 2 breakpoints (1964 rulemaking, Doc. No. 5066; likely NACA tank data)
 - [ ] Independent second reading of Appendix B figure 2 values
 - [x] ~~§§ 25.523, 25.529, 25.531, 25.535, 25.537 not yet read~~ — all five read and encoded, Round 3

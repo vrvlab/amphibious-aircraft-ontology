@@ -84,6 +84,15 @@ amendment, and the **text digest** still matches. The third catches what the oth
 miss — a correction that never touched the citation line. Pointed at the 2022 text it
 fires on all three for § 25.535, which is how the capability was tested.
 
+Figures get a fourth check, and for Appendix B it is the only one there is. **The entire
+text content of Appendix B is twenty-one characters** — the words "Appendix B to Part 25".
+Everything else in it is three images. So the eCFR endpoint that appeared to return an
+empty document was not failing; there is nothing to return. All eleven published images
+the corpus reads from are digested by their bytes, which is also the only thing anywhere
+that would catch a figure being redrawn while the surrounding text stands untouched: a
+breakpoint moving on figure 2 would change every K1 and K2 in the corpus without altering
+one character of § 25.527.
+
 It runs [weekly](.github/workflows/edition-drift.yml) rather than on push, and opens an
 issue when the regulation moves. An upstream outage should not fail an unrelated build.
 
@@ -96,7 +105,7 @@ names five sections amended since, whose earlier text nobody here has characteri
 
 - **[`constraints/`](constraints/)** — 63 entries across Part 25 water loads, flight and ground loads in representation-neutral YAML. Every entry carries its formula, units, bounds, primary-source citation, and verification status.
 - **[`parameters/`](parameters/)** — the join between design parameters and regulatory symbols. Each quantity carries a QUDT unit IRI, an explicit measurement convention, and typed links to the constraints it appears in.
-- **[`sources/`](sources/)** — one record per regulatory section: which issue was read, when the text took effect, its full amendment history, and a digest that trips when the regulation changes underneath.
+- **[`sources/`](sources/)** — [`sections/`](sources/sections/) records which issue was read, when the text took effect, and its full amendment history; [`figures/`](sources/figures/) digests the raster images the regulation publishes in place of text. Both trip when the source changes underneath.
 - **[`schema/`](schema/)** — JSON Schema for constraints, parameters and sources, all enforced in CI.
 - **[`tools/`](tools/)** — validator, test runner, artifact builder, consumer conformance checker.
 - **[`dist/constraints.json`](dist/constraints.json)** — the whole corpus as one file, for consumers without a YAML parser.

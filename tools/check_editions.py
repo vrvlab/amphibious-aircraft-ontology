@@ -12,7 +12,7 @@ fixing typographical errors. The same amendment changed 25.525(b) from citing
 25.533(b) to citing 25.533(c), moving which pressure case governs. Nothing
 announced either one to anybody downstream.
 
-Three checks, in increasing order of what they catch:
+Sections get three checks, in increasing order of what they catch:
 
   1. The bracketed Federal Register citation line still matches. Catches a
      recorded amendment.
@@ -24,7 +24,18 @@ Three checks, in increasing order of what they catch:
 Check 3 is the one that would have caught the 25.535(d) correction on the day it
 landed, and it is the reason the registry stores a digest at all.
 
+Figures get a fourth. The regulation publishes its equations as raster images,
+and the whole of Appendix B is three images and a title — its text content is
+twenty-one characters. So for the Appendix B figures an image digest is not a
+supplement to the text check, it is the ONLY check that exists. It is also the
+only thing anywhere that catches a figure being redrawn while the surrounding
+regulatory text stands untouched: a breakpoint moving on figure 2 would change
+every K1 and K2 in the corpus without altering one character of § 25.527.
+
 Usage:  python3 tools/check_editions.py [--report-only] [--section 25.535]
+
+        --section also narrows the figure set, by `belongs_to`, so
+        `--section "Appendix B"` checks the three appendix figures alone.
 Exit:   0 clean (always 0 with --report-only), 1 on any drift.
 
 Network required. This is deliberately NOT part of the push CI — an upstream
@@ -50,7 +61,8 @@ except ImportError:  # pragma: no cover
     sys.exit("pyyaml required:  pip install pyyaml")
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = ROOT / "sources"
+SOURCES = ROOT / "sources" / "sections"
+FIGURES = ROOT / "sources" / "figures"
 
 VERSIONER = (
     "https://www.ecfr.gov/api/versioner/v1/full/{date}/title-14.xml"
@@ -71,10 +83,16 @@ def _context() -> ssl.SSLContext:
         return ssl.create_default_context()
 
 
-def fetch(url: str) -> str:
-    req = urllib.request.Request(url, headers={"User-Agent": "amphibious-aircraft-ontology/edition-check"})
+def fetch_bytes(url: str) -> bytes:
+    req = urllib.request.Request(
+        url, headers={"User-Agent": "amphibious-aircraft-ontology/edition-check"}
+    )
     with urllib.request.urlopen(req, timeout=60, context=_context()) as r:
-        return r.read().decode("utf-8", "replace")
+        return r.read()
+
+
+def fetch(url: str) -> str:
+    return fetch_bytes(url).decode("utf-8", "replace")
 
 
 def normalise(xml: str) -> str:
@@ -87,9 +105,9 @@ def digest(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
-def load_registry() -> list[dict]:
+def load_registry(where: Path = SOURCES) -> list[dict]:
     records = []
-    for path in sorted(SOURCES.glob("*.yaml")):
+    for path in sorted(where.glob("*.yaml")):
         for rec in yaml.safe_load(path.read_text(encoding="utf-8")) or []:
             rec["_file"] = path.name
             records.append(rec)
@@ -121,10 +139,13 @@ def main() -> int:
         only = sys.argv[sys.argv.index("--section") + 1]
 
     records = load_registry()
+    all_figures = load_registry(FIGURES)
     if only:
         records = [r for r in records if r["section"] == only]
-        if not records:
-            print(f"no registry record for section {only!r}")
+        # "Appendix B" names no section — its content is figures and a title —
+        # so a filter matching only figures is legitimate, not an error.
+        if not records and not [f for f in all_figures if f["belongs_to"] == only]:
+            print(f"nothing registered under {only!r}")
             return 1
 
     findings: list[str] = []
@@ -182,7 +203,32 @@ def main() -> int:
                 f"{rec['edition']} — {', '.join(later[section])}"
             )
 
-    print(f"{checked} of {len(records)} section(s) checked against live eCFR")
+    # ---- figures ---------------------------------------------------------
+    figures = all_figures
+    if only:
+        figures = [f for f in figures if f["belongs_to"] == only]
+    fig_checked = 0
+    for fig in figures:
+        try:
+            blob = fetch_bytes(fig["url"])
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            notes.append(f"{fig['id']}: could not fetch ({exc}) — not checked")
+            continue
+        fig_checked += 1
+        got = hashlib.sha256(blob).hexdigest()[:16]
+        if got != fig["sha256"] or len(blob) != fig["bytes"]:
+            findings.append(
+                f"{fig['id']} ({fig['citation']}): IMAGE CHANGED — digest "
+                f"{fig['sha256']} recorded, {got} live; {fig['bytes']} bytes "
+                f"recorded, {len(blob)} live. This figure is the source for "
+                f"{', '.join(fig['read_by'])}. Re-read it before trusting "
+                f"anything derived from it."
+            )
+
+    print(
+        f"{checked} of {len(records)} section(s) and "
+        f"{fig_checked} of {len(figures)} figure(s) checked against live sources"
+    )
     for n in notes:
         print(f"  - {n}")
 
@@ -192,7 +238,7 @@ def main() -> int:
             print(f"  • {f}")
         return 0 if report_only else 1
 
-    print("\nOK — every section still reads as recorded")
+    print("\nOK — every section and figure still reads as recorded")
     return 0
 
 

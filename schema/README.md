@@ -200,6 +200,43 @@ to original adoption — which is why `amendment_history` stores it verbatim rat
 reconstructing it from the versions API. A section with `amendment_history: null` has not
 been amended since the part was adopted.
 
+---
+
+# Figure registry
+
+[`figure.schema.json`](figure.schema.json) — one record per raster image the regulation
+publishes in place of text, in [`sources/figures/`](../sources/figures/).
+
+The equations of §§ 25.527, 25.531, 25.533 and 25.535 are all published as images: the
+paragraph says *"computed as follows:"*, renders a PNG, and then defines the variables.
+
+**Appendix B is the extreme case.** Its entire text content is twenty-one characters —
+the words "Appendix B to Part 25". Everything else in it is three images. That is why the
+versioner's `appendix=` endpoint looked like it was returning an empty document: it was
+not failing, there is genuinely nothing to return. Appendix B has no record in
+`sources/sections/` for the same reason, and its verification rests entirely on the image
+digests here.
+
+`sha256` is over the image **bytes** as fetched. That is only meaningful because the
+server was checked, against repeated fetches, to send a byte-stable file with an ETag
+rather than re-rendering per request — a digest over a re-encoded image would be noise.
+
+## What the image digest catches that nothing else does
+
+A figure redrawn, replaced, or re-rendered while the regulatory text stands untouched. A
+breakpoint moving on figure 2 would change every K1 and K2 in the corpus and would not
+alter one character of § 25.527, so no text digest, citation line or amendment date would
+notice.
+
+`tools/validate.py` enforces the join in both directions: every `EC…` identifier appearing
+anywhere in an entry must have a registry record, and every record's `read_by` must name
+entries that exist. An image read but not digested is an unverifiable source; a digested
+image nothing reads is dead weight.
+
+`last_modified` is the HTTP header, and is evidence about the *file* rather than the
+regulation — when the image was last written to that server, not when the figure was
+adopted.
+
 ## `history` on a constraint entry
 
 Where a *value* changed, the entry itself carries a `history` block with the superseded

@@ -1,0 +1,219 @@
+# Published figure registry — 14 CFR Part 25.
+#
+# The regulation prints its equations as raster images. Not as text with a
+# figure beside it: the paragraph says "computed as follows:", renders a PNG,
+# and then defines the variables. Every formula in §§ 25.527, 25.531, 25.533 and
+# 25.535 arrives this way, and a pipeline whose first step is to mine the
+# regulatory text misses all of them silently.
+#
+# APPENDIX B IS THE EXTREME CASE. Its entire text content is twenty-one
+# characters — the words "Appendix B to Part 25". Nothing else. The appendix is
+# three images and a title, which is why the versioner's `appendix=` endpoint
+# looked like it was returning an empty document: it was not failing, there is
+# genuinely no text to return. For Appendix B, digesting the images is not a
+# fallback for a missing text digest. It is the only verification that exists.
+#
+# So each record carries a sha256 of the image BYTES as fetched. The images are
+# byte-stable — the server sends a fixed file with an ETag, not a re-render per
+# request, which was checked against repeated fetches before relying on it.
+# tools/check_editions.py re-fetches and compares.
+#
+# What this catches that a text digest cannot: a figure redrawn, replaced or
+# re-rendered while the surrounding regulatory text stands untouched.
+#
+# `last_modified` is the HTTP header the server reports. It is evidence about
+# the FILE, not about the regulation — 2022-05-20 is when the image was last
+# written to that server and says nothing about when the figure was adopted.
+
+- id: EC28SE91.036
+  url: https://img.federalregister.gov/EC28SE91.036/EC28SE91.036_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.036.gif
+  belongs_to: "25.527"
+  citation: "25.527(a)(1)"
+  depicts: Step landing water reaction load factor n_w
+  sha256: "7d431c66752df9d6"
+  bytes: 2181
+  width: 204
+  height: 94
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25.527-a1
+
+- id: EC28SE91.037
+  url: https://img.federalregister.gov/EC28SE91.037/EC28SE91.037_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.037.gif
+  belongs_to: "25.527"
+  citation: "25.527(a)(2)"
+  depicts: Bow and stern landing water reaction load factor n_w
+  sha256: "9edd0710b5b57ab3"
+  bytes: 2986
+  width: 331
+  height: 101
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25.527-a2
+
+- id: EC28SE91.038
+  url: https://img.federalregister.gov/EC28SE91.038/EC28SE91.038_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.038.gif
+  belongs_to: "25.531"
+  citation: "25.531(b)"
+  depicts: Takeoff condition downward inertia load factor n
+  sha256: "2c8e37db23f374a5"
+  bytes: 2037
+  width: 187
+  height: 94
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25.531-b-takeoff-inertia-load-factor
+
+- id: EC28SE91.039
+  url: https://img.federalregister.gov/EC28SE91.039/EC28SE91.039_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.039.gif
+  belongs_to: "25.533"
+  citation: "25.533(b)(1)"
+  depicts: Keel pressure P_k, unflared bottom
+  sha256: "37f4825f16da7a64"
+  bytes: 1592
+  width: 180
+  height: 68
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25.533-b1-keel-pressure
+
+- id: EC28SE91.040
+  url: https://img.federalregister.gov/EC28SE91.040/EC28SE91.040_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.040.gif
+  belongs_to: "25.533"
+  citation: "25.533(b)(2)"
+  depicts: Chine pressure P_ch, flared bottom
+  sha256: "044313cea708c73b"
+  bytes: 1579
+  width: 185
+  height: 66
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25.533-b2-flared-chine-pressure
+  notes: >-
+    Read 2026-08-13. The corpus carried C3 as a bare constant with no formula
+    until this image was read, while flightforge had implemented the formula
+    anyway. A constant without its formula is not an encoding of the rule.
+
+- id: EC28SE91.041
+  url: https://img.federalregister.gov/EC28SE91.041/EC28SE91.041_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.041.gif
+  belongs_to: "25.533"
+  citation: "25.533(c)(1)"
+  depicts: Symmetrical distributed pressure P
+  sha256: "4b929c4e888987a4"
+  bytes: 1481
+  width: 192
+  height: 66
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25.533-c1-distributed-pressure
+  notes: >-
+    Settles that the distributed case takes V_S0 and not V_S1 — two different
+    stalling speeds in adjacent paragraphs of one section, and the detail a
+    summariser drops.
+
+- id: EC28SE91.042
+  url: https://img.federalregister.gov/EC28SE91.042/EC28SE91.042_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.042.gif
+  belongs_to: "25.535"
+  citation: "25.535(b)"
+  depicts: Auxiliary float step loading limit load L
+  sha256: "242535874e76fb60"
+  bytes: 2438
+  width: 230
+  height: 108
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25.535-b-step-load
+
+- id: EC28SE91.043
+  url: https://img.federalregister.gov/EC28SE91.043/EC28SE91.043_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.043.gif
+  belongs_to: "25.535"
+  citation: "25.535(f)"
+  depicts: Immersed float vertical, aft and side load components
+  sha256: "e1440e12bc7bfc5f"
+  bytes: 4255
+  width: 255
+  height: 178
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25.535-f-immersed-vertical
+    - cfr-25.535-f-immersed-drag-and-side
+  notes: >-
+    Three expressions in one image. The vertical component rho*g*V closes
+    dimensionally in slug-ft-s and the horizontal ones do not close on knots,
+    which is the whole of interp-25.535-f-speed-units.
+
+- id: EC28SE91.055
+  url: https://img.federalregister.gov/EC28SE91.055/EC28SE91.055_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.055.gif
+  belongs_to: "Appendix B"
+  citation: "Appendix B to Part 25, figure 1"
+  depicts: Deadrise geometry, axes and sign conventions; unflared and flared bottoms
+  sha256: "9a1a22430fcb7b0c"
+  bytes: 38075
+  width: 734
+  height: 1102
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25-appB-fig1-deadrise-definition
+  notes: >-
+    Pictorial nomenclature. Supplies NO numeric values — beta is a design input,
+    not a chart lookup. The first release of this repository claimed otherwise
+    without opening the figure; see docs/verification-log.md, Round 2.
+
+- id: EC28SE91.056
+  url: https://img.federalregister.gov/EC28SE91.056/EC28SE91.056_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.056.gif
+  belongs_to: "Appendix B"
+  citation: "Appendix B to Part 25, figure 2"
+  depicts: Hull station weighing factors K1 and K2
+  sha256: "12035beff705d2d4"
+  bytes: 31191
+  width: 785
+  height: 1101
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25-appB-fig2-k1
+    - cfr-25-appB-fig2-k2
+  notes: >-
+    Piecewise linear with EVERY breakpoint value printed on the figure, so it is
+    encodable exactly rather than requiring digitisation. This is the image the
+    Round 2 retraction turned on, and the one whose digest matters most: a
+    breakpoint moving here would change every K1 and K2 in the corpus without
+    altering one character of § 25.527.
+
+- id: EC28SE91.057
+  url: https://img.federalregister.gov/EC28SE91.057/EC28SE91.057_large.png
+  alternate_url: https://www.ecfr.gov/graphics/ec28se91.057.gif
+  belongs_to: "Appendix B"
+  citation: "Appendix B to Part 25, figure 3"
+  depicts: Transverse pressure distribution shapes
+  sha256: "2c93c8cc12b0f8c8"
+  bytes: 35669
+  width: 809
+  height: 680
+  last_modified: 2022-05-20
+  retrieved: 2026-08-14
+  read_by:
+    - cfr-25-appB-fig3-pressure-distribution-shape
+  notes: >-
+    Schematic. Introduces no values beyond the text of § 25.533; included to
+    confirm the textual reading, not as an independent source.
+

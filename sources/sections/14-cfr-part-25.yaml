@@ -36,6 +36,13 @@
 #   text_chars         length of that normalised text, a cheap corroborating
 #                      check that a digest mismatch is a real edit
 #
+# WHY APPENDIX B HAS NO RECORD HERE. It has no text to digest. Its entire text
+# content is twenty-one characters -- the words "Appendix B to Part 25" -- and
+# everything else in it is three images. The versioner's `appendix=` endpoint
+# looked broken when it returned an empty document; it was not, there is simply
+# nothing to return. Appendix B lives in sources/figures/ instead, where the
+# image bytes are digested, and that is the only verification available for it.
+#
 # A NOTE ON HORIZONS. eCFR's own version history begins 2016-12-30; everything
 # before that is a single baseline snapshot. The citation line does not have
 # that limit -- it reaches back to original adoption in 1964 -- which is why it

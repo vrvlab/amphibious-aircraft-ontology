@@ -469,10 +469,37 @@ Closing them means reading the historical Federal Register issues named in each 
 line. That is now the largest open item in this repository, and § 25.807 — five amendments
 between 1990 and 2004 — is the worst of it.
 
+### Appendix B has no text at all
+
+Round 5 left Appendix B without a source record, because the versioner's `appendix=`
+parameter returned what looked like an empty document. It was not a broken endpoint.
+
+Extracting Appendix B from the full Part 25 XML gives **twenty-one characters** of text:
+the words "Appendix B to Part 25". Everything else in the appendix is three images. There
+is nothing to digest because there is nothing there.
+
+So all eleven published images the corpus reads from are now registered in
+`sources/figures/` with a digest of their bytes — the eight formula rasters of §§ 25.527,
+25.531, 25.533 and 25.535, and the three Appendix B figures. For the appendix figures this
+is not a supplement to a text check. It is the only verification that exists.
+
+The images were checked to be byte-stable before the digests were relied on: repeated
+fetches return identical bytes, with an ETag and a `Last-Modified` of 2022-05-20. A digest
+over a re-encoded image would have been noise.
+
+**What this catches that nothing else can.** A figure redrawn while the regulatory text
+stands untouched. A breakpoint moving on figure 2 would change every K1 and K2 in the
+corpus and would not alter one character of § 25.527 — no text digest, citation line or
+amendment date would see it. Given that this repository's Round 2 retraction was itself
+about the contents of figure 2, that is not a hypothetical failure mode.
+
+`tools/validate.py` now enforces the join both ways: every `EC…` identifier appearing in
+an entry must have a registry record, and every record's `read_by` must resolve.
+
 ## Open items
 
 - [ ] **Characterise pre-2017 amendments** for §§ 25.345, 25.349, 25.473, 25.479 and 25.807 by reading the Federal Register issues named in their citation lines. eCFR cannot help below its 2016-12-30 horizon, and `as_of.py` reports these as gaps
-- [ ] Appendix B is not retrievable from the versioner by the `appendix=` parameter, so it has no `sources/` record and no digest. Its figures were read from published images, which have stable URLs — digest those instead
+- [x] ~~Appendix B has no `sources/` record and no digest~~ — it has no text to digest: twenty-one characters, the rest images. All eleven published figures are now digested by their bytes in `sources/figures/`
 - [ ] Trace the empirical provenance of the Appendix B figure 2 breakpoints (1964 rulemaking, Doc. No. 5066; likely NACA tank data)
 - [ ] Independent second reading of Appendix B figure 2 values
 - [x] ~~§§ 25.523, 25.529, 25.531, 25.535, 25.537 not yet read~~ — all five read and encoded, Round 3

@@ -54,21 +54,39 @@
         units: length
   breakpoints:
     - station: bow (x = 0)
+      body: forebody
+      t: 0.0
       value: 1.5
     - station: forward of step (x -> L_f-)
+      body: forebody
+      t: 1.0
       value: 1.0
     - station: aft of step (x -> L_f+)
+      body: afterbody
+      t: 0.0
       value: 0.375
     - station: stern (x = L_f + L_a)
+      body: afterbody
+      t: 1.0
       value: 1.0
   test_cases:
     - description: Midway along the forebody
-      inputs: {x_over_Lf: 0.5}
+      inputs: {body: forebody, t: 0.5}
       expected: {K1: 1.25}
       status: worked
     - description: Midway along the afterbody
-      inputs: {x_minus_Lf_over_La: 0.5}
+      inputs: {body: afterbody, t: 0.5}
       expected: {K1: 0.6875}
+      status: worked
+    - description: >-
+        The discontinuity at the step is real and must survive interpolation —
+        the value drops from 1.0 to 0.375 across a station of zero length.
+      inputs: {body: forebody, t: 1.0}
+      expected: {K1: 1.0}
+      status: worked
+    - description: Immediately aft of the step, the other side of the jump
+      inputs: {body: afterbody, t: 0.0}
+      expected: {K1: 0.375}
       status: worked
 
 - id: cfr-25-appB-fig2-k2
@@ -116,23 +134,44 @@
         units: length
   breakpoints:
     - station: bow (x = 0)
+      body: forebody
+      t: 0.0
       value: 2.0
     - station: half forebody (x = L_f/2)
+      body: forebody
+      t: 0.5
       value: 0.75
     - station: forward of step (x -> L_f-)
+      body: forebody
+      t: 1.0
       value: 1.0
     - station: aft of step (x -> L_f+)
+      body: afterbody
+      t: 0.0
       value: 0.5
     - station: stern (x = L_f + L_a)
+      body: afterbody
+      t: 1.0
       value: 1.0
   test_cases:
     - description: Quarter of the forebody length
-      inputs: {x_over_Lf: 0.25}
+      inputs: {body: forebody, t: 0.25}
       expected: {K2: 1.375}
       status: worked
     - description: Three quarters of the forebody length
-      inputs: {x_over_Lf: 0.75}
+      inputs: {body: forebody, t: 0.75}
       expected: {K2: 0.875}
+      status: worked
+    - description: >-
+        The interior minimum at half the forebody. This is the breakpoint that
+        makes K2 non-monotonic; a single bow-to-step ramp would read 1.375 here
+        instead of 0.75, an 83% overstatement of the local pressure.
+      inputs: {body: forebody, t: 0.5}
+      expected: {K2: 0.75}
+      status: worked
+    - description: Midway along the afterbody
+      inputs: {body: afterbody, t: 0.5}
+      expected: {K2: 0.75}
       status: worked
 
 - id: cfr-25-appB-fig1-deadrise-definition

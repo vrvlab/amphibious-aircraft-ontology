@@ -1,0 +1,137 @@
+- id: cfr-25.345-a1-high-lift-maneuvering-factor
+  title: High lift devices — positive limit maneuvering load factor with flaps deployed
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.345(a)(1)
+    url: https://www.ecfr.gov/current/title-14/section-25.345
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.345
+    notes: '"If wing flaps are to be used during takeoff, approach, or landing, at the design
+      flap speeds established for these stages of flight under § 25.335(e) and with the wing
+      flaps in the corresponding positions, the airplane is assumed to be subjected to symmetrical
+      maneuvers and gusts. The resulting limit loads must correspond to the conditions determined
+      as follows: (1) Maneuvering to a positive limit load factor of 2.0".
+
+      Two things a bare "2.0" loses. The factor is tied to the DESIGN FLAP SPEEDS of § 25.335(e),
+      so it is a load factor at a speed, not a load factor at any speed. And paragraph (a)(2)
+      makes a 25 ft/sec EAS gust a separate condition of the same section, which may govern
+      instead — that one is not evaluated here.'
+  bound:
+    quantity: Positive limit maneuvering load factor, flaps in a takeoff, approach or landing
+      position
+    operator: ==
+    value: 2.0
+    units: dimensionless
+  applicability:
+    applies_when: Wing flaps used during takeoff, approach or landing, at the § 25.335(e)
+      design flap speeds
+    superseded_by:
+    - 25.345(a)(2) — positive and negative 25 ft/sec EAS gusts at the same flap positions,
+      by rational analysis. NOT EVALUATED by structures.wing_assembly.v1; it needs unsteady
+      aerodynamics and rigid body motion, and it can govern.
+    - 25.345(c) — flaps used en route take the § 25.337(b) factor instead of 2.0, which is
+      higher
+  tags:
+  - flight-loads
+  - subpart-c
+  - high-lift
+  - load-factor
+- id: cfr-25.345-d-landing-configuration-maneuvering-factor
+  title: Maneuvering load factor at maximum takeoff weight in the landing configuration
+  kind: bound
+  source:
+    authority: 14 CFR
+    section: 25.345(d)
+    url: https://www.ecfr.gov/current/title-14/section-25.345
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.345
+    notes: '"The airplane must be designed for a maneuvering load factor of 1.5 g at the maximum
+      take-off weight with the wing-flaps and similar high lift devices in the landing configurations."
+      A separate and lower condition from (a)(1), at a different weight; recorded so that
+      "the flap load factor is 2.0" is not read as the section''s only statement.'
+  bound:
+    quantity: Maneuvering load factor, landing configuration at maximum takeoff weight
+    operator: ==
+    value: 1.5
+    units: dimensionless
+  applicability:
+    applies_when: High lift devices in the landing configuration, at maximum takeoff weight
+  tags:
+  - flight-loads
+  - subpart-c
+  - high-lift
+  - load-factor
+- id: cfr-25.457-flap-supporting-structure
+  title: Wing flaps, their mechanisms and their supporting structure take the § 25.345 conditions
+  kind: assertion
+  source:
+    authority: 14 CFR
+    section: '25.457'
+    url: https://www.ecfr.gov/current/title-14/section-25.457
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.457
+    notes: '"Wing flaps, their operating mechanisms, and their supporting structures must
+      be designed for critical loads occurring in the conditions prescribed in § 25.345, accounting
+      for the loads occurring during transition from one flap position and airspeed to another."
+
+      This is why the flap TRACKS in structures.wing_assembly.v1 are sized at the § 25.345
+      condition and not at the wing''s: the section puts the supporting structure on the same
+      condition as the surface. The transition loads it also requires are not evaluated.'
+  applicability:
+    applies_when: Wing flaps, their operating mechanisms and their supporting structures
+    superseded_by:
+    - Loads during transition between flap positions and airspeeds — required by this section
+      and NOT evaluated
+  tags:
+  - flight-loads
+  - subpart-d
+  - high-lift
+  - supporting-structure
+  statement: Wing flaps, their operating mechanisms, and their supporting structures must
+    be designed for the critical loads occurring in the conditions prescribed in § 25.345,
+    accounting for the loads occurring during transition from one flap position and airspeed
+    to another.
+- id: cfr-25.349-a-rolling-conditions
+  title: Rolling conditions — the control surface case, recorded as not evaluated
+  kind: qualitative
+  source:
+    authority: 14 CFR
+    section: 25.349(a)
+    url: https://www.ecfr.gov/current/title-14/section-25.349
+    edition: 2026-07-07
+    retrieved: 2026-08-05
+  verification:
+    status: verified
+    checked_against: eCFR versioner API, full XML for title-14 § 25.349
+    notes: '"The following conditions, speeds, and aileron deflections (except as the deflections
+      may be limited by pilot effort) must be considered in combination with an airplane load
+      factor of zero and of two-thirds of the positive maneuvering factor used in design...
+      (2) At VA, a sudden deflection of the aileron to the stop is assumed."
+
+      RECORDED PRECISELY BECAUSE IT IS NOT EVALUATED. The airplane load factor this section
+      names does not set the pressure on an aileron; the sudden deflection at VA does, and
+      that needs VA, VC, VD and aileron effectiveness, none of which this method takes. Control
+      surfaces in structures.wing_assembly.v1 are therefore sized at the wing''s manoeuvre
+      ultimate with an authored pressure factor, and this entry exists so that the shortfall
+      is visible rather than implied.'
+  applicability:
+    applies_when: Rolling manoeuvres; sizes ailerons, spoilers and the wing torsion case
+  tags:
+  - flight-loads
+  - subpart-c
+  - control-surfaces
+  - not-evaluated
+  statement: The rolling conditions of § 25.349(a) — including, at VA, a sudden deflection
+    of the aileron to the stop — must be considered in combination with an airplane load factor
+    of zero and of two-thirds of the positive maneuvering factor used in design. This corpus
+    records the condition; it does not evaluate it.

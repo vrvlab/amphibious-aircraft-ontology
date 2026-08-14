@@ -1,0 +1,234 @@
+# How each consumer names the canonical parameters, and what it loses.
+#
+# This file is a claim about three other repositories. tools/check_consumers.py
+# re-reads those repositories where they are available on disk and fails if the
+# claim has gone stale — so a divergence recorded here cannot quietly become a
+# divergence that no longer exists, or a new one nobody noticed.
+#
+# `status` values:
+#   exact      the consumer key means the canonical parameter and nothing else
+#   collapsed  one consumer key stands for two or more canonical parameters
+#   renamed    same meaning, different spelling
+#   conflated  the consumer key is used where a DIFFERENT canonical parameter belongs
+#   absent     the consumer does not carry this parameter at all
+#
+# `declared_bounds` records what the consumer's own source says today. The
+# checker compares against it; a mismatch means the consumer moved.
+#
+# `scope` limits which canonical parameters a consumer must account for. All
+# three are scoped to `geometry.` today: those are the parameters that cross
+# repository boundaries as authored design inputs. The weights, speeds and
+# inertia families reach Flightforge through seed_state rather than through
+# a facet or a model file, and mapping them is an open item — see
+# docs/verification-log.md. Widening a scope here is what makes the checker
+# demand those mappings.
+
+- consumer: loftline
+  repo: vrvlab/Loftline
+  path: ../Loftline
+  scope: [geometry.]
+  authority: crates/loftline-core/src/spec.rs
+  authority_note: >-
+    Loftline's JSON Schema is generated and carries no numeric bounds; the
+    numbers live in the Rust spec table, which is therefore what gets read.
+  mappings:
+    - canonical: geometry.hull.deadrise_keel_deg
+      key: deadrise_deg
+      status: collapsed
+      declared_bounds: {min: 0.0, max: 60.0}
+      finding: >-
+        BOUND CONFLICT, and the one that matters most. Loftline admits
+        deadrise_deg = 0.0 inclusive. cfr-25.533-b1-keel-pressure divides by
+        tan(beta_k), so a zero-deadrise hull is not a flat-bottomed hull with a
+        large pressure — it is undefined. AeroGit's facet made the same bound
+        exclusive for exactly this reason and says so in its description.
+        Loftline sits upstream of the geometry, so its permissive bound is the
+        one that decides what reaches the pressure formulas.
+    - canonical: geometry.hull.deadrise_station_deg
+      key: deadrise_deg
+      status: collapsed
+      declared_bounds: {min: 0.0, max: 60.0}
+      finding: >-
+        The same single key also stands for the station deadrise. Loftline does
+        support a distribution for this key, which is more than the other two
+        consumers manage — a warped hull can be expressed — but a distribution
+        over stations is still not the keel-versus-station distinction, and
+        nothing selects which reading a downstream formula gets.
+    - canonical: geometry.hull.forebody_length
+      key: forebody_fraction
+      status: conflated
+      declared_bounds: {min: 0.1, max: 0.95}
+      finding: >-
+        Declared separately from step_fraction and defaulting to it when
+        omitted, which means the two are permitted to differ. For Appendix B
+        purposes they cannot: L_f IS the step station. Where they differ, K1
+        and K2 place their discontinuity at a station the hull does not have.
+    - canonical: geometry.hull.chine_flare_deg
+      key: chine_flare_deg
+      status: exact
+      declared_bounds: {min: 0.0, max: 45.0}
+      finding: >-
+        Bounds agree with the canonical mathematical bound. Loftline documents
+        this as flare "at the step", which is narrower than the flared-bottom
+        condition of cfr-25.533-b2-flared-chine-pressure, which is a property of
+        a station.
+    - canonical: geometry.hull.afterbody_length
+      key: null
+      status: absent
+      finding: >-
+        Derivable as length minus the step station, but not declared, so the
+        afterbody branch of K1/K2 has no named input.
+    - canonical: geometry.hull.deadrise_step_deg
+      key: deadrise_deg
+      status: collapsed
+      declared_bounds: {min: 0.0, max: 60.0}
+      finding: >-
+        The same key again, now standing for the step deadrise that § 25.531
+        requires. Loftline's distribution form could in principle be evaluated
+        at the step station to recover a distinct value; nothing does so, and
+        no downstream consumer asks for it.
+    - canonical: geometry.float.deadrise_three_quarter_deg
+      key: null
+      status: absent
+      finding: >-
+        Loftline models the hull, not auxiliary floats, so the § 25.535 float
+        deadrise has no home here. Recorded rather than left implicit because
+        the auxiliary float load path is otherwise complete in the corpus and
+        has no geometry source anywhere in the ecosystem.
+    - canonical: geometry.hull.spray_forebody_length
+      key: null
+      status: absent
+      finding: >-
+        Loftline carries one forebody_fraction whose documentation does not say
+        which of the two meanings it holds. It is mapped to the regulatory one
+        above as the conflation finding; it is recorded absent here because
+        nothing establishes it is the spray length either.
+
+- consumer: aerogit
+  repo: vrvlab/aerogit
+  path: ../aerogit
+  scope: [geometry.]
+  authority: templates/facets/water/amphibian.json
+  mappings:
+    - canonical: geometry.hull.deadrise_keel_deg
+      key: deadrise_deg
+      status: collapsed
+      declared_bounds: {min: 0.0, min_exclusive: true, max: 45.0}
+      finding: >-
+        Collapsed, but KNOWINGLY: the facet's own description states that one
+        authored value stands for both beta and beta_k and calls it "a
+        simplification this parameter does not currently record". This entry is
+        what records it. The exclusive lower bound is correct and its stated
+        reason — that 25.533 divides by tan of the angle — is the right one.
+    - canonical: geometry.hull.deadrise_station_deg
+      key: deadrise_deg
+      status: collapsed
+      declared_bounds: {min: 0.0, min_exclusive: true, max: 45.0}
+      finding: >-
+        The 45 degree ceiling is labelled a conceptual sanity limit, not a
+        regulatory one, which is the correct posture — but it is 15 degrees
+        tighter than Loftline's, so a hull Loftline accepts can be rejected on
+        arrival here.
+    - canonical: geometry.hull.forebody_length
+      key: L_forebody_fraction
+      status: renamed
+      finding: >-
+        Same quantity as Loftline's forebody_fraction under a different
+        spelling. Neither name is wrong; carrying both is.
+    - canonical: geometry.hull.chine_flare_deg
+      key: null
+      status: absent
+      finding: >-
+        AeroGit does not carry chine flare, so the facet cannot express which of
+        the two § 25.533(b) paths a design takes. Loftline and Flightforge both
+        do. The selector is lost precisely at the layer that versions the design.
+    - canonical: geometry.hull.afterbody_length
+      key: null
+      status: absent
+    - canonical: geometry.hull.deadrise_step_deg
+      key: deadrise_deg
+      status: collapsed
+      declared_bounds: {min: 0.0, min_exclusive: true, max: 45.0}
+      finding: >-
+        A third canonical angle behind the same single authored value. The
+        facet's description names two of the three; the § 25.531 step deadrise
+        is the one it does not mention.
+    - canonical: geometry.float.deadrise_three_quarter_deg
+      key: null
+      status: absent
+    - canonical: geometry.hull.spray_forebody_length
+      key: null
+      status: absent
+      finding: >-
+        AeroGit's L_forebody_fraction is mapped to the regulatory station
+        convention. Nothing here distinguishes the spray length, so a design
+        whose two forebody lengths genuinely differ cannot be versioned.
+
+- consumer: flightforge
+  repo: vrvlab/flightforge
+  path: ../flightforge
+  scope: [geometry.]
+  authority: app/flightforge/plugins/amphibious/design_vars.py
+  authority_note: >-
+    Bounds here are optimizer search ranges rather than validity limits, so a
+    mismatch against canonical bounds is expected and is not by itself a
+    finding. What matters is the naming and the collapse.
+  mappings:
+    - canonical: geometry.hull.deadrise_keel_deg
+      key: geometry.hull.deadrise_deg
+      status: collapsed
+      declared_bounds: {min: 10.0, max: 25.0}
+      finding: >-
+        Collapsed like the others. Flightforge's water_loads implementation
+        additionally floors the angle at 1 degree inside _tan_deg, so a zero or
+        near-zero deadrise arriving from Loftline produces a finite, wrong
+        pressure rather than an error. That floor is a numerical guard being
+        asked to do a validation job.
+    - canonical: geometry.hull.deadrise_station_deg
+      key: geometry.hull.deadrise_deg
+      status: collapsed
+      declared_bounds: {min: 10.0, max: 25.0}
+    - canonical: geometry.hull.spray_forebody_length
+      key: geometry.hull.L_forebody_fraction
+      status: exact
+      declared_bounds: {min: 0.45, max: 0.65}
+      finding: >-
+        This one is RIGHT, and is the reason the canonical vocabulary separates
+        the two forebody lengths at all. Flightforge's own note says "Parkinson
+        spray L_f" — a hydrodynamic correlation length, not the regulatory
+        station convention. It is a genuinely different quantity that happens to
+        share a name with Loftline's and AeroGit's, both of which mean the step
+        station.
+    - canonical: geometry.hull.forebody_length
+      key: geometry.hull.step_fraction
+      status: renamed
+      declared_bounds: {min: 0.4, max: 0.6}
+      finding: >-
+        The step station is the correct source for L_f in Appendix B. Note the
+        declared search ranges overlap but do not coincide with
+        L_forebody_fraction's, confirming the two are treated as independent
+        quantities here.
+    - canonical: geometry.hull.chine_flare_deg
+      key: geometry.hull.chine_flare_deg
+      status: exact
+      declared_bounds: {min: 0.0, max: 20.0}
+      finding: >-
+        Carried, and used as the selector for the flared path — the code
+        switches on flare > 1.0 degree. The 1 degree threshold is an
+        implementation choice, not a regulatory one; § 25.533(b) distinguishes
+        flared from unflared without a numeric cut.
+    - canonical: geometry.hull.afterbody_length
+      key: null
+      status: absent
+    - canonical: geometry.hull.deadrise_step_deg
+      key: geometry.hull.deadrise_deg
+      status: collapsed
+      declared_bounds: {min: 10.0, max: 25.0}
+    - canonical: geometry.float.deadrise_three_quarter_deg
+      key: null
+      status: absent
+      finding: >-
+        Flightforge sizes tip floats by volume fraction and carries no float
+        deadrise, so cfr-25.535-b-step-load has no geometry to act on. The
+        auxiliary float load path is encoded in the corpus but unreachable from
+        any consumer — the clearest single gap this checker surfaces.

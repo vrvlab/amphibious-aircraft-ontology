@@ -30,6 +30,16 @@
   - ground-loads
   - subpart-c
   - landing
+  history:
+  - effective_from: '1964-12-24'
+    effective_to: '2001-05-16'
+    amendment: Amdt. 25-103, 66 FR 27394, May 16, 2001
+    superseded_value: 10 f.p.s., at § 25.473(a)(1)(ii)
+    substantive: false
+    change: 'The 10 fps velocity is unchanged. Its PARAGRAPH moved: before Amdt. 25-103 this
+      requirement sat at § 25.473(a)(1)(ii), and the section was titled "Ground load conditions
+      and assumptions" rather than "Landing load conditions and assumptions". A certification
+      basis predating 2001 cites the older designation for the same number.'
 - id: cfr-25.473-a3-limit-descent-velocity-takeoff-weight
   title: Limit descent velocity at the design takeoff weight
   kind: bound
@@ -60,6 +70,14 @@
   - ground-loads
   - subpart-c
   - landing
+  history:
+  - effective_from: '1964-12-24'
+    effective_to: '2001-05-16'
+    amendment: Amdt. 25-103, 66 FR 27394, May 16, 2001
+    superseded_value: 6 f.p.s., at § 25.473(a)(1)(iii)
+    substantive: false
+    change: The 6 fps velocity is unchanged; the paragraph moved from § 25.473(a)(1)(iii).
+      See the (a)(2) entry.
 - id: cfr-25.473-b-lift-assumption
   title: Airplane lift during landing impact
   kind: bound
@@ -91,6 +109,20 @@
   - subpart-c
   - landing
   - assumptions
+  history:
+  - effective_from: '1964-12-24'
+    effective_to: '2001-05-16'
+    amendment: Amdt. 25-103, 66 FR 27394, May 16, 2001
+    superseded_value: Airplane lift, not exceeding the airplane weight, may be assumed to
+      exist throughout the landing impact and to act through the center of gravity of the
+      airplane. [§ 25.473(a)(2)]
+    substantive: true
+    change: SUBSTANTIVE. The older text granted the lift assumption unconditionally and fixed
+      its point of action at the centre of gravity. The current text grants it "unless the
+      presence of systems or procedures significantly affects the lift" and drops the centre-of-gravity
+      clause. So a design with lift-affecting systems — spoilers deploying on touchdown, automatic
+      ground spoilers — may claim less lift relief now than the pre-2001 rule allowed, which
+      raises the gear and support loads. The paragraph also moved from (a)(2) to (b).
 - id: cfr-25.479-d1-drag-with-maximum-vertical-reaction
   title: Aft drag component combined with the maximum vertical ground reaction
   kind: bound
@@ -121,6 +153,16 @@
   - subpart-c
   - landing
   - gear-support
+  history:
+  - effective_from: '1964-12-24'
+    effective_to: '2001-05-16'
+    amendment: Amdt. 25-103, 66 FR 27394, May 16, 2001
+    substantive: false
+    change: 'The 25 percent aft drag component is unchanged. Its paragraph moved: before Amdt.
+      25-103 it sat at § 25.479(c)(2), phrased as a combination acting at the axle centreline
+      under the (c) chapeau. The coefficient of friction cap of 0.8, which sat beside it at
+      § 25.479(c)(1), moved out of this section entirely and is now § 25.473(e).'
+    superseded_value: same value, different paragraph designation
 - id: cfr-25.479-d2i-drift-vertical-component
   title: Drift landing, vertical load component
   kind: formula
@@ -184,6 +226,18 @@
   - subpart-c
   - landing
   - gear-support
+  history:
+  - effective_from: '1964-12-24'
+    effective_to: '2001-05-16'
+    amendment: Amdt. 25-103, 66 FR 27394, May 16, 2001
+    substantive: true
+    change: DID NOT EXIST BEFORE 2001. § 25.479 had no lateral drift landing condition at
+      all until Amdt. 25-103 added it. The 1997 text runs (a) level attitude, (b) downwind
+      landings, (c) spin-up/springback/maximum-vertical combinations, (d) tail-wheel attitude,
+      (e) nose-wheel attitudes — and stops. An airplane certified against Part 25 below Amdt.
+      25-103 was NOT required to show this case, so a design review of an in-service type
+      must establish the certification basis before applying it. `superseded_value` is null
+      because there was no predecessor requirement to supersede.
 - id: cfr-25.479-d2i-drift-drag-component
   title: Drift landing, drag load component
   kind: formula
@@ -218,6 +272,18 @@
       D: 30000.0
     status: worked
   tags: *id005
+  history:
+  - effective_from: '1964-12-24'
+    effective_to: '2001-05-16'
+    amendment: Amdt. 25-103, 66 FR 27394, May 16, 2001
+    substantive: true
+    change: DID NOT EXIST BEFORE 2001. § 25.479 had no lateral drift landing condition at
+      all until Amdt. 25-103 added it. The 1997 text runs (a) level attitude, (b) downwind
+      landings, (c) spin-up/springback/maximum-vertical combinations, (d) tail-wheel attitude,
+      (e) nose-wheel attitudes — and stops. An airplane certified against Part 25 below Amdt.
+      25-103 was NOT required to show this case, so a design review of an in-service type
+      must establish the certification basis before applying it. `superseded_value` is null
+      because there was no predecessor requirement to supersede.
 - id: cfr-25.479-d2i-drift-side-component
   title: Drift landing, side load component
   kind: formula
@@ -250,6 +316,18 @@
       S: 18750.0
     status: worked
   tags: *id005
+  history:
+  - effective_from: '1964-12-24'
+    effective_to: '2001-05-16'
+    amendment: Amdt. 25-103, 66 FR 27394, May 16, 2001
+    substantive: true
+    change: DID NOT EXIST BEFORE 2001. § 25.479 had no lateral drift landing condition at
+      all until Amdt. 25-103 added it. The 1997 text runs (a) level attitude, (b) downwind
+      landings, (c) spin-up/springback/maximum-vertical combinations, (d) tail-wheel attitude,
+      (e) nose-wheel attitudes — and stops. An airplane certified against Part 25 below Amdt.
+      25-103 was NOT required to show this case, so a design review of an in-service type
+      must establish the certification basis before applying it. `superseded_value` is null
+      because there was no predecessor requirement to supersede.
 - id: cfr-25.479-d2ii-drift-deflections
   title: Shock absorber and tire deflections in the drift condition — not evaluated
   kind: qualitative
@@ -279,6 +357,18 @@
   statement: The shock absorber and tire deflections must be assumed to be 75 percent of the
     deflection corresponding to the maximum ground reaction of § 25.473(a)(2). This load case
     need not be considered in combination with flat tires.
+  history:
+  - effective_from: '1964-12-24'
+    effective_to: '2001-05-16'
+    amendment: Amdt. 25-103, 66 FR 27394, May 16, 2001
+    substantive: true
+    change: DID NOT EXIST BEFORE 2001. § 25.479 had no lateral drift landing condition at
+      all until Amdt. 25-103 added it. The 1997 text runs (a) level attitude, (b) downwind
+      landings, (c) spin-up/springback/maximum-vertical combinations, (d) tail-wheel attitude,
+      (e) nose-wheel attitudes — and stops. An airplane certified against Part 25 below Amdt.
+      25-103 was NOT required to show this case, so a design review of an in-service type
+      must establish the certification basis before applying it. `superseded_value` is null
+      because there was no predecessor requirement to supersede.
 - id: cfr-25.479-d3-loads-act-at-the-axle
   title: Vertical and drag components act at the wheel axle centreline
   kind: assertion
@@ -310,3 +400,12 @@
   - gear-support
   statement: The combination of vertical and drag components is considered to be acting at
     the wheel axle centerline.
+  history:
+  - effective_from: '1964-12-24'
+    effective_to: '2001-05-16'
+    amendment: Amdt. 25-103, 66 FR 27394, May 16, 2001
+    substantive: false
+    change: Unchanged in substance. Before Amdt. 25-103 this was the chapeau of § 25.479(c)
+      — "Assuming that the following combinations of vertical and drag components act at the
+      axle centerline" — governing the whole paragraph rather than standing as its own subparagraph.
+    superseded_value: same value, different paragraph designation

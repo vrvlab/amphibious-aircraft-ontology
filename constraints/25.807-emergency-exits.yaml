@@ -46,49 +46,100 @@
   - emergency-exits
   - subpart-d
   - cabin
-- id: cfr-25.807-g1-seats-per-exit-pair
-  title: Maximum passenger seats permitted per pair of exits, by type
+- id: cfr-25.807-g-seats-per-exit
+  title: Maximum passenger seats permitted per exit, by type
   kind: table
   source:
     authority: 14 CFR
-    section: 25.807(g)(1)
+    section: 25.807(g)
     url: https://www.ecfr.gov/current/title-14/section-25.807
     edition: 2026-07-07
-    retrieved: 2026-08-06
+    retrieved: 2026-08-14
   verification:
     status: verified
-    checked_against: eCFR versioner API, full XML for title-14 § 25.807
-    notes: '"The maximum number of passenger seats permitted depends on the type and" ...
-      the tabulated allowance is PER PAIR of exits, one each side. Halving a pair''s allowance
-      to get a per-exit number is a reading the table does not support and is not done here.
+    checked_against: >-
+      eCFR versioner API full XML for title-14 § 25.807, and the govinfo annual
+      CFR granules for 1997 and 2016, all three read directly
+    notes: >-
+      RETRACTION. This entry previously carried every value DOUBLED, as
+      cfr-25.807-g1-seats-per-exit-pair with units "seats per pair" — Type A
+      220, Type B 150, and so on — and asserted in its own notes that "halving
+      a pair's allowance to get a per-exit number is a reading the table does
+      not support". That is backwards. The regulation's table is per exit.
 
+      Exact wording: "the maximum number of passenger seats permitted FOR EACH
+      EXIT of a specific type installed IN EACH SIDE of the fuselage is as
+      follows". The seven values below are what the regulation prints. The
+      doubled figures are a correct derivation for a pair of exits, one each
+      side, but they are a derivation and not the table; they are now
+      interp-25.807-g-seats-per-exit-pair.
 
-      The regulation permits combinations of types. It states a floor on egress capacity,
-      not a design — which is why choosing among the combinations that satisfy it is a method''s
-      job and not the rule''s.'
+      The error was inherited when this file was upstreamed from flightforge,
+      where it had been authored. Upstreaming normalised its structure — the
+      operator vocabulary, an unquoted section number, a status field holding
+      prose — without re-reading its numbers against primary source. Structural
+      normalisation is not verification, and marking the result `verified`
+      asserted a check that had not happened.
+
+      Ventral and tailcone exits are not tabulated. They are defined by egress
+      rate and configuration rather than by a seat count.
   table:
-    units: seats per pair
-    columns:
-    - type
-    - seats_per_pair
+    units: seats per exit, per side
+    columns: [type, seats_per_exit]
     rows:
-    - - Type A
-      - 220
-    - - Type B
-      - 150
-    - - Type C
-      - 110
-    - - Type I
-      - 90
-    - - Type II
-      - 80
-    - - Type III
-      - 70
-    - - Type IV
-      - 18
+      - [Type A, 110]
+      - [Type B, 75]
+      - [Type C, 55]
+      - [Type I, 45]
+      - [Type II, 40]
+      - [Type III, 35]
+      - [Type IV, 9]
   applicability:
-    applies_when: Passenger emergency exits, § 25.807(g)
-  tags:
-  - emergency-exits
-  - subpart-d
-  - cabin
+    applies_when: >-
+      Passenger emergency exits, § 25.807(g), except as further restricted by
+      paragraphs (g)(1) through (g)(9)
+  tags: [exits, subpart-d, cabin-safety, retracted-and-corrected]
+
+- id: interp-25.807-g-seats-per-exit-pair
+  title: "INTERPRETATION: seats permitted per PAIR of exits"
+  kind: table
+  source:
+    authority: none
+    section: n/a
+    url: ""
+    edition: 2026-07-07
+    retrieved: 2026-08-14
+  verification:
+    status: interpretation
+    checked_against: >-
+      Not printed in § 25.807. Derived by doubling the per-exit values of
+      cfr-25.807-g-seats-per-exit.
+    notes: >-
+      Exits are installed in pairs, one each side of the fuselage, so a pair of
+      a given type permits twice the per-exit allowance. That is the arithmetic
+      a cabin layout actually uses, and it is why the doubled figures were
+      attractive enough to be mistaken for the regulation's own table.
+
+      It is recorded separately, and as an interpretation, so the distinction
+      survives: § 25.807(g) prints the per-exit numbers, and paragraphs (g)(1)
+      through (g)(9) further restrict them by seating configuration in ways this
+      doubling does not capture. A tool that applies these figures without also
+      applying those restrictions is not evaluating the section.
+  table:
+    units: seats per pair of exits
+    columns: [type, seats_per_pair]
+    rows:
+      - [Type A, 220]
+      - [Type B, 150]
+      - [Type C, 110]
+      - [Type I, 90]
+      - [Type II, 80]
+      - [Type III, 70]
+      - [Type IV, 18]
+  applicability:
+    applies_when: One exit of the given type installed in each side of the fuselage
+    superseded_by:
+      - >-
+        § 25.807(g)(1) through (g)(9), which further restrict the permitted
+        seating configuration
+  tags: [exits, subpart-d, cabin-safety, interpretation]

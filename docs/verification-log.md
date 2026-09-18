@@ -762,6 +762,43 @@ The scan's text layer is poor (`meals aerodynamic` for `mean aerodynamic`). The 
 and 8, and every phrase quoted from them is as printed. "span", "chord, mean, of a wing" and
 "flying boat" were read from the text layer only, where they extracted cleanly.
 
+## Round 10 — which, not how much: the first vocabularies (2026-09-18)
+
+**Source:** NACA Report No. 474, *Nomenclature for Aeronautics*, as in Round 9. NTRS citation
+20100021420.
+
+Sent from the consumer side (studio issue 86). AeroHydro Studio holds an attachment's *style*,
+and asks that a style decide which parameters exist. The corpus had no layer for a closed set of
+alternatives, so a consumer's enums were its own words. `vocabularies/` is that layer, with
+three entries, every value's definition the report's:
+
+| vocabulary | values | read |
+|---|---|---|
+| `wing-position` | `high-wing` `midwing` `low-wing` `parasol` | report page 20, on the page image |
+| `propeller-position` | `tractor` `pusher` | under "airplane", text layer only |
+| `lateral-stabilization-on-water` | `outboard-stabilizing-floats` `inboard-stabilizing-floats` `sponsons` `stub-wing-stabilizers` | float entries on the page image, report page 15; "sponson" and "stabilizer, stub-wing" from the text layer |
+
+What reading settled:
+
+- **The report has two words where practice now has one.** "Sponson" is "a protuberance from a
+  seaplane hull designed to increase the beam or give lateral stability at rest";
+  "stabilizer, stub-wing" is a projection from the hull that adds buoyancy and stability at
+  rest "and to increase the hydrodynamic lift during the take-off", "an integral part of the
+  hull". It does not say how they differ. Both are kept, because the source has both. A first
+  draft had given `sponsons` the aliases "stub wings" and "sea wings" from memory; the first is
+  the report's word for the other value and the second is nowhere in it. Both were removed
+  before this was sent.
+- **The join is ours, and says so.** That the two float values `admit`
+  `deadrise-auxiliary-float` is not in the report: it follows from the parameter being the
+  auxiliary float's. Whether § 25.535 reaches a sponson or a stub-wing stabilizer, which are
+  hull and not float, is a question this corpus has not read an answer to, and the entry says
+  that the absence of `admits` does not answer it.
+- **None is exhaustive**, and the schema makes that the default. The report defines
+  alternatives; it never says there are no others.
+
+What the report does not give, and so is not here: bracing (it has no entry for "cantilever"),
+dihedral as a named style, and any tail arrangement.
+
 ## Open items
 
 - [x] ~~Characterise pre-2017 amendments for §§ 25.345, 25.349, 25.473, 25.479, 25.807~~ — closed to 1997 by diffing govinfo annual CFR granules; substantive changes recorded in `history` blocks
@@ -788,3 +825,6 @@ and 8, and every phrase quoted from them is as printed. "span", "chord, mean, of
 - [ ] `.github/workflows/verify.yml` does not run `tools/test_validate_units.py`. It runs `test_check_consumers.py` the same way; one more step would cover the unit rules. Staleness of `dist/units.json` is already caught, since the workflow now diffs all of `dist/`
 - [ ] `wing-taper-ratio` has no entry: NACA Report 474 defines taper and no ratio. Needs a primary source that defines the ratio and says which root chord
 - [ ] Report 474 is silent on tip floats and tip devices in the span, on a dorsal fin, and on how twin fins are summed. Each entry says so; none is resolved
+- [ ] Does § 25.535 (auxiliary floats) reach a sponson or a stub-wing stabilizer, which are part of the hull? `lateral-stabilization-on-water` records that the question is open
+- [ ] Vocabularies with no source yet: wing bracing, tail arrangement, float retraction, door and ramp styles. NACA Report 474 has none of them
+- [ ] `applies_to` is a slug with no registry behind it. When a second consumer disagrees about what a `hull` is, it will need one

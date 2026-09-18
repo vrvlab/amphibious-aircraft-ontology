@@ -12,8 +12,8 @@ Why a build artifact at all, when the YAML is right there:
   * An id index means a consumer pins `cfr-25.527-b2-c1-value` rather than a
     line number or a file offset.
 
-Three artifacts, not one. `constraints.json`, `parameters.json` and `units.json`
-are built the same way and kept separate on purpose: each carries a `content_sha256` over its
+Four artifacts, not one. `constraints.json`, `parameters.json`, `units.json` and
+`vocabularies.json` are built the same way and kept separate on purpose: each carries a `content_sha256` over its
 own entries, so a consumer pinning one is not disturbed when another changes.
 Folding them together would make every parameter edit look like a constraint
 edit to anyone watching that digest.
@@ -68,6 +68,13 @@ ARTIFACTS = (
         # A unit's `source` names a document and the edition read, as a
         # constraint's does, but the documents differ per unit and are not
         # issues of one regulation; listing them as "editions" would mislead.
+        "editions": False,
+    },
+    {
+        "name": "vocabularies",
+        "src": ROOT / "vocabularies",
+        "out": DIST / "vocabularies.json",
+        "schema": "schema/vocabulary.schema.json",
         "editions": False,
     },
 )

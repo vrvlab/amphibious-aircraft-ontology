@@ -1,0 +1,139 @@
+# Configuration choices: closed sets of named alternatives.
+#
+# A parameter says HOW MUCH. A vocabulary says WHICH: where the wing sits, which
+# way the propellers face, what keeps a flying boat upright at rest. Tools hold
+# these as enums and invent the words. The words are older than the tools: NACA
+# Report No. 474, "Nomenclature for Aeronautics", defines every value below.
+#
+# `admits` is why the layer exists. deadrise-auxiliary-float is a real parameter
+# with a real rule behind it (25.535), and it is a quantity of an aircraft that
+# HAS auxiliary floats. On a hull stabilized by sponsons it does not exist, and
+# a tool that carries a value for it anyway is carrying a number about nothing.
+#
+# None of the three is `exhaustive`. The report defines these alternatives; it
+# does not say there are no others, and a design outside the list is reported,
+# not rejected.
+
+- id: wing-position
+  name: Wing position on the body
+  applies_to: wing
+  definition: >-
+    Where a monoplane's wing is located relative to the top and bottom of the
+    fuselage.
+  values:
+    - id: high-wing
+      definition: The wing is located at, or near, the top of the fuselage.
+    - id: midwing
+      definition: >-
+        The wing is located approximately midway between the top and bottom of
+        the fuselage.
+    - id: low-wing
+      definition: The wing is located at, or near, the bottom of the fuselage.
+    - id: parasol
+      definition: The wing is above the fuselage.
+      notes: >-
+        Above it, not at its top: the wing is carried clear of the body. The
+        report does not say by what.
+  source: >-
+    NACA Report No. 474, Nomenclature for Aeronautics, "monoplane": high-wing,
+    low-wing, midwing and parasol monoplane
+  verification:
+    status: verified
+    checked_against: >-
+      NACA Report No. 474 (reprint of 1939; originally published March 1934),
+      report page 20, read on the page image. NTRS citation 20100021420 (PDF
+      sha256 e900d8023594...4626 as fetched 2026-09-18).
+    notes: >-
+      The report says "fuselage". Reading it as the hull of a flying boat is
+      this entry's, as in wing-area; the report defines a flying boat as "a
+      form of seaplane whose main body or hull provides flotation".
+  tags: [wing, configuration]
+
+- id: propeller-position
+  name: Propeller position relative to the wing
+  applies_to: propulsion
+  definition: >-
+    Whether the propeller or propellers are forward or aft of the main
+    supporting surfaces.
+  values:
+    - id: tractor
+      definition: >-
+        The propeller or propellers are forward of the main supporting
+        surfaces.
+    - id: pusher
+      definition: >-
+        The propeller or propellers are aft of the main supporting surfaces.
+  source: >-
+    NACA Report No. 474, Nomenclature for Aeronautics, "airplane": pusher
+    airplane, tractor airplane
+  verification:
+    status: verified
+    checked_against: >-
+      NACA Report No. 474 (reprint of 1939; originally published March 1934),
+      the entries under "airplane", read from the text layer of the NTRS scan,
+      citation 20100021420, where they extracted cleanly. Not checked on the
+      page image.
+    notes: >-
+      The report defines the two of an AIRPLANE, by all its propellers. An
+      aircraft with both has no word here, which is one reason the vocabulary
+      is not exhaustive.
+  tags: [propulsion, configuration]
+
+- id: lateral-stabilization-on-water
+  name: Lateral stabilization at rest on the water
+  applies_to: hull
+  definition: >-
+    What gives a flying boat, or a seaplane on a single float, lateral
+    stability while it is at rest on the water.
+  values:
+    - id: outboard-stabilizing-floats
+      aliases: [wing-tip stabilizing floats]
+      definition: >-
+        Stabilizing floats placed relatively far out from the main float or
+        hull, usually at or very near the tip of the wing.
+      admits: [deadrise-auxiliary-float]
+    - id: inboard-stabilizing-floats
+      definition: >-
+        Stabilizing floats placed relatively close to the main float or hull.
+      admits: [deadrise-auxiliary-float]
+    - id: sponsons
+      definition: >-
+        Protuberances from the hull designed to increase the beam or give
+        lateral stability at rest.
+      notes: >-
+        A sponson is part of the hull and is not a float: the report defines a
+        float as "a completely enclosed watertight structure attached to an
+        aircraft". Whether 25.535, which is written for auxiliary floats,
+        reaches a sponson is a question this corpus has not read an answer to,
+        and the absence of `admits` here does not answer it.
+    - id: stub-wing-stabilizers
+      aliases: [stub planes]
+      definition: >-
+        Projections from the side of the central hull of a flying boat intended
+        to increase the buoyancy and stability of the boat while it is at rest
+        and to increase the hydrodynamic lift during the take-off; an integral
+        part of the hull, usually in the form of a stumpy airfoil or a stub
+        wing.
+      notes: >-
+        The report gives this its own entry beside "sponson" and does not say
+        how the two differ. Both are part of the hull; this one is also said to
+        lift. They are kept as two values because the source has two words.
+  source: >-
+    NACA Report No. 474, Nomenclature for Aeronautics, "float, inboard
+    stabilizing", "float, outboard (or wing-tip) stabilizing", "float,
+    stabilizing (or side)", "sponson" and "stabilizer, stub-wing"
+  verification:
+    status: verified
+    checked_against: >-
+      NACA Report No. 474 (reprint of 1939; originally published March 1934).
+      The float entries, report page 15, read on the page image; "sponson"
+      and "stabilizer, stub-wing" from the text layer, where they extracted
+      cleanly. NTRS citation
+      20100021420.
+    notes: >-
+      The definition of the vocabulary itself is the report's "float,
+      stabilizing (or side)": "intended to provide lateral stability while the
+      seaplane or flying boat is at rest on the water". That `admits` names
+      deadrise-auxiliary-float is this corpus's join and not the report's: the
+      parameter is the auxiliary float's, so it exists when there is one.
+  tags: [hull, floats, configuration, water-loads]

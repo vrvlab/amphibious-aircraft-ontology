@@ -176,12 +176,22 @@ def main() -> int:
             word = rec.get(field)
             if word is None:
                 continue
+            if field == "ucum" and rec.get("ucum_qudt") == word:
+                errors.append(
+                    f"{uid}: ucum_qudt repeats ucum -- it is recorded only where "
+                    f"QUDT spells the unit differently"
+                )
             if word in owner:
                 errors.append(
                     f"{uid}: {field} {word!r} is already {owner[word]}'s -- "
                     f"a consumer that writes it could not say which unit it meant"
                 )
             owner[word] = uid
+    codes = {rec.get("ucum"): uid for uid, rec in units.items()}
+    for uid, rec in units.items():
+        other = codes.get(rec.get("ucum_qudt"))
+        if other and other != uid:
+            errors.append(f"{uid}: ucum_qudt {rec['ucum_qudt']!r} is {other}'s ucum")
     for uid, rec in units.items():
         conv = rec.get("to_coherent_si")
         if not conv:

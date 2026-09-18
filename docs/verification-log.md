@@ -604,7 +604,9 @@ silently empty registry is worse than no tool.
 **Sources:** *The International System of Units (SI)*, BIPM, 9th edition (2019), **V4.01, June
 2026**, the PDF at bipm.org (sha256 `5442eea2…e02c` as fetched). *NIST Special Publication
 811*, **2008 Edition**, the PDF at nvlpubs.nist.gov (sha256 `788dd8f0…482f`). QUDT, each unit's
-record at `https://qudt.org/vocab/unit/<id>`, fetched 2026-09-18 as Turtle.
+record at `https://qudt.org/vocab/unit/<id>`, fetched 2026-09-18 as Turtle. *The Unified Code
+for Units of Measure*, **Version 2.2, 2024-06-17**, https://ucum.org/ucum (sha256
+`08584e17…4f71` as fetched).
 
 Sent from the consumer side. AeroHydro Studio pins an edition of this corpus and takes its
 vocabulary from it, and asked a plain question of `v0.3.0`: what is `unit:LB_F`? The corpus
@@ -629,6 +631,22 @@ them against anything.
 Every QUDT IRI resolved. QUDT's multipliers agree with each factor here to the digits a double
 carries; they were a cross-check and are not the authority for any of them.
 
+### The code a consumer writes
+
+The first draft of this registry copied QUDT's `qudt:ucumCode` verbatim and called it the UCUM
+code: `kg.m-3`, `m.s-1`. The consumer's designer asked why units would be written so
+unnaturally, and the answer was that they need not be. **QUDT's string had been taken for the
+standard's.** Read, UCUM 2.2 says: §7, "all units can be combined in an algebraic term using
+the operators for multiplication (period) and division (solidus)", evaluated left to right;
+§9, an exponent "is written immediately behind the unit term"; §8, "a positive integer number
+may appear in place of a simple unit symbol", which is how the unit one is written `1`. Its
+Appendix D lists `kg/m3` by name, and its own table of derived units defines the newton as
+`kg.m/s2` and the pascal as `N/m2`.
+
+So `ucum` holds the natural term, and QUDT's spelling is kept as `ucum_qudt` for the three units
+where it differs. Every customary atom the registry uses, `[ft_i]`, `[lbf_av]`, `[psi]`,
+`[kn_i]`, and `deg` and `rad`, was found in the specification's tables.
+
 ### One disagreement, recorded rather than resolved
 
 QUDT gives `unit:UNITLESS`, `unit:RAD` and `unit:DEG` the dimension vector `A0E0L0I0M0H0T0D1`:
@@ -641,7 +659,7 @@ vectors must know the two spell it differently.
 
 A parameter whose unit does not measure its kind; a factor that changes the dimension; a factor
 to a unit that is itself not coherent; an "exact" factor that is not its expression; two units
-with one symbol or one UCUM code. `tools/test_validate_units.py` breaks a copy of the corpus
+with one symbol or one UCUM code; a QUDT spelling that is another unit's code. `tools/test_validate_units.py` breaks a copy of the corpus
 each way and requires the refusal. Each rule was also removed in turn and its self-check seen
 to go red.
 

@@ -24,8 +24,15 @@
           "description": "The corpus's readable form, the one a parameter's quantity.symbol must equal: \"m\", \"m^2\", \"deg\", \"1\"."
         },
         "ucum": {
-          "type": ["string", "null"],
-          "description": "The UCUM code QUDT records for the unit (qudt:ucumCode), verbatim, or null where QUDT records none. A second machine-readable spelling, for consumers that write UCUM."
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[!-~]+$",
+          "description": "The unit as a UCUM code, case-sensitive, in the form a person would write: division by the solidus (UCUM 2.2 section 7), so \"kg/m3\" and \"m/s\". Unique across the registry, so a consumer may write it and mean one unit."
+        },
+        "ucum_qudt": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The code QUDT records (qudt:ucumCode), verbatim, present exactly when it is spelled differently from ucum: \"kg.m-3\" beside \"kg/m3\". An equal UCUM term, kept so a consumer holding QUDT's spelling can find the unit. Never the code the corpus writes."
         },
         "quantity_kinds": {
           "type": "array",

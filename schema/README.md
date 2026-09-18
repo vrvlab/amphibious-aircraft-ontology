@@ -162,9 +162,16 @@ is nothing for a tool to declare.
 enforced by the same validator and shipped as [`dist/units.json`](../dist/units.json) with its
 own `content_sha256`, so a consumer pinning `constraints.json` is not disturbed by a new unit.
 
-A unit is looked up by its QUDT IRI. `symbol` is the corpus's readable form and `ucum` is the
-UCUM code QUDT records, verbatim; no two units share either, so a consumer may write whichever
-of the three it prefers and still mean one unit.
+A unit is looked up by its QUDT IRI. `symbol` is the corpus's readable form. `ucum` is the unit
+as a [UCUM](https://ucum.org/ucum) code, and it is **the spelling a consumer writes**: `m`, `kg`,
+`m2`, `kg/m3`, `m/s`, `Pa`, `N`, `1`. UCUM is the one public grammar for units that both a parser
+and a person can read; it gives division its own operator (§7), and its own table of example
+terms lists `kg/m3`. No two units share a symbol or a code.
+
+QUDT records a UCUM code too, and for three units spells it the other way UCUM allows:
+`kg.m-3`, `m.s-1`, `m.s-2`. Those are equal terms, and unnatural ones. Where QUDT's spelling
+differs it is kept as `ucum_qudt`, so a consumer holding it can find the unit; it is never the
+code the corpus writes. QUDT records no code for the unit one, which UCUM writes `1` (§8).
 
 `dimension` is the SI Brochure's dimensional product over its seven base quantities, in its
 order: `T L M I Theta N J`. QUDT marks plane angle and the unit one with its own `D1`; the

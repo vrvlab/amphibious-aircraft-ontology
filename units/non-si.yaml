@@ -1,0 +1,193 @@
+# Units that are not coherent SI: the regulation's own, and the degree.
+#
+# 14 CFR Part 25 writes weights in pounds, speeds in knots, pressures in pounds per square
+# inch and volumes in cubic feet, and its empirical constants are fitted to those units. The
+# parameters keep the regulation's units for that reason. A consumer that is SI inside
+# converts at the boundary, by the factor recorded here and by no other.
+#
+# `exact: true` means the decimal string IS the value. Where the exact value is not a finite
+# decimal (pi/180, 1852/3600, a quotient), `expression` holds it and `factor` is the shortest
+# decimal that reads back as the nearest double.
+
+- id: unit:MilliM
+  name: millimetre
+  symbol: "mm"
+  ucum: "mm"
+  quantity_kinds: [quantitykind:Length]
+  dimension: {T: 0, L: 1, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: false
+  to_coherent_si:
+    unit: unit:M
+    factor: "0.001"
+    exact: true
+    basis: SI prefix milli, 10^-3. SI Brochure Table 7. A prefixed unit is SI and is not coherent (section 2.3.4).
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 7 (SI prefixes); section 2.3.4 (coherent units)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 7 and section 2.3.4, read
+      from the PDF. QUDT record https://qudt.org/vocab/unit/MilliM fetched
+      2026-09-18: conversionMultiplier 0.001.
+
+- id: unit:DEG
+  name: degree
+  symbol: "deg"
+  ucum: "deg"
+  quantity_kinds: [quantitykind:Angle]
+  dimension: {T: 0, L: 0, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: false
+  to_coherent_si:
+    unit: unit:RAD
+    factor: "0.017453292519943295"
+    exact: false
+    expression: "pi/180"
+    basis: "SI Brochure Table 8: 1 degree = (pi/180) rad."
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 8 (non-SI units accepted for use with the SI), plane and phase angle"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 8, read from the PDF.
+      QUDT record https://qudt.org/vocab/unit/DEG fetched 2026-09-18:
+      conversionMultiplier 0.01745329251994329576923690768488613, which
+      rounds to the factor here.
+
+- id: unit:KN
+  name: knot
+  symbol: "kn"
+  ucum: "[kn_i]"
+  quantity_kinds: [quantitykind:Speed]
+  dimension: {T: -1, L: 1, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: false
+  to_coherent_si:
+    unit: unit:M-PER-SEC
+    factor: "0.5144444444444445"
+    exact: false
+    expression: "1852/3600"
+    basis: "SI Brochure Table 8: 1 nautical mile = 1852 m; 1 nautical mile per hour = (1852/3600) m/s."
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 8, knot, and its note (k)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 8, read from the PDF.
+      NIST SP 811 (2008) B.8 gives the rounded 5.144 444 E-01. QUDT record
+      https://qudt.org/vocab/unit/KN fetched 2026-09-18.
+    notes: >-
+      The Brochure gives the knot no symbol. "kn" is the corpus's, as it was
+      before this registry existed.
+
+- id: unit:FT
+  name: foot
+  symbol: "ft"
+  ucum: "[ft_i]"
+  quantity_kinds: [quantitykind:Length]
+  dimension: {T: 0, L: 1, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: false
+  to_coherent_si:
+    unit: unit:M
+    factor: "0.3048"
+    exact: true
+    basis: NIST SP 811 Appendix B.8, foot (ft) to meter, 3.048 E-01 in bold, which the Guide uses for an exact factor.
+  source:
+    document: "NIST Special Publication 811, Guide for the Use of the International System of Units (SI)"
+    edition: "2008 Edition"
+    location: "Appendix B.8, foot (ft)"
+    url: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication811e2008.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      NIST SP 811 2008 Edition, Appendix B.8 and B.9, read 2026-09-18. QUDT
+      record https://qudt.org/vocab/unit/FT: conversionMultiplier 0.3048.
+
+- id: unit:FT3
+  name: cubic foot
+  symbol: "ft^3"
+  ucum: "[ft_i]3"
+  quantity_kinds: [quantitykind:Volume]
+  dimension: {T: 0, L: 3, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: false
+  to_coherent_si:
+    unit: unit:M3
+    factor: "0.028316846592"
+    exact: true
+    expression: "0.3048^3"
+    basis: The cube of the exact foot. NIST SP 811 B.9 prints the rounded 2.831 685 E-02.
+  source:
+    document: "NIST Special Publication 811, Guide for the Use of the International System of Units (SI)"
+    edition: "2008 Edition"
+    location: "Appendix B.8, foot (ft), exact; Appendix B.9, cubic foot, rounded"
+    url: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication811e2008.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      NIST SP 811 2008 Edition, Appendix B.8 and B.9, read 2026-09-18. The
+      exact decimal is this corpus's arithmetic on the exact foot, and equals
+      QUDT's conversionMultiplier 0.028316846592 for unit:FT3.
+
+- id: unit:LB_F
+  name: pound-force
+  symbol: "lbf"
+  ucum: "[lbf_av]"
+  quantity_kinds: [quantitykind:Force]
+  dimension: {T: -2, L: 1, M: 1, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: false
+  to_coherent_si:
+    unit: unit:N
+    factor: "4.4482216152605"
+    exact: true
+    expression: "0.45359237*9.80665"
+    basis: >-
+      NIST SP 811 Appendix B footnote to pound-force: "The exact conversion
+      factor is 4.448 221 615 260 5 E+00", the avoirdupois pound (exactly
+      0.453 592 37 kg, its own footnote) times the standard acceleration of
+      gravity (9.806 65 m/s^2, exact, B.8).
+  source:
+    document: "NIST Special Publication 811, Guide for the Use of the International System of Units (SI)"
+    edition: "2008 Edition"
+    location: "Appendix B.8, pound-force (lbf) and its footnote; pound (avoirdupois) and its footnote; acceleration of free fall, standard"
+    url: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication811e2008.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      NIST SP 811 2008 Edition (PDF sha256 788dd8f0bcb0...482f as fetched
+      2026-09-18), Appendix B.8 and the two footnotes, read. QUDT record
+      https://qudt.org/vocab/unit/LB_F: 4.448221615260499999999999999999998.
+
+- id: unit:PSI
+  name: pound-force per square inch
+  symbol: "psi"
+  ucum: "[psi]"
+  quantity_kinds: [quantitykind:Pressure]
+  dimension: {T: -2, L: -1, M: 1, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: false
+  to_coherent_si:
+    unit: unit:PA
+    factor: "6894.757293168362"
+    exact: false
+    expression: "4.4482216152605/0.0254^2"
+    basis: >-
+      The exact pound-force over the square of the exact inch (NIST SP 811
+      B.8: inch to meter, 2.54 E-02, bold). B.8 prints the rounded
+      6.894 757 E+03.
+  source:
+    document: "NIST Special Publication 811, Guide for the Use of the International System of Units (SI)"
+    edition: "2008 Edition"
+    location: "Appendix B.8, pound-force per square inch (psi); inch (in); pound-force (lbf)"
+    url: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication811e2008.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      NIST SP 811 2008 Edition, Appendix B.8, read 2026-09-18. The quotient is
+      this corpus's arithmetic and agrees with QUDT's conversionMultiplier
+      6894.757293168361336722673445346887 for unit:PSI to seventeen digits.

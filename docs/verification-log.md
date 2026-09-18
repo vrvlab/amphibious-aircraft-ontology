@@ -746,6 +746,17 @@ What reading the report settled, that a definition from memory would not have:
 - Two readings are labelled as readings inside the entries: that "fuselage" covers a flying
   boat's hull, and that horizontal tail area includes the elevator.
 
+**From review, before merge.** Three defects of our own, the first of the kind this corpus
+exists to catch. Both tail areas were bounded strictly above zero and called `mathematical`,
+with a rationale that did not survive reading: tail volume multiplies by the area and nothing
+is singular at zero, so a consumer enforcing the bound would have refused a tailless aircraft
+as impossible. Zero is now inside the range. The `wing-area` notes described an "exposed" and a
+"trapezoidal reference" area as in common use; that is not in Report 474 and was written from
+memory inside a `verified` entry, and so was a remark about T-tails. Both are gone; what
+replaces them says only what the report says or is silent on. And the `definition` said
+"fuselage, hull or nacelles" where the report says "fuselage or nacelles": the definition now
+has the report's words, and the hull reading is labelled a reading where it stands.
+
 The scan's text layer is poor (`meals aerodynamic` for `mean aerodynamic`). The area entries,
 "aspect ratio" and "angle of dead rise" were read on the page images themselves, report pages 7
 and 8, and every phrase quoted from them is as printed. "span", "chord, mean, of a wing" and

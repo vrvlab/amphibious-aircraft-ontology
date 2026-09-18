@@ -21,8 +21,8 @@
     quantity_kind: quantitykind:Area
   definition: >-
     The area of the projection of the wing's actual outline on the plane of
-    the chords, with no deduction for the part blanketed by the fuselage, hull
-    or nacelles, and including the ailerons.
+    the chords, with no deduction for the part blanketed by the fuselage or
+    nacelles, and including the ailerons.
   measurement_convention:
     datum: >-
       The plane of the chords. The area is of the projection on that plane, not
@@ -37,12 +37,13 @@
       NACA Report No. 474, Nomenclature for Aeronautics, "area, measurement of
       (performance calculations): wing area"
     notes: >-
-      This is the gross area. An exposed area, outside the body, and a
-      trapezoidal reference area, which extends the straight leading and
-      trailing edges to the centreline and ignores a cranked or filleted root,
-      are both in common use under the same symbol S, and both differ from it.
-      On a flying boat the hull is wide and the difference is not small. A tool
-      that holds a different one holds a different parameter.
+      The whole projected area, through the body. An area that deducts the
+      blanketed part, or that replaces the actual outline with another, is not
+      this quantity, whatever symbol a tool gives it.
+      A READING, NOT THE REPORT'S TEXT: on a flying boat the hull is taken as
+      the fuselage, so the wing runs through the hull. The report says
+      "fuselage or nacelles" and does not repeat the rule for a hull; see
+      verification.notes.
   bounds:
     min: 0.0
     min_exclusive: true
@@ -159,14 +160,14 @@
       "Stabilizer and elevator together" is a reading: the report says the
       area is measured as the wing's is, the wing's includes its ailerons, and
       its "span" of a stabilizer is "inclusive of elevator".
-      On a T-tail or a cruciform tail the surface is carried by the fin and
-      there is no body to blanket it; the rule then bounds nothing and the
-      area is simply the projected outline.
+      The report's rule speaks only of a stabilizer meeting a fuselage. It is
+      silent on a horizontal tail carried by the fin.
   bounds:
     min: 0.0
-    min_exclusive: true
   bounds_basis: mathematical
-  bounds_rationale: Tail volume and tail loading divide by it or multiply a ratio of it.
+  bounds_rationale: >-
+    An area is not negative. Zero is inside the range on purpose: it is an
+    aircraft with no horizontal tail, and nothing is singular there.
   distinct_from: [vertical-tail-area]
   verification:
     status: verified
@@ -202,9 +203,10 @@
       are summed; a tool must state both.
   bounds:
     min: 0.0
-    min_exclusive: true
   bounds_basis: mathematical
-  bounds_rationale: Tail volume divides by or multiplies a ratio of it.
+  bounds_rationale: >-
+    An area is not negative. Zero is inside the range on purpose: it is an
+    aircraft with no vertical tail, and nothing is singular there.
   distinct_from: [horizontal-tail-area]
   verification:
     status: verified

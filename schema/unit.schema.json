@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/vrvlab/amphibious-aircraft-ontology/main/schema/unit.schema.json",
+  "title": "Unit registry",
+  "description": "One record per unit the corpus uses. A unit is looked up by its QUDT IRI. Its dimension is the SI Brochure's dimensional product; its factor to the coherent SI unit is exact where the defining documents make it exact, and says so where a decimal cannot be.",
+  "type": "array",
+  "minItems": 1,
+  "items": { "$ref": "#/$defs/unit" },
+  "$defs": {
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "symbol", "ucum", "quantity_kinds", "dimension", "si_coherent", "source", "verification"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^unit:[A-Za-z0-9_-]+$",
+          "description": "QUDT IRI, prefixed: \"unit:M\". Checked to resolve at qudt.org when the record was written."
+        },
+        "name": { "type": "string", "minLength": 1, "description": "The unit's name as its defining document spells it." },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The corpus's readable form, the one a parameter's quantity.symbol must equal: \"m\", \"m^2\", \"deg\", \"1\"."
+        },
+        "ucum": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[!-~]+$",
+          "description": "The unit as a UCUM code, case-sensitive, in the form a person would write: division by the solidus (UCUM 2.2 section 7), so \"kg/m3\" and \"m/s\". Unique across the registry, so a consumer may write it and mean one unit."
+        },
+        "ucum_qudt": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The code QUDT records (qudt:ucumCode), verbatim, present exactly when it is spelled differently from ucum: \"kg.m-3\" beside \"kg/m3\". An equal UCUM term, kept so a consumer holding QUDT's spelling can find the unit. Never the code the corpus writes."
+        },
+        "quantity_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^quantitykind:" },
+          "description": "The kinds of quantity this unit may measure in this corpus. Dimension alone cannot tell an angle from a ratio or a torque from an energy; the kind can."
+        },
+        "dimension": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["T", "L", "M", "I", "Theta", "N", "J"],
+          "properties": {
+            "T": { "type": "integer" }, "L": { "type": "integer" }, "M": { "type": "integer" },
+            "I": { "type": "integer" }, "Theta": { "type": "integer" }, "N": { "type": "integer" },
+            "J": { "type": "integer" }
+          },
+          "description": "Dimensional exponents over the seven SI base quantities, in the SI Brochure's order and symbols (Table 3): time, length, mass, electric current, thermodynamic temperature, amount of substance, luminous intensity. All zero for a quantity with the unit one, which includes plane angle."
+        },
+        "si_coherent": {
+          "type": "boolean",
+          "description": "True when the unit is a base unit or a coherent derived unit of the SI. A consumer that is SI inside writes only these."
+        },
+        "to_coherent_si": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["unit", "factor", "exact"],
+          "properties": {
+            "unit": { "type": "string", "pattern": "^unit:", "description": "The coherent SI unit of the same dimension. Must be a record with si_coherent true." },
+            "factor": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?$", "description": "Multiply a value in this unit by this to get the coherent SI unit. A decimal string, so that no reader rounds it on the way in." },
+            "exact": { "type": "boolean", "description": "True when the decimal in factor is the exact value. False when the exact value is not a finite decimal; expression then carries it." },
+            "expression": { "type": "string", "description": "The exact value as arithmetic, where factor cannot hold it: \"pi/180\", \"1852/3600\"." },
+            "basis": { "type": "string", "description": "What makes the factor what it is, and where that was read." }
+          },
+          "description": "Required exactly when si_coherent is false."
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["document", "edition", "location", "url"],
+          "properties": {
+            "document": { "type": "string" },
+            "edition": { "type": "string", "description": "The edition and version read. An undated citation is not reproducible." },
+            "location": { "type": "string", "description": "Table, section or footnote." },
+            "url": { "type": "string", "pattern": "^https://" }
+          }
+        },
+        "verification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "checked_against"],
+          "properties": {
+            "status": { "enum": ["verified", "partial", "unverified", "interpretation"] },
+            "checked_against": { "type": "string", "minLength": 1 },
+            "notes": { "type": "string" }
+          }
+        }
+      },
+      "if": { "properties": { "si_coherent": { "const": false } }, "required": ["si_coherent"] },
+      "then": { "required": ["to_coherent_si"] },
+      "else": { "not": { "required": ["to_coherent_si"] } }
+    }
+  }
+}

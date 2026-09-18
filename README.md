@@ -118,18 +118,24 @@ required to show the case.
 - **[`sources/`](sources/)** — [`sections/`](sources/sections/) records which issue was read, when the text took effect, and its full amendment history; [`figures/`](sources/figures/) digests the raster images the regulation publishes in place of text. Both trip when the source changes underneath.
 - **[`schema/`](schema/)** — JSON Schema for constraints, parameters and sources, all enforced in CI.
 - **[`tools/`](tools/)** — validator, test runner, artifact builder, consumer conformance checker.
-- **[`dist/constraints.json`](dist/constraints.json)** — the whole corpus as one file, for consumers without a YAML parser.
+- **[`dist/`](dist/)** — [`constraints.json`](dist/constraints.json) and [`parameters.json`](dist/parameters.json), each the whole of its layer as one file, for consumers without a YAML parser.
 - **[`docs/verification-log.md`](docs/verification-log.md)** — what was checked against eCFR, what was confirmed, what was wrong in secondary sources, and what we got wrong ourselves.
 - **[`appendix-b/`](appendix-b/)** — what Appendix B figures 1–3 actually contain, and what remains open about them (provenance, not digitization).
 
 ## Using it
 
-Vendor `dist/constraints.json` and pin a tag. It is a single self-contained file readable
-from any standard library, with entries sorted by id and a `content_sha256` over them:
+Vendor `dist/constraints.json`, `dist/parameters.json`, or both, and pin a tag. Each is a
+single self-contained file readable from any standard library, with entries sorted by id and
+a `content_sha256` over them:
 
 ```bash
 python3 -c "import json;d=json.load(open('dist/constraints.json'));print(d['entry_count'],d['content_sha256'][:12])"
 ```
+
+The two digests are independent, so a consumer that only needs the regulatory kernel is not
+disturbed when a parameter mapping changes, and vice versa. Take `parameters.json` if you
+need to know what a quantity in your own tool corresponds to; take `constraints.json` if you
+need to know what the regulation requires of it. Most consumers eventually want both.
 
 Do not transcribe constants into your own source. That is how `flightforge` came to carry
 `C4 = 0.078 · C1` as a Python literal alongside a formula the corpus had never encoded, and
@@ -175,10 +181,12 @@ Each parameter records where it appears in real tools, under what name and with 
 | | Ontology | Loftline | AeroGit | Flightforge |
 | --- | --- | --- | --- | --- |
 | deadrise | three distinct angles — `beta` at station, `beta_k` at keel, `beta` at the step | one `deadrise_deg`, `0.0–60.0` | one `deadrise_deg`, `>0–45` | one `deadrise_deg`, `10–25` |
-| forebody | `L_f` — the step station, definitionally | `forebody_fraction`, may differ from `step_fraction` | `L_forebody_fraction` | `step_fraction`, plus a Parkinson spray `L_forebody_fraction` |
-| chine flare | selects § 25.533(b)(1) vs (b)(2) | carried | **absent** | carried, switches on flare > 1° |
+| forebody | `L_f` — the step station, definitionally | `forebody_fraction`, may differ from `step_fraction` | `step_fraction`, plus a spray `L_forebody_fraction` | `step_fraction`, plus a Parkinson spray `L_forebody_fraction` |
+| chine flare | selects § 25.533(b)(1) vs (b)(2) | carried | carried | carried, switches on flare > 1° |
 
-Two of those are live defects. Loftline admits `deadrise_deg = 0.0` inclusive, and § 25.533 divides by `tan β` — that hull is not flat-bottomed, it is *undefined*; AeroGit made the same bound exclusive for exactly this reason, and Flightforge's `_tan_deg` floors the angle at 1°, which is a numerical guard doing a validation job. And "forebody fraction" means the step station in two projects and a spray correlation length in the third; Flightforge's is correctly the latter, which is why the two are separate parameters here.
+Two of those are live defects. Loftline admits `deadrise_deg = 0.0` inclusive, and § 25.533 divides by `tan β` — that hull is not flat-bottomed, it is *undefined*; AeroGit made the same bound exclusive for exactly this reason, and Flightforge's `_tan_deg` floors the angle at 1°, which is a numerical guard doing a validation job. And "forebody fraction" names two different lengths across the three: all three carry both a step fraction and a forebody fraction that are permitted to differ, which for Appendix B they cannot.
+
+Two findings have since been closed by the projects they were filed against, which is what the layer is for. AeroGit now carries chine flare, so the § 25.533(b) selector survives the layer that versions the design; and it enforces the `regulatory` / `mathematical` / `conceptual` distinction on its own bounds, so its 45° ceiling reports an unusual hull rather than refusing one Loftline accepts.
 
 A third finding is an absence: § 25.535 auxiliary float loads are fully encoded, and **no consumer carries a float deadrise for them to act on**.
 

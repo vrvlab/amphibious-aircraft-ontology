@@ -119,6 +119,50 @@ def load_parameters() -> list[dict]:
     return params
 
 
+# Unit tokens a consumer may append to a key. This schema forbids units in
+# parameter names, so a consumer's `chine_flare_deg` and this corpus's
+# `chine-flare` are the same quantity spelled to two different conventions.
+# Stripping the suffix is what lets them be compared at all.
+UNIT_SUFFIXES = (
+    "deg", "degs", "degrees", "rad", "rads",
+    "ft", "feet", "in", "inch", "inches", "m", "mm", "cm",
+    "lb", "lbs", "kg", "kt", "kts", "psi", "pa",
+)
+
+
+def normalise(name: str) -> str:
+    """Reduce a name to comparable letters: `L_forebody_fraction` -> `lforebodyfraction`."""
+    return re.sub(r"[^a-z0-9]", "", name.lower())
+
+
+def find_by_name(param: dict, actual: dict[str, dict]) -> str | None:
+    """The consumer's key for this parameter, if it declares one under any known name.
+
+    Used only for entries recorded `absent`, to catch a gap that has since been
+    filled without the record being updated. Deliberately conservative: it
+    matches a name exactly, or a name plus a trailing unit token, and nothing
+    looser. A substring rule would fire on `L_a` inside half the corpus, and a
+    checker that cries wolf gets switched off.
+
+    So this is a floor, not a ceiling. It will miss a tool that adopts a name
+    this parameter does not list — the fix for which is adding the spelling to
+    `aliases`, where a tool author searching for it would land anyway.
+    """
+    candidates = {normalise(param["id"]), normalise(param["name"])}
+    candidates.update(normalise(a) for a in param.get("aliases") or [])
+    candidates.discard("")
+
+    for key in actual:
+        stem = normalise(key.split(".")[-1])
+        forms = {stem}
+        for suffix in UNIT_SUFFIXES:
+            if stem.endswith(suffix) and len(stem) > len(suffix):
+                forms.add(stem[: -len(suffix)])
+        if forms & candidates:
+            return key
+    return None
+
+
 def bounds_differ(claimed: list, actual: dict) -> list[str]:
     """`claimed` is the [min, max] pair recorded in an implementations block."""
     diffs = []
@@ -180,6 +224,13 @@ def main() -> int:
             identifier = impl.get("identifier")
             if identifier is None:
                 # Recorded absent. If it has reappeared upstream, say so.
+                reappeared = find_by_name(param, actual)
+                if reappeared:
+                    findings.append(
+                        f"{pid} -> {system}: recorded absent, but "
+                        f"{reappeared!r} now appears in "
+                        f"{registry[system]['authority']} — record it"
+                    )
                 continue
             short = identifier.split(".")[-1]
             found = actual.get(identifier) or actual.get(short)

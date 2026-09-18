@@ -13,6 +13,8 @@ Checks the things that rot silently:
     it, and the parameter's quantity kind is one the unit measures
   - every unit that is not coherent SI converts to one that is, of the same
     dimension, and no two units share an id, a symbol or a UCUM code
+  - every vocabulary's id is unique across the whole corpus, its values are
+    unique within it, and every parameter a value admits exists
   - every cross-reference inside a constraint resolves
   - every symbol used in a formula expression is declared in that entry
   - every section a constraint cites has a record in sources/sections/, and the
@@ -58,6 +60,8 @@ SOURCE_SCHEMA = ROOT / "schema" / "source.schema.json"
 FIGURE_SCHEMA = ROOT / "schema" / "figure.schema.json"
 UNITS = ROOT / "units"
 UNIT_SCHEMA = ROOT / "schema" / "unit.schema.json"
+VOCABULARIES = ROOT / "vocabularies"
+VOCABULARY_SCHEMA = ROOT / "schema" / "vocabulary.schema.json"
 
 #: The FAA's image identifiers, wherever they appear in an entry. The corpus
 #: cites them in verification notes as well as in formula.source_render, and an
@@ -409,11 +413,49 @@ def main() -> int:
             if cid not in constraint_ids:
                 errors.append(f"figure {fid}: read_by names unknown entry {cid!r}")
 
+    # ---- vocabularies ----------------------------------------------------
+    # After the parameters, because `admits` names them.
+    vocabulary_validator = Draft202012Validator(
+        json.loads(VOCABULARY_SCHEMA.read_text(encoding="utf-8"))
+    )
+    vocabulary_ids: set[str] = set()
+    for path in sorted(VOCABULARIES.glob("*.yaml")):
+        entries = load(path)
+        for err in vocabulary_validator.iter_errors(entries):
+            where = "".join(f"[{p!r}]" for p in err.absolute_path)
+            errors.append(f"{path.name}{where}: {err.message}")
+        for entry in entries:
+            vid = entry.get("id")
+            if not vid:
+                errors.append(f"{path.name}: vocabulary with no id")
+                continue
+            if vid in seen:
+                errors.append(f"duplicate id {vid!r} in {path.name} and {seen[vid]}")
+            seen[vid] = path.name
+            vocabulary_ids.add(vid)
+            words: dict[str, str] = {}
+            for value in entry.get("values") or []:
+                # A value and an alias are both things a tool author might
+                # write; two values answering to one word is an ambiguous enum.
+                for word in [value.get("id"), *(value.get("aliases") or [])]:
+                    if word in words:
+                        errors.append(
+                            f"{vid}: {word!r} names both {words[word]!r} and "
+                            f"{value.get('id')!r}"
+                        )
+                    words[word] = value.get("id")
+                for pid in value.get("admits") or []:
+                    if pid not in parameter_ids:
+                        errors.append(
+                            f"{vid}.{value.get('id')}: admits unknown parameter {pid!r}"
+                        )
+
     if not quiet:
         print(
             f"constraints: {len(constraint_ids)}   "
             f"parameters: {len(parameter_ids)}   "
             f"units: {len(units)}   "
+            f"vocabularies: {len(vocabulary_ids)}   "
             f"sections: {len(registry)}   "
             f"figures: {len(figures)}"
         )

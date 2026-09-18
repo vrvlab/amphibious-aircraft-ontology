@@ -118,8 +118,9 @@ required to show the case.
 - **[`sources/`](sources/)** — [`sections/`](sources/sections/) records which issue was read, when the text took effect, and its full amendment history; [`figures/`](sources/figures/) digests the raster images the regulation publishes in place of text. Both trip when the source changes underneath.
 - **[`schema/`](schema/)** — JSON Schema for constraints, parameters and sources, all enforced in CI.
 - **[`tools/`](tools/)** — validator, test runner, artifact builder, consumer conformance checker.
+- **[`vocabularies/`](vocabularies/)** — closed sets of named configuration alternatives (where the wing sits, which way the propellers face, what keeps a flying boat upright at rest), each value defined from a source, and each saying which parameters exist only under it.
 - **[`units/`](units/)** — one record per unit the corpus uses: QUDT IRI, symbol, the UCUM code a consumer writes (`kg/m3`, `m/s`), the quantity kinds it measures, its SI dimension, and an exact factor to the coherent SI unit where it is not one. Shipped as [`dist/units.json`](dist/units.json).
-- **[`dist/`](dist/)** — [`constraints.json`](dist/constraints.json), [`parameters.json`](dist/parameters.json) and [`units.json`](dist/units.json), each the whole of its layer as one file, for consumers without a YAML parser.
+- **[`dist/`](dist/)** — [`constraints.json`](dist/constraints.json), [`parameters.json`](dist/parameters.json), [`units.json`](dist/units.json) and [`vocabularies.json`](dist/vocabularies.json), each the whole of its layer as one file, for consumers without a YAML parser.
 - **[`docs/verification-log.md`](docs/verification-log.md)** — what was checked against eCFR, what was confirmed, what was wrong in secondary sources, and what we got wrong ourselves.
 - **[`appendix-b/`](appendix-b/)** — what Appendix B figures 1–3 actually contain, and what remains open about them (provenance, not digitization).
 

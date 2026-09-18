@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/vrvlab/amphibious-aircraft-ontology/main/schema/vocabulary.schema.json",
+  "title": "Vocabulary registry",
+  "description": "A vocabulary is a closed set of named alternatives for one configuration choice: where the wing sits, which way the propellers face, what keeps a flying boat upright at rest. A value is a definition, not a quantity. What makes the layer more than a glossary is `admits`: the parameters that exist only when a value is chosen.",
+  "type": "array",
+  "minItems": 1,
+  "items": { "$ref": "#/$defs/vocabulary" },
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "checked_against"],
+      "properties": {
+        "status": { "enum": ["verified", "partial", "unverified", "interpretation"] },
+        "checked_against": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" }
+      }
+    },
+    "vocabulary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "applies_to", "definition", "values", "source", "verification"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug", "description": "Stable slug, unique across the WHOLE corpus: constraints, parameters, units' local names aside, and vocabularies share one namespace." },
+        "name": { "type": "string", "minLength": 1 },
+        "applies_to": { "$ref": "#/$defs/slug", "description": "The kind of thing the choice is made about: wing, propulsion, hull. A slug, not yet a registry; it says where a consumer hangs the choice." },
+        "definition": { "type": "string", "minLength": 1, "description": "What is being chosen, independent of any tool." },
+        "values": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/value" },
+          "description": "The alternatives. At least two: a choice of one is not a choice."
+        },
+        "exhaustive": { "type": "boolean", "default": false, "description": "True only when the source says these are all the alternatives. False is the honest default: a design outside the list is not thereby wrong, and a consumer reports it and does not reject it." },
+        "source": { "type": "string", "minLength": 1 },
+        "verification": { "$ref": "#/$defs/verification" },
+        "tags": { "type": "array", "items": { "$ref": "#/$defs/slug" } }
+      }
+    },
+    "value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "definition"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug", "description": "Unique within its vocabulary. A consumer writes it verbatim." },
+        "aliases": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "definition": { "type": "string", "minLength": 1 },
+        "admits": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/slug" },
+          "description": "Parameter ids that exist ONLY under values that admit them. A parameter named by any value of a vocabulary may be held only when the chosen value names it; a parameter no value names is not this vocabulary's business."
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

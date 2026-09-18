@@ -191,6 +191,40 @@ one way at a time and requires the validator to refuse each.
 
 ---
 
+# Vocabulary registry
+
+[`vocabulary.schema.json`](vocabulary.schema.json) — closed sets of named alternatives, in
+[`vocabularies/`](../vocabularies/), enforced by the same validator and shipped as
+[`dist/vocabularies.json`](../dist/vocabularies.json) with its own digest.
+
+A parameter says how much. A vocabulary says **which**: `wing-position` is `high-wing`,
+`midwing`, `low-wing` or `parasol`. Tools hold these as enums and invent the words; here each
+value carries a definition read from a source, and a consumer writes the value's id verbatim.
+Vocabulary ids share the corpus's one namespace with constraints and parameters. A value's id
+is unique within its vocabulary, and no alias may answer to two values.
+
+## `admits`
+
+The reason the layer is more than a glossary. A value lists the parameters that **exist only
+under it**. `deadrise-auxiliary-float` is admitted by the two stabilizing-float values of
+`lateral-stabilization-on-water` and by neither hull-borne one: on a flying boat stabilized by
+sponsons there is no auxiliary float for the angle to be of. The rule for a consumer: a
+parameter named by any value of a vocabulary may be held only when the chosen value names it;
+a parameter no value names is not that vocabulary's business. Every `admits` must resolve to a
+parameter, so a rename cannot leave one dangling.
+
+## `exhaustive`
+
+False unless the source says these are all there are. It is the vocabulary's counterpart of
+`bounds_basis: conceptual`: **a design outside the list is reported, not rejected.** A
+propeller both ahead of and behind the wing has no word in `propeller-position`, and is not
+thereby wrong.
+
+[`tools/test_validate_vocabularies.py`](../tools/test_validate_vocabularies.py) breaks a copy of
+the corpus one way at a time and requires the validator to refuse each.
+
+---
+
 # Source registry
 
 [`source.schema.json`](source.schema.json) — one record per regulatory **section**, in

@@ -102,7 +102,8 @@ number into a load factor with nothing to catch it.
 Units are **QUDT IRIs, not strings**. QUDT originated at NASA Ames (NExIOM / Constellation),
 is RDF/OWL so it is usable directly by a reasoner, and cross-references UCUM, UNECE and
 IEC 61360. A `symbol` field carries the CPACS-style bracket form for human readability, and
-the validator checks the two agree — `unit:DEG` must carry `deg`.
+the validator checks the two agree — `unit:DEG` must carry `deg`. Both come from the unit's
+record in [`units/`](../units/), described below.
 
 Units are **never** encoded in parameter names. CPACS development guidelines §5 (*"element
 names are descriptive, without abbreviations or symbols"*) and QUDT (a unit is a property
@@ -152,6 +153,34 @@ quietly fixed or quietly introduced without this repo noticing.
 An entry that is not a quantity a tool holds — a recorded consequence of modelling, kept
 next to the parameter it concerns. Exempt from implementation-coverage checks, since there
 is nothing for a tool to declare.
+
+---
+
+# Unit registry
+
+[`unit.schema.json`](unit.schema.json) — one record per unit, in [`units/`](../units/),
+enforced by the same validator and shipped as [`dist/units.json`](../dist/units.json) with its
+own `content_sha256`, so a consumer pinning `constraints.json` is not disturbed by a new unit.
+
+A unit is looked up by its QUDT IRI. `symbol` is the corpus's readable form and `ucum` is the
+UCUM code QUDT records, verbatim; no two units share either, so a consumer may write whichever
+of the three it prefers and still mean one unit.
+
+`dimension` is the SI Brochure's dimensional product over its seven base quantities, in its
+order: `T L M I Theta N J`. QUDT marks plane angle and the unit one with its own `D1`; the
+Brochure gives both all zeros, and that is what is recorded. **Dimension does not tell an angle
+from a ratio, or a torque from an energy.** `quantity_kinds` does, and the validator holds every
+parameter to it: the parameter's `quantity_kind` must be one its unit measures.
+
+`to_coherent_si` is present exactly when `si_coherent` is false. `factor` is a decimal
+**string**, so no reader rounds it on the way in. `exact: true` means the string is the value.
+Where the exact value is not a finite decimal (`pi/180`, `1852/3600`, a quotient),
+`expression` holds it, `factor` is the shortest decimal that reads back as the nearest double,
+and the validator evaluates the one against the other. An expression is decimals, `* / ^` and
+`pi`, and nothing else.
+
+[`tools/test_validate_units.py`](../tools/test_validate_units.py) breaks a copy of the corpus
+one way at a time and requires the validator to refuse each.
 
 ---
 

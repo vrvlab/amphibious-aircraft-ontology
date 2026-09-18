@@ -9,7 +9,10 @@ Checks the things that rot silently:
   - every parameter -> constraint mapping resolves to a real constraint id
   - relationships come from the closed vocabulary
   - a non-identical relationship carries a caveat explaining why
-  - units are QUDT IRIs from the known set, and the symbol agrees
+  - every unit a parameter names has a record in units/, the symbol agrees with
+    it, and the parameter's quantity kind is one the unit measures
+  - every unit that is not coherent SI converts to one that is, of the same
+    dimension, and no two units share an id, a symbol or a UCUM code
   - every cross-reference inside a constraint resolves
   - every symbol used in a formula expression is declared in that entry
   - every section a constraint cites has a record in sources/sections/, and the
@@ -53,6 +56,8 @@ CONSTRAINT_SCHEMA = ROOT / "schema" / "constraint.schema.json"
 PARAMETER_SCHEMA = ROOT / "schema" / "parameter.schema.json"
 SOURCE_SCHEMA = ROOT / "schema" / "source.schema.json"
 FIGURE_SCHEMA = ROOT / "schema" / "figure.schema.json"
+UNITS = ROOT / "units"
+UNIT_SCHEMA = ROOT / "schema" / "unit.schema.json"
 
 #: The FAA's image identifiers, wherever they appear in an entry. The corpus
 #: cites them in verification notes as well as in formula.source_render, and an
@@ -67,32 +72,6 @@ _SECTION_RE = re.compile(r"^(\d+\.\d+)")
 
 RELATIONSHIPS = {"identical", "discretization", "subset", "derived", "selects"}
 STATUSES = {"verified", "partial", "unverified", "interpretation"}
-
-# QUDT IRIs in use. Each verified to resolve at qudt.org.
-UNIT_SYMBOL = {
-    "unit:M": "m",
-    "unit:MilliM": "mm",
-    "unit:DEG": "deg",
-    "unit:M2": "m^2",
-    "unit:M3": "m^3",
-    "unit:UNITLESS": "1",
-    "unit:LB_F": "lbf",
-    "unit:KN": "kn",
-    "unit:PSI": "psi",
-    "unit:FT": "ft",
-    "unit:FT3": "ft^3",
-}
-QUANTITY_KINDS = {
-    "quantitykind:Length",
-    "quantitykind:Angle",
-    "quantitykind:Area",
-    "quantitykind:Volume",
-    "quantitykind:DimensionlessRatio",
-    "quantitykind:Force",
-    "quantitykind:Speed",
-    "quantitykind:Pressure",
-    "quantitykind:Mass",
-}
 
 #: Tokens that appear in expressions but are operators, calls or literals
 #: rather than declared quantities.
@@ -126,6 +105,22 @@ def load(path: Path):
         return []
 
 
+def _evaluate(expression: str):
+    """A conversion factor's exact arithmetic: decimals, * / ^ and pi, nothing else.
+
+    Decimals become Fractions so that 0.45359237*9.80665 is exact; pi makes the
+    whole thing a float, because it has to.
+    """
+    import math
+    from fractions import Fraction
+
+    if not re.fullmatch(r"[0-9.*/^ pi]+", expression):
+        raise ValueError("only decimals, * / ^ and pi")
+    python = re.sub(r"[0-9]+(?:\.[0-9]+)?", lambda m: f"Fraction('{m.group(0)}')", expression)
+    python = python.replace("^", "**").replace("pi", "math.pi")
+    return eval(python, {"__builtins__": {}}, {"Fraction": Fraction, "math": math})  # noqa: S307
+
+
 def check_symbols(entry: dict) -> list[str]:
     formula = entry.get("formula")
     if not formula:
@@ -157,6 +152,80 @@ def main() -> int:
     figure_validator = Draft202012Validator(
         json.loads(FIGURE_SCHEMA.read_text(encoding="utf-8"))
     )
+
+    # ---- unit registry ---------------------------------------------------
+    # This table lived in this file, as a dict, until a consumer needed it: a
+    # vocabulary that exists only inside the validator cannot be pinned.
+    unit_validator = Draft202012Validator(
+        json.loads(UNIT_SCHEMA.read_text(encoding="utf-8"))
+    )
+    units: dict[str, dict] = {}
+    for path in sorted(UNITS.glob("*.yaml")):
+        records = load(path)
+        for err in unit_validator.iter_errors(records):
+            where = "".join(f"[{p!r}]" for p in err.absolute_path)
+            errors.append(f"{path.name}{where}: {err.message}")
+        for rec in records:
+            uid = rec.get("id")
+            if uid in units:
+                errors.append(f"{path.name}: duplicate unit record for {uid!r}")
+            units[uid] = rec
+    for field in ("symbol", "ucum"):
+        owner: dict[str, str] = {}
+        for uid, rec in units.items():
+            word = rec.get(field)
+            if word is None:
+                continue
+            if word in owner:
+                errors.append(
+                    f"{uid}: {field} {word!r} is already {owner[word]}'s -- "
+                    f"a consumer that writes it could not say which unit it meant"
+                )
+            owner[word] = uid
+    for uid, rec in units.items():
+        conv = rec.get("to_coherent_si")
+        if not conv:
+            continue
+        target = units.get(conv.get("unit"))
+        if target is None:
+            errors.append(f"{uid}: converts to unknown unit {conv.get('unit')!r}")
+        elif not target.get("si_coherent"):
+            errors.append(f"{uid}: converts to {conv['unit']}, which is not coherent SI")
+        elif target.get("dimension") != rec.get("dimension"):
+            errors.append(
+                f"{uid}: converts to {conv['unit']}, whose dimension differs -- "
+                f"a factor cannot turn one dimension into another"
+            )
+        if not conv.get("exact") and not (conv.get("expression") or "").strip():
+            errors.append(
+                f"{uid}: a factor that is not exact must carry the expression that is"
+            )
+        # The arithmetic is executed, like a worked test case: a factor beside an
+        # expression it does not equal is two claims, and one of them is wrong.
+        if (conv.get("expression") or "").strip():
+            from fractions import Fraction
+
+            try:
+                value = _evaluate(conv["expression"])
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"{uid}: expression {conv['expression']!r} does not evaluate -- {e}")
+            else:
+                factor = str(conv.get("factor"))
+                if conv.get("exact"):
+                    if not isinstance(value, Fraction) or value != Fraction(factor):
+                        errors.append(
+                            f"{uid}: factor {factor} is declared exact and is not "
+                            f"{conv['expression']}"
+                        )
+                elif float(value) != float(factor):
+                    errors.append(
+                        f"{uid}: factor {factor} is not the nearest double to "
+                        f"{conv['expression']} ({float(value)!r})"
+                    )
+    # A quantity kind is known when some unit measures it.
+    quantity_kinds = {
+        k for rec in units.values() for k in rec.get("quantity_kinds", [])
+    }
 
     # ---- source registry -------------------------------------------------
     registry: dict[str, dict] = {}
@@ -270,14 +339,21 @@ def main() -> int:
             pid = entry.get("id")
             q = entry.get("quantity") or {}
             unit, sym, qk = q.get("unit"), q.get("symbol"), q.get("quantity_kind")
-            if unit not in UNIT_SYMBOL:
-                errors.append(f"{pid}: unit {unit!r} not a known QUDT IRI")
-            elif sym != UNIT_SYMBOL[unit]:
-                errors.append(
-                    f"{pid}: unit {unit} implies symbol {UNIT_SYMBOL[unit]!r}, got {sym!r}"
-                )
-            if qk not in QUANTITY_KINDS:
-                errors.append(f"{pid}: quantity_kind {qk!r} not a known QUDT IRI")
+            if unit not in units:
+                errors.append(f"{pid}: unit {unit!r} has no record in units/")
+            else:
+                if sym != units[unit]["symbol"]:
+                    errors.append(
+                        f"{pid}: unit {unit} implies symbol "
+                        f"{units[unit]['symbol']!r}, got {sym!r}"
+                    )
+                if qk in quantity_kinds and qk not in units[unit]["quantity_kinds"]:
+                    errors.append(
+                        f"{pid}: {unit} does not measure {qk} "
+                        f"(it measures {', '.join(units[unit]['quantity_kinds'])})"
+                    )
+            if qk not in quantity_kinds:
+                errors.append(f"{pid}: quantity_kind {qk!r} is measured by no unit in units/")
 
             st = (entry.get("verification") or {}).get("status")
             if st not in STATUSES:
@@ -327,6 +403,7 @@ def main() -> int:
         print(
             f"constraints: {len(constraint_ids)}   "
             f"parameters: {len(parameter_ids)}   "
+            f"units: {len(units)}   "
             f"sections: {len(registry)}   "
             f"figures: {len(figures)}"
         )

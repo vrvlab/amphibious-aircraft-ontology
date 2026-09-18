@@ -599,6 +599,52 @@ Fixing `as_of.py` also surfaced a latent bug: it still pointed at `sources/` aft
 full confidence for every date. It now fails loudly on an empty registry, because a
 silently empty registry is worse than no tool.
 
+## Round 7 — the units, which had never been read against anything (2026-09-18)
+
+**Sources:** *The International System of Units (SI)*, BIPM, 9th edition (2019), **V4.01, June
+2026**, the PDF at bipm.org (sha256 `5442eea2…e02c` as fetched). *NIST Special Publication
+811*, **2008 Edition**, the PDF at nvlpubs.nist.gov (sha256 `788dd8f0…482f`). QUDT, each unit's
+record at `https://qudt.org/vocab/unit/<id>`, fetched 2026-09-18 as Turtle.
+
+Sent from the consumer side. AeroHydro Studio pins an edition of this corpus and takes its
+vocabulary from it, and asked a plain question of `v0.3.0`: what is `unit:LB_F`? The corpus
+could not say. The eleven units it knew were a dict in `tools/validate.py`, with the comment
+"each verified to resolve at qudt.org". Nothing else about them was recorded, no consumer
+could read them, and six of the eleven were used by no parameter, so nothing had ever checked
+them against anything.
+
+### What was read, and what it settled
+
+| Claim | Read in | Finding |
+|---|---|---|
+| Seven base quantities, their units and dimension symbols | SI Brochure Tables 2 and 3 | As recorded. The order `T L M I Θ N J` is the Brochure's |
+| newton `kg m s⁻²`, pascal `kg m⁻¹ s⁻²`, radian | Table 4 and note (b) | As recorded. The Brochure warns that `rad = m/m` "may be misleading since angle is not the same kind of quantity as other length ratios": the reason a unit carries `quantity_kinds` and not only a dimension |
+| area, volume, speed, acceleration, density; newton metre | Tables 5 and 6 | As recorded. `m⁴` is tabulated nowhere; it stands on § 2.3.4, products of powers of base units |
+| degree | Table 8 | `1° = (π/180) rad`. Not a finite decimal: `exact: false`, with the expression |
+| knot | Table 8, note (k) | `(1852/3600) m/s`. **The Brochure gives the knot no symbol**; `kn` is this corpus's own and is recorded as such |
+| foot, inch | SP 811 B.8 | `3.048 E−01` and `2.54 E−02`, both in bold, and "a factor in boldface is exact" (B.7). Boldface does not survive the PDF's text layer; it was read on the HTML edition of B.8 at nist.gov |
+| pound-force | SP 811 B.8 and its footnote | The table prints the rounded `4.448 222`. The footnote gives "the exact conversion factor", `4.448 221 615 260 5`, as the exact pound (`0.453 592 37 kg`, its own footnote) times standard gravity (`9.806 65`, bold). Recorded exact, with the product as its expression, which the validator multiplies out |
+| psi, cubic foot | SP 811 B.8, B.9 | Printed rounded. The exact values are this corpus's arithmetic on the exact foot, inch and pound-force, and say so |
+
+Every QUDT IRI resolved. QUDT's multipliers agree with each factor here to the digits a double
+carries; they were a cross-check and are not the authority for any of them.
+
+### One disagreement, recorded rather than resolved
+
+QUDT gives `unit:UNITLESS`, `unit:RAD` and `unit:DEG` the dimension vector `A0E0L0I0M0H0T0D1`:
+its own marker, `D1`, for "dimensionless". The Brochure gives quantities with the unit one a
+dimension whose exponents are all zero. The registry records the Brochure's, because it is the
+primary source for the SI and QUDT is a projection of it. A consumer comparing against QUDT
+vectors must know the two spell it differently.
+
+### What the registry refuses that the dict did not
+
+A parameter whose unit does not measure its kind; a factor that changes the dimension; a factor
+to a unit that is itself not coherent; an "exact" factor that is not its expression; two units
+with one symbol or one UCUM code. `tools/test_validate_units.py` breaks a copy of the corpus
+each way and requires the refusal. Each rule was also removed in turn and its self-check seen
+to go red.
+
 ## Open items
 
 - [x] ~~Characterise pre-2017 amendments for §§ 25.345, 25.349, 25.473, 25.479, 25.807~~ — closed to 1997 by diffing govinfo annual CFR granules; substantive changes recorded in `history` blocks
@@ -621,3 +667,6 @@ silently empty registry is worse than no tool.
 - [ ] Extend `parameters/` scope beyond `geometry.` — the weights, speeds and inertia families reach Flightforge through seed_state and have no declared consumer mapping yet
 - [ ] No consumer carries an auxiliary float deadrise, so the § 25.535 load path has no geometry source anywhere in the ecosystem
 - [ ] AeroGit carries no chine flare, so the § 25.533(b)(1)-versus-(b)(2) selector is lost at the layer that versions the design
+- [ ] `parameters/` is not in `dist/`. `units.json` now is; a consumer still needs a YAML parser for the parameter layer
+- [ ] The weights are forces in `lbf`, as the regulation writes them. A consumer that is SI inside carries mass in `kg`, and nothing here yet says that the two relate by standard gravity, `9.806 65 m/s²` exactly. `unit:LB_F`'s record now holds the number; no parameter holds the statement
+- [ ] `.github/workflows/verify.yml` checks only `dist/constraints.json` for staleness and does not run `tools/test_validate_units.py`. `python tools/build.py --check` covers both artifacts and would replace the `git diff` step

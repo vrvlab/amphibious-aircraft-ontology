@@ -64,7 +64,7 @@
             "symbol": {
               "type": "string",
               "minLength": 1,
-              "description": "CPACS-style bracket form — \"deg\", \"m\", \"1\". Checked against the unit."
+              "description": "CPACS-style bracket form — \"deg\", \"m\", \"1\". Checked against the unit's record in units/."
             },
             "quantity_kind": {
               "type": "string",

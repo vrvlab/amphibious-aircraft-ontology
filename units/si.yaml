@@ -1,0 +1,305 @@
+# The coherent SI units the corpus and its consumers use.
+#
+# Dimensions are the SI Brochure's, Table 3. QUDT gives plane angle and the unit one a
+# dimension vector with D1 (its own 'dimensionless' marker); the Brochure gives both all
+# zeros, and that is what is recorded. The kind, not the dimension, tells them apart.
+
+- id: unit:M
+  name: metre
+  symbol: "m"
+  ucum: "m"
+  quantity_kinds: [quantitykind:Length]
+  dimension: {T: 0, L: 1, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 2 (base units), Table 3 (dimensions)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 2 (base units), Table 3 (dimensions), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/M fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L1I0M0H0T0D0.
+
+- id: unit:KiloGM
+  name: kilogram
+  symbol: "kg"
+  ucum: "kg"
+  quantity_kinds: [quantitykind:Mass]
+  dimension: {T: 0, L: 0, M: 1, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 2 (base units), Table 3 (dimensions)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 2 (base units), Table 3 (dimensions), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/KiloGM fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L0I0M1H0T0D0.
+
+- id: unit:SEC
+  name: second
+  symbol: "s"
+  ucum: "s"
+  quantity_kinds: [quantitykind:Time]
+  dimension: {T: 1, L: 0, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 2 (base units), Table 3 (dimensions)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 2 (base units), Table 3 (dimensions), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/SEC fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L0I0M0H0T1D0.
+
+- id: unit:K
+  name: kelvin
+  symbol: "K"
+  ucum: "K"
+  quantity_kinds: [quantitykind:ThermodynamicTemperature]
+  dimension: {T: 0, L: 0, M: 0, I: 0, Theta: 1, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 2 (base units), Table 3 (dimensions)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 2 (base units), Table 3 (dimensions), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/K fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L0I0M0H1T0D0.
+
+- id: unit:M2
+  name: square metre
+  symbol: "m^2"
+  ucum: "m2"
+  quantity_kinds: [quantitykind:Area]
+  dimension: {T: 0, L: 2, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 5 (area, m2)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 5 (area, m2), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/M2 fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L2I0M0H0T0D0.
+
+- id: unit:M3
+  name: cubic metre
+  symbol: "m^3"
+  ucum: "m3"
+  quantity_kinds: [quantitykind:Volume]
+  dimension: {T: 0, L: 3, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 5 (volume, m3)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 5 (volume, m3), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/M3 fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L3I0M0H0T0D0.
+
+- id: unit:M4
+  name: metre to the fourth power
+  symbol: "m^4"
+  ucum: "m4"
+  quantity_kinds: [quantitykind:SecondMomentOfArea]
+  dimension: {T: 0, L: 4, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Section 2.3.4 (derived units as products of powers of base units); not itself tabulated"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Section 2.3.4 (derived units as products of powers of base units); not itself tabulated, read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/M4 fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L4I0M0H0T0D0.
+
+- id: unit:M-PER-SEC
+  name: metre per second
+  symbol: "m/s"
+  ucum: "m.s-1"
+  quantity_kinds: [quantitykind:Speed]
+  dimension: {T: -1, L: 1, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 5 (speed, velocity, m s-1)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 5 (speed, velocity, m s-1), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/M-PER-SEC fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L1I0M0H0T-1D0.
+
+- id: unit:M-PER-SEC2
+  name: metre per second squared
+  symbol: "m/s^2"
+  ucum: "m.s-2"
+  quantity_kinds: [quantitykind:Acceleration]
+  dimension: {T: -2, L: 1, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 5 (acceleration, m s-2)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 5 (acceleration, m s-2), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/M-PER-SEC2 fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L1I0M0H0T-2D0.
+
+- id: unit:KiloGM-PER-M3
+  name: kilogram per cubic metre
+  symbol: "kg/m^3"
+  ucum: "kg.m-3"
+  quantity_kinds: [quantitykind:Density]
+  dimension: {T: 0, L: -3, M: 1, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 5 (density, mass density, kg m-3)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 5 (density, mass density, kg m-3), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/KiloGM-PER-M3 fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L-3I0M1H0T0D0.
+
+- id: unit:N
+  name: newton
+  symbol: "N"
+  ucum: "N"
+  quantity_kinds: [quantitykind:Force]
+  dimension: {T: -2, L: 1, M: 1, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 4 (force, newton, kg m s-2)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 4 (force, newton, kg m s-2), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/N fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L1I0M1H0T-2D0.
+
+- id: unit:PA
+  name: pascal
+  symbol: "Pa"
+  ucum: "Pa"
+  quantity_kinds: [quantitykind:Pressure]
+  dimension: {T: -2, L: -1, M: 1, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 4 (pressure, stress, pascal, kg m-1 s-2)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 4 (pressure, stress, pascal, kg m-1 s-2), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/PA fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L-1I0M1H0T-2D0.
+
+- id: unit:N-M
+  name: newton metre
+  symbol: "N.m"
+  ucum: "N.m"
+  quantity_kinds: [quantitykind:MomentOfForce]
+  dimension: {T: -2, L: 2, M: 1, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 6 (moment of force, torque, newton metre, kg m2 s-2)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 6 (moment of force, torque, newton metre, kg m2 s-2), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/N-M fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L2I0M1H0T-2D0.
+
+- id: unit:RAD
+  name: radian
+  symbol: "rad"
+  ucum: "rad"
+  quantity_kinds: [quantitykind:Angle]
+  dimension: {T: 0, L: 0, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 4 (plane angle, radian) and its note (b)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 4 (plane angle, radian) and its note (b), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/RAD fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L0I0M0H0T0D1.
+
+- id: unit:UNITLESS
+  name: one
+  symbol: "1"
+  ucum: null
+  quantity_kinds: [quantitykind:DimensionlessRatio]
+  dimension: {T: 0, L: 0, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Sections 2.3.3 and 5.4.7 (the unit one, symbol 1)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Sections 2.3.3 and 5.4.7 (the unit one, symbol 1), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-18). QUDT record
+      https://qudt.org/vocab/unit/UNITLESS fetched 2026-09-18 for the IRI, the
+      UCUM code and the dimension vector A0E0L0I0M0H0T0D1.

@@ -118,6 +118,7 @@ required to show the case.
 - **[`sources/`](sources/)** — [`sections/`](sources/sections/) records which issue was read, when the text took effect, and its full amendment history; [`figures/`](sources/figures/) digests the raster images the regulation publishes in place of text. Both trip when the source changes underneath.
 - **[`schema/`](schema/)** — JSON Schema for constraints, parameters and sources, all enforced in CI.
 - **[`tools/`](tools/)** — validator, test runner, artifact builder, consumer conformance checker.
+- **[`units/`](units/)** — one record per unit the corpus uses: QUDT IRI, symbol, UCUM code, the quantity kinds it measures, its SI dimension, and an exact factor to the coherent SI unit where it is not one. Shipped as [`dist/units.json`](dist/units.json).
 - **[`dist/constraints.json`](dist/constraints.json)** — the whole corpus as one file, for consumers without a YAML parser.
 - **[`docs/verification-log.md`](docs/verification-log.md)** — what was checked against eCFR, what was confirmed, what was wrong in secondary sources, and what we got wrong ourselves.
 - **[`appendix-b/`](appendix-b/)** — what Appendix B figures 1–3 actually contain, and what remains open about them (provenance, not digitization).
@@ -189,6 +190,27 @@ A third finding is an absence: § 25.535 auxiliary float loads are fully encoded
 Units are QUDT IRIs, not strings — QUDT originated at NASA Ames (NExIOM/Constellation), is RDF/OWL so a reasoner can use it directly, and cross-references UCUM, UNECE and IEC 61360. Every IRI in use is checked to resolve at qudt.org.
 
 Units are never encoded in parameter *names*. CPACS development guidelines §5 (*"element names are descriptive, without abbreviations or symbols"*) and QUDT (a unit is a property of a quantity) agree, and CPACS practice confirms it — 32 uses of `[m]` in its schema, zero of `[mm]`.
+
+### Units are records, not a table inside the validator
+
+Until v0.3.0 the list of known units was a Python dict in `tools/validate.py`. It checked the
+corpus and reached no consumer: a tool pinning an edition could read that a parameter was in
+`unit:LB_F` and could not read what `unit:LB_F` was. [`units/`](units/) is that table as data,
+each record read against its defining document: the SI Brochure (9th edition, V4.01) for the
+SI units, their dimensions, the degree and the knot; NIST SP 811 (2008) for the foot, the
+pound-force and the pound-force per square inch.
+
+Three things it makes checkable that were not:
+
+- **A parameter's unit must measure its kind.** A length in pounds-force is refused. Dimension
+  alone would not do it: plane angle and a ratio are both dimension one, a torque and an energy
+  are both `kg m² s⁻²`. The `quantity_kinds` on a unit tell them apart.
+- **A factor's arithmetic is executed.** `unit:LB_F` is `0.45359237*9.80665`, declared exact, and
+  the validator multiplies it out. The knot is `1852/3600`, which no decimal holds, so it says
+  `exact: false` and carries the expression.
+- **A consumer that is SI inside knows where the boundary is.** `si_coherent` says which units
+  it may write; `to_coherent_si` is the one factor by which a regulatory value in pounds or
+  knots crosses over.
 
 ## Design decision: not OWL (yet)
 

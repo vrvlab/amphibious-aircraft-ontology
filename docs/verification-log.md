@@ -599,7 +599,59 @@ Fixing `as_of.py` also surfaced a latent bug: it still pointed at `sources/` aft
 full confidence for every date. It now fails loudly on an empty registry, because a
 silently empty registry is worse than no tool.
 
-## Round 7 — the units, which had never been read against anything (2026-09-18)
+## Round 7 — the conformance checker was not checking half of what it claimed (2026-08-14)
+
+**Source:** the consuming repositories themselves, read through `tools/check_consumers.py`.
+
+Two findings this corpus filed against AeroGit were fixed there — chine flare is now
+carried, and the `conceptual` bounds distinction is now enforced rather than only stated.
+Neither fix was noticed here. That is the interesting part.
+
+### An `absent` claim was never verified
+
+`tools/consumers.yaml` and the checker's own docstring both promise it fails when a claim
+goes stale "in either direction — a divergence quietly fixed, or one quietly introduced."
+Only the second direction was implemented:
+
+```python
+identifier = impl.get("identifier")
+if identifier is None:
+    # Recorded absent. If it has reappeared upstream, say so.
+    continue
+```
+
+The comment states the intent and the `continue` skips it. So every `status: absent` entry
+was unfalsifiable: nothing looked for the parameter reappearing. AeroGit added
+`chine_flare_deg`, and the checker reported "every implementation claim still holds against
+its source" — byte-identical output before and after.
+
+This is the same failure this project exists to catch, turned on itself: a claim that reads
+as checked, is not, and looks fine because nothing contradicts it. It was found by a
+consumer running the checker after making a change it should have flagged, which is an
+argument for consumers running it in their own CI rather than only this repository doing so.
+
+The fix matches a null identifier against the parameter's `name` and `aliases`, plus the
+consumer's key with a trailing unit token stripped — `chine_flare_deg` against `chine-flare`.
+It is deliberately conservative and will miss a tool that invents a spelling this corpus
+does not list. A looser substring rule would have fired on `L_a` throughout, and a checker
+that cries wolf gets switched off. Where it misses, the remedy is to add the spelling to
+`aliases`, which is where a tool author searching for their own name would land anyway.
+
+### Three entries recorded against the wrong parameter
+
+AeroGit's `L_forebody_fraction` was recorded as the regulatory forebody length. It is the
+spray length; its `step_fraction` is the regulatory one. The mapping had been read from that
+facet's description, which said "Forebody length as a fraction of hull length" — and the
+description was simply wrong, as its authors have since agreed and corrected.
+
+Worth recording as a limitation rather than a one-off: **a mapping read from prose is only as
+good as the prose.** The checker verifies bounds, which are machine-readable, and cannot
+verify identity, which is not. Both `forebody-length` and `spray-forebody-length` now carry
+a note saying where their AeroGit entry came from.
+
+The same pass corrected the note that two of three consumers carry both a step fraction and
+a forebody fraction permitted to differ. It is three of three.
+## Round 8 — the units, which had never been read against anything (2026-09-18)
 
 **Sources:** *The International System of Units (SI)*, BIPM, 9th edition (2019), **V4.01, June
 2026**, the PDF at bipm.org (sha256 `5442eea2…e02c` as fetched). *NIST Special Publication
@@ -684,7 +736,7 @@ to go red.
 - [ ] CS-25 Appendix S (water scooping) — no primary text obtained; all secondary
 - [ ] Extend `parameters/` scope beyond `geometry.` — the weights, speeds and inertia families reach Flightforge through seed_state and have no declared consumer mapping yet
 - [ ] No consumer carries an auxiliary float deadrise, so the § 25.535 load path has no geometry source anywhere in the ecosystem
+- [x] ~~AeroGit carries no chine flare, so the § 25.533(b)(1)-versus-(b)(2) selector is lost at the layer that versions the design~~ — AeroGit now declares `chine_flare_deg` and aliases it to the key the amphibious plugin selects on. It passes the angle and does not choose the path itself, which is right: the choice belongs to whatever evaluates the pressures
 - [ ] AeroGit carries no chine flare, so the § 25.533(b)(1)-versus-(b)(2) selector is lost at the layer that versions the design
-- [ ] `parameters/` is not in `dist/`. `units.json` now is; a consumer still needs a YAML parser for the parameter layer
 - [ ] The weights are forces in `lbf`, as the regulation writes them. A consumer that is SI inside carries mass in `kg`, and nothing here yet says that the two relate by standard gravity, `9.806 65 m/s²` exactly. `unit:LB_F`'s record now holds the number; no parameter holds the statement
-- [ ] `.github/workflows/verify.yml` checks only `dist/constraints.json` for staleness and does not run `tools/test_validate_units.py`. `python tools/build.py --check` covers both artifacts and would replace the `git diff` step
+- [ ] `.github/workflows/verify.yml` does not run `tools/test_validate_units.py`. It runs `test_check_consumers.py` the same way; one more step would cover the unit rules. Staleness of `dist/units.json` is already caught, since the workflow now diffs all of `dist/`

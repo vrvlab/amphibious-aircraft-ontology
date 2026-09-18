@@ -32,15 +32,20 @@ jobs:
       - name: Worked test cases reproduce
         run: python tools/run_tests.py --verbose
 
-      - name: Build artifact is current
-        # constraints.json is committed so consumers can vendor a single file.
-        # Regenerating must be a no-op; if it is not, someone edited the YAML
-        # without rebuilding and the vendored artifact is stale.
+      - name: Consumer checker self-checks
+        # The absent-claim check is the half that was missing; these pin it so
+        # it cannot go quiet again without CI saying so.
+        run: python tools/test_check_consumers.py
+
+      - name: Build artifacts are current
+        # dist/ is committed so consumers can vendor single files. Regenerating
+        # must be a no-op; if it is not, someone edited the YAML without
+        # rebuilding and the vendored artifact is stale.
         run: |
           python tools/build.py
-          if ! git diff --quiet -- dist/constraints.json; then
-            echo "::error::dist/constraints.json is stale — run python tools/build.py and commit the result"
-            git --no-pager diff --stat -- dist/constraints.json
+          if ! git diff --quiet -- dist/; then
+            echo "::error::dist/ is stale — run python tools/build.py and commit the result"
+            git --no-pager diff --stat -- dist/
             exit 1
           fi
 

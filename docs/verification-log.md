@@ -714,6 +714,53 @@ to a unit that is itself not coherent; an "exact" factor that is not its express
 with one symbol or one UCUM code; a QUDT spelling that is another unit's code. `tools/test_validate_units.py` breaks a copy of the corpus
 each way and requires the refusal. Each rule was also removed in turn and its self-check seen
 to go red.
+## Round 9 — the first parameters that are not the hull's: wing and tail planform (2026-09-18)
+
+**Source:** NACA Report No. 474, *Nomenclature for Aeronautics*, the Committee's standard
+vocabulary; reprint of 1939, originally published March 1934. NTRS citation 20100021420, the
+scanned PDF (sha256 `e900d802…4626` as fetched). A work of the United States Government.
+
+Sent from the consumer side. AeroHydro Studio takes its parameter ids from this corpus and
+found none for a wing or a tail (studio issues 82 and 83). Five entries, in
+`parameters/lifting-surfaces.yaml`: `wing-area`, `wing-span`, `wing-aspect-ratio`,
+`horizontal-tail-area`, `vertical-tail-area`.
+
+**These are not regulatory quantities, and `verified` here means what it says and no more:**
+the definition matches the text of the standard nomenclature that was read. No constraint in
+the corpus reads them, so none has a `regulatory_mapping`, and the validator's warning for that
+is left to stand.
+
+What reading the report settled, that a definition from memory would not have:
+
+- **Wing area runs through the body; vertical tail area does not.** "For the purpose of
+  calculating area, a wing is considered to extend without interruption through the fuselage
+  and nacelles", and the horizontal tail is "measured in the same manner". The vertical tail is
+  "the actual outline of the rudder and the fin projected in the vertical plane". That asymmetry
+  is why the two tail areas are separate entries with `distinct_from`, not one with a direction.
+- **Aspect ratio is defined twice in one sentence**, span over mean chord and span squared over
+  area, with mean chord defined as area over span, so the two agree. It is derived; the entry
+  says a tool holding all three independently can hold a wing that does not exist.
+- **The report says nothing of taper ratio.** It defines "taper in plan only" as a gradual
+  change in chord and gives no ratio, so no `wing-taper-ratio` entry is made from it. It needs
+  another source.
+- Two readings are labelled as readings inside the entries: that "fuselage" covers a flying
+  boat's hull, and that horizontal tail area includes the elevator.
+
+**From review, before merge.** Three defects of our own, the first of the kind this corpus
+exists to catch. Both tail areas were bounded strictly above zero and called `mathematical`,
+with a rationale that did not survive reading: tail volume multiplies by the area and nothing
+is singular at zero, so a consumer enforcing the bound would have refused a tailless aircraft
+as impossible. Zero is now inside the range. The `wing-area` notes described an "exposed" and a
+"trapezoidal reference" area as in common use; that is not in Report 474 and was written from
+memory inside a `verified` entry, and so was a remark about T-tails. Both are gone; what
+replaces them says only what the report says or is silent on. And the `definition` said
+"fuselage, hull or nacelles" where the report says "fuselage or nacelles": the definition now
+has the report's words, and the hull reading is labelled a reading where it stands.
+
+The scan's text layer is poor (`meals aerodynamic` for `mean aerodynamic`). The area entries,
+"aspect ratio" and "angle of dead rise" were read on the page images themselves, report pages 7
+and 8, and every phrase quoted from them is as printed. "span", "chord, mean, of a wing" and
+"flying boat" were read from the text layer only, where they extracted cleanly.
 
 ## Open items
 
@@ -737,6 +784,7 @@ to go red.
 - [ ] Extend `parameters/` scope beyond `geometry.` — the weights, speeds and inertia families reach Flightforge through seed_state and have no declared consumer mapping yet
 - [ ] No consumer carries an auxiliary float deadrise, so the § 25.535 load path has no geometry source anywhere in the ecosystem
 - [x] ~~AeroGit carries no chine flare, so the § 25.533(b)(1)-versus-(b)(2) selector is lost at the layer that versions the design~~ — AeroGit now declares `chine_flare_deg` and aliases it to the key the amphibious plugin selects on. It passes the angle and does not choose the path itself, which is right: the choice belongs to whatever evaluates the pressures
-- [ ] AeroGit carries no chine flare, so the § 25.533(b)(1)-versus-(b)(2) selector is lost at the layer that versions the design
 - [ ] The weights are forces in `lbf`, as the regulation writes them. A consumer that is SI inside carries mass in `kg`, and nothing here yet says that the two relate by standard gravity, `9.806 65 m/s²` exactly. `unit:LB_F`'s record now holds the number; no parameter holds the statement
 - [ ] `.github/workflows/verify.yml` does not run `tools/test_validate_units.py`. It runs `test_check_consumers.py` the same way; one more step would cover the unit rules. Staleness of `dist/units.json` is already caught, since the workflow now diffs all of `dist/`
+- [ ] `wing-taper-ratio` has no entry: NACA Report 474 defines taper and no ratio. Needs a primary source that defines the ratio and says which root chord
+- [ ] Report 474 is silent on tip floats and tip devices in the span, on a dorsal fin, and on how twin fins are summed. Each entry says so; none is resolved

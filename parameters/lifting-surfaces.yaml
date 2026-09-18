@@ -1,0 +1,217 @@
+# Wing and tail planform quantities: area, span, aspect ratio.
+#
+# These are the numbers every conceptual tool holds and the ones most often
+# compared across tools without asking how each was measured. The definitions
+# are older than any of the tools: NACA Report No. 474, "Nomenclature for
+# Aeronautics", the Committee's standard vocabulary, fixes all five. What it
+# fixes is the CONVENTION, which is where two tools that agree on the word
+# disagree on the value: a wing's area runs straight through the fuselage, and
+# a vertical tail's does not.
+#
+# No constraint in the corpus reads any of these yet, so none carries a
+# regulatory_mapping. They are here because a consumer's vocabulary must come
+# from somewhere, and a definition with a source is better than five without.
+
+- id: wing-area
+  name: Wing area
+  aliases: [S, S_ref, reference area, wing reference area, gross wing area]
+  quantity:
+    unit: unit:M2
+    symbol: m^2
+    quantity_kind: quantitykind:Area
+  definition: >-
+    The area of the projection of the wing's actual outline on the plane of
+    the chords, with no deduction for the part blanketed by the fuselage or
+    nacelles, and including the ailerons.
+  measurement_convention:
+    datum: >-
+      The plane of the chords. The area is of the projection on that plane, not
+      the developed surface, so dihedral does not enter.
+    station: >-
+      Whole wing, tip to tip. "For the purpose of calculating area, a wing is
+      considered to extend without interruption through the fuselage and
+      nacelles." The part inside the body is bounded by two lateral straight
+      lines joining the points where the leading and trailing edges meet the
+      body, "ignoring fairings and fillets".
+    source: >-
+      NACA Report No. 474, Nomenclature for Aeronautics, "area, measurement of
+      (performance calculations): wing area"
+    notes: >-
+      The whole projected area, through the body. An area that deducts the
+      blanketed part, or that replaces the actual outline with another, is not
+      this quantity, whatever symbol a tool gives it.
+      A READING, NOT THE REPORT'S TEXT: on a flying boat the hull is taken as
+      the fuselage, so the wing runs through the hull. The report says
+      "fuselage or nacelles" and does not repeat the rule for a hull; see
+      verification.notes.
+  bounds:
+    min: 0.0
+    min_exclusive: true
+  bounds_basis: mathematical
+  bounds_rationale: >-
+    Aspect ratio, mean chord and every aerodynamic coefficient divide by it.
+  verification:
+    status: verified
+    checked_against: >-
+      NACA Report No. 474 (reprint of 1939; originally published March 1934),
+      the entry "area, measurement of", read from the NTRS scan, citation
+      20100021420 (PDF sha256 e900d8023594...4626 as fetched 2026-09-18).
+    notes: >-
+      Report 474 writes "fuselage or nacelles". "Hull" is this entry's
+      extension to a flying boat, which the report defines as "a form of
+      seaplane whose main body or hull provides flotation"; it does not repeat
+      the area rule for a hull, and the extension is a reading, not its text.
+  tags: [wing, geometry, planform]
+
+- id: wing-span
+  name: Wing span
+  aliases: [b, span, wingspan]
+  quantity:
+    unit: unit:M
+    symbol: m
+    quantity_kind: quantitykind:Length
+  definition: >-
+    The maximum distance, measured parallel to the lateral axis, from tip to
+    tip of the wing, inclusive of ailerons.
+  measurement_convention:
+    datum: Parallel to the lateral axis of the aircraft.
+    station: >-
+      Tip to tip: the maximum such distance. Projected, so a wing with
+      dihedral has a span shorter than the length measured along its surface.
+    source: NACA Report No. 474, Nomenclature for Aeronautics, "span"
+    notes: >-
+      Report 474 also defines an "effective span", the true span less a
+      correction for tip loss, which is an aerodynamic quantity and not this
+      one. It says nothing of tip-mounted floats or tip devices: whether a
+      tool's span includes them is a convention the tool must state.
+  bounds:
+    min: 0.0
+    min_exclusive: true
+  bounds_basis: mathematical
+  bounds_rationale: Mean chord divides the wing area by it.
+  verification:
+    status: verified
+    checked_against: >-
+      NACA Report No. 474 (reprint of 1939; originally published March 1934),
+      the entry "span", read from the NTRS scan, citation 20100021420.
+  tags: [wing, geometry, planform]
+
+- id: wing-aspect-ratio
+  name: Wing aspect ratio
+  aliases: [AR, A, aspect ratio, geometric aspect ratio]
+  quantity:
+    unit: unit:UNITLESS
+    symbol: "1"
+    quantity_kind: quantitykind:DimensionlessRatio
+  definition: >-
+    The ratio of the span to the mean chord of the wing; that is, the ratio of
+    the square of the span to the wing area. The mean chord is the wing area
+    divided by the span.
+  measurement_convention:
+    datum: >-
+      Derived, never measured: wing-span squared over wing-area. It inherits
+      both conventions, so it is the gross area, through the body, and the
+      projected span.
+    station: Whole wing.
+    source: >-
+      NACA Report No. 474, Nomenclature for Aeronautics, "aspect ratio" and
+      "chord, mean, of a wing"
+    notes: >-
+      Of wing-area, wing-span and this, any two determine the third. A tool
+      that stores all three as independent values can hold a wing that does
+      not exist. Report 474 separately defines an "effective aspect ratio", by
+      equal induced drag with an elliptical wing; that is an aerodynamic result
+      and is not this quantity.
+  bounds:
+    min: 0.0
+    min_exclusive: true
+  bounds_basis: mathematical
+  bounds_rationale: A ratio of two positive quantities.
+  verification:
+    status: verified
+    checked_against: >-
+      NACA Report No. 474 (reprint of 1939; originally published March 1934),
+      the entries "aspect ratio" and "chord, mean, of a wing", read from the
+      NTRS scan, citation 20100021420.
+  tags: [wing, geometry, planform]
+
+- id: horizontal-tail-area
+  name: Horizontal tail area
+  aliases: [S_h, S_ht, tailplane area, stabilizer area]
+  quantity:
+    unit: unit:M2
+    symbol: m^2
+    quantity_kind: quantitykind:Area
+  definition: >-
+    The area of the horizontal tail, stabilizer and elevator together,
+    measured in the same manner as the wing area: with no deduction for the
+    area blanketed by the body.
+  measurement_convention:
+    datum: The plane of the tail's chords, as for the wing.
+    station: >-
+      Whole surface. The blanketed area is "bounded within the fuselage by
+      lateral straight lines that connect the intersections of the leading and
+      trailing edges of the stabilizer with the sides of the fuselage, the
+      fairings and fillets being ignored."
+    source: >-
+      NACA Report No. 474, Nomenclature for Aeronautics, "area, measurement of
+      (performance calculations): horizontal tail area"
+    notes: >-
+      "Stabilizer and elevator together" is a reading: the report says the
+      area is measured as the wing's is, the wing's includes its ailerons, and
+      its "span" of a stabilizer is "inclusive of elevator".
+      The report's rule speaks only of a stabilizer meeting a fuselage. It is
+      silent on a horizontal tail carried by the fin.
+  bounds:
+    min: 0.0
+  bounds_basis: mathematical
+  bounds_rationale: >-
+    An area is not negative. Zero is inside the range on purpose: it is an
+    aircraft with no horizontal tail, and nothing is singular there.
+  distinct_from: [vertical-tail-area]
+  verification:
+    status: verified
+    checked_against: >-
+      NACA Report No. 474 (reprint of 1939; originally published March 1934),
+      the entry "area, measurement of", read from the NTRS scan, citation
+      20100021420.
+  tags: [tail, geometry, planform]
+
+- id: vertical-tail-area
+  name: Vertical tail area
+  aliases: [S_v, S_vt, fin area, fin and rudder area]
+  quantity:
+    unit: unit:M2
+    symbol: m^2
+    quantity_kind: quantitykind:Area
+  definition: >-
+    The area of the actual outline of the rudder and the fin, projected in the
+    vertical plane, the fairings and fillets being ignored.
+  measurement_convention:
+    datum: >-
+      The vertical plane. For a single centreline fin, the plane of symmetry.
+    station: >-
+      The ACTUAL OUTLINE. Unlike the wing and the horizontal tail, nothing is
+      extended through the body: the area stops where the fin does.
+    source: >-
+      NACA Report No. 474, Nomenclature for Aeronautics, "area, measurement of
+      (performance calculations): vertical tail area"
+    notes: >-
+      The asymmetry with horizontal-tail-area is the reason the two are
+      separate entries and not one "tail area" with a direction. Report 474
+      does not say whether a dorsal fin is part of the fin, nor how twin fins
+      are summed; a tool must state both.
+  bounds:
+    min: 0.0
+  bounds_basis: mathematical
+  bounds_rationale: >-
+    An area is not negative. Zero is inside the range on purpose: it is an
+    aircraft with no vertical tail, and nothing is singular there.
+  distinct_from: [horizontal-tail-area]
+  verification:
+    status: verified
+    checked_against: >-
+      NACA Report No. 474 (reprint of 1939; originally published March 1934),
+      the entry "area, measurement of", read from the NTRS scan, citation
+      20100021420.
+  tags: [tail, geometry, planform]

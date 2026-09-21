@@ -799,6 +799,39 @@ What reading settled:
 What the report does not give, and so is not here: bracing (it has no entry for "cantilever"),
 dihedral as a named style, and any tail arrangement.
 
+## Round 11 — three units a consumer could not write: a curvature, its square, a mass per area (2026-09-21)
+
+**Sources:** the same files as Round 8, fetched again and the same bytes: *The International
+System of Units (SI)*, BIPM, 9th edition (2019), **V4.01, June 2026** (sha256 `5442eea2…e02c`);
+*The Unified Code for Units of Measure*, **Version 2.2**, https://ucum.org/ucum (sha256
+`08584e17…4f71`). QUDT, the records of `unit:PER-M`, `unit:PER-M2` and `unit:KiloGM-PER-M2`, and
+of the five quantity kinds named below, fetched 2026-09-21 as Turtle.
+
+Sent from the consumer side again. AeroHydro Studio binds every unit it writes to this registry,
+and found that three quantities in its model could not be written at all (its issue 93): the
+curvature of a hull's line, in `m⁻¹`; a Gaussian curvature, in `m⁻²`; and a floor loading stated
+as a mass per area, in `kg/m²`. `v0.5.0` held 22 units and none of these.
+
+### What was read, and what it settled
+
+| Claim | Read in | Finding |
+|---|---|---|
+| `m⁻¹` is a coherent derived unit | SI Brochure Table 5 | Tabulated, under **wavenumber**, symbol σ. The Brochure names no curvature |
+| `kg m⁻²` is a coherent derived unit | Table 5 | Tabulated, under **surface density**, symbol ρ_A |
+| `m⁻²` | Table 5 | **Not tabulated alone**: `A m⁻²` and `cd m⁻²` are. It stands on § 2.3.4, products of powers of base units, as `m⁴` does |
+| The kind for a curvature | QUDT | QUDT holds **two kinds labelled "Curvature"**: `quantitykind:CurvatureFromRadius`, which lists `unit:PER-M` as applicable, and `quantitykind:Curvature`, same dimension, which lists no unit. `unit:PER-M`'s own record names the first and not the second, with `InverseLength`, `Wavenumber` and five others. Recorded: `CurvatureFromRadius` and `InverseLength` |
+| The kind for a Gaussian curvature | QUDT | **None of that name.** `unit:PER-M2` is listed under `InverseArea` alone, and that is what is recorded, with a note saying what the consumer wants it for |
+| The kind for a mass per area | QUDT | `MassPerArea`, whose description gives surface density, the Brochure's word, as a synonym |
+| The codes | UCUM 2.2 | § 7: "a leading solidus will invert the unit that directly follows it", so `/m` is a term; but the specification's own tables spell a reciprocal with an exponent, the Kayser as `1 cm-1` and the siemens as `1 Ohm-1`. `m-1` and `m-2` are recorded, and are also QUDT's. `kg/m2` is listed by name; QUDT's `kg.m-2` is kept as `ucum_qudt`, as for the density |
+
+All three are coherent, so none carries a factor. The registry holds 25 units.
+
+### What was not settled
+
+Whether a floor loading *should* be a mass per area is the consumer's question and not this
+registry's: the unit exists either way, and its record says that it is not a pressure and
+becomes one only by standard gravity, which is the open item about weights below.
+
 ## Open items
 
 - [x] ~~Characterise pre-2017 amendments for §§ 25.345, 25.349, 25.473, 25.479, 25.807~~ — closed to 1997 by diffing govinfo annual CFR granules; substantive changes recorded in `history` blocks

@@ -214,6 +214,86 @@
       https://qudt.org/vocab/unit/KiloGM-PER-M3 fetched 2026-09-18 for the IRI, the
       UCUM code QUDT records and the dimension vector A0E0L-3I0M1H0T0D0.
 
+- id: unit:PER-M
+  name: reciprocal metre
+  symbol: "m^-1"
+  ucum: "m-1"
+  quantity_kinds: [quantitykind:CurvatureFromRadius, quantitykind:InverseLength]
+  dimension: {T: 0, L: -1, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 5 (wavenumber, m-1)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 5 (wavenumber, m-1), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-21). QUDT record
+      https://qudt.org/vocab/unit/PER-M fetched 2026-09-21 for the IRI, the
+      UCUM code QUDT records, the quantity kinds it lists the unit under and the
+      dimension vector A0E0L-1I0M0H0T0D0.
+    notes: >-
+      The Brochure tabulates the unit under wavenumber and names no curvature. The kind a
+      consumer needs for the curvature of a line is QUDT's CurvatureFromRadius, which is the
+      one QUDT labels "Curvature" and lists this unit under; QUDT's other kind of that label,
+      quantitykind:Curvature, has the same dimension and lists no applicable unit, so it is
+      not recorded here. The UCUM code is the specification's own spelling of a reciprocal:
+      its tables define the Kayser as 1 cm-1 and the siemens as 1 Ohm-1.
+
+- id: unit:PER-M2
+  name: reciprocal square metre
+  symbol: "m^-2"
+  ucum: "m-2"
+  quantity_kinds: [quantitykind:InverseArea]
+  dimension: {T: 0, L: -2, M: 0, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Section 2.3.4 (derived units as products of powers of base units); not itself tabulated"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Section 2.3.4 (derived units as products of powers of base units); not itself tabulated, read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-21). QUDT record
+      https://qudt.org/vocab/unit/PER-M2 fetched 2026-09-21 for the IRI, the
+      UCUM code QUDT records, the quantity kinds it lists the unit under and the
+      dimension vector A0E0L-2I0M0H0T0D0.
+    notes: >-
+      Table 5 tabulates A m-2 and cd m-2 and no m-2 alone. The consumer that asked wants it
+      for a Gaussian curvature, the product of two curvatures. QUDT holds no kind of that
+      name; InverseArea is the one kind it lists this unit under, and is what is recorded.
+
+- id: unit:KiloGM-PER-M2
+  name: kilogram per square metre
+  symbol: "kg/m^2"
+  ucum: "kg/m2"
+  ucum_qudt: "kg.m-2"
+  quantity_kinds: [quantitykind:MassPerArea]
+  dimension: {T: 0, L: -2, M: 1, I: 0, Theta: 0, N: 0, J: 0}
+  si_coherent: true
+  source:
+    document: "The International System of Units (SI), BIPM"
+    edition: "9th edition (2019), V4.01, June 2026"
+    location: "Table 5 (surface density, kg m-2)"
+    url: https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf
+  verification:
+    status: verified
+    checked_against: >-
+      SI Brochure 9th edition V4.01 (June 2026), Table 5 (surface density, kg m-2), read from the PDF
+      (sha256 5442eea2c680...e02c as fetched 2026-09-21). QUDT record
+      https://qudt.org/vocab/unit/KiloGM-PER-M2 fetched 2026-09-21 for the IRI, the
+      UCUM code QUDT records, the quantity kinds it lists the unit under and the
+      dimension vector A0E0L-2I0M1H0T0D0.
+    notes: >-
+      The Brochure's name for the quantity is surface density; QUDT's kind is MassPerArea,
+      whose description gives surface density as a synonym. UCUM 2.2 lists kg/m2 by name. It
+      is a mass per area and not a pressure: a floor loading stated in it is a mass, and
+      becomes a pressure only by standard gravity.
+
 - id: unit:N
   name: newton
   symbol: "N"

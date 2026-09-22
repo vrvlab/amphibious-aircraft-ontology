@@ -68,7 +68,8 @@
     - system: amphix-auto-engineer
       identifier: chine_flare
       unit: unit:DEG
-      bounds: [0.0, 15.0]
+      bounds:
+        search: {min: 0.0, max: 15.0}
       notes: >-
         Bounds SPAN the regulatory case boundary: 0.0 is the unflared case,
         anything above it is the flared case. A design search over this range
@@ -79,7 +80,8 @@
     - system: loftline
       identifier: chine_flare_deg
       unit: unit:DEG
-      bounds: [0.0, 45.0]
+      bounds:
+        validity: {min: 0.0, max: 45.0}
       status: exact
       notes: >-
         Documented as flare "at the step", which is narrower than the flared
@@ -89,6 +91,8 @@
     - system: aerogit
       identifier: chine_flare_deg
       unit: unit:DEG
+      bounds:
+        validity: {min: 0.0, basis: {min: conceptual}}
       status: exact
       finding: >-
         Resolved. AeroGit previously carried no chine flare at all, so the
@@ -101,14 +105,15 @@
         stated grounds that this corpus fixes no canonical bound while
         Loftline admits 45 degrees and Flightforge searches to 20 -- so any
         ceiling chosen here would refuse a hull the tool upstream of the
-        geometry accepts. Bounds are therefore omitted rather than recorded:
-        an implementations `bounds` pair cannot express a half-open range.
+        geometry accepts. Omitted here until bounds were keyed by kind, since
+        a [min, max] pair could not express a half-open range.
         AeroGit selects nothing itself; it passes the angle and leaves the
         (b)(1)-versus-(b)(2) choice to the amphibious plugin.
     - system: flightforge
       identifier: geometry.hull.chine_flare_deg
       unit: unit:DEG
-      bounds: [0.0, 20.0]
+      bounds:
+        search: {min: 0.0, max: 20.0}
       status: exact
       notes: >-
         Carried AND used as the selector: water_loads.py switches to the flared

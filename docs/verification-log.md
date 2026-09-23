@@ -1072,5 +1072,5 @@ consumer, before any edition held `hull-length`.
 - [x] ~~Hull length and beam have no entries~~ — `hull-length`, `beam-at-main-step` and `maximum-beam`, Round 13
 - [ ] Hull depth, waterline length, and the prismatic and block coefficients have no entries (issue #8). Locke's 1943 survey defines none of them (Round 15). No longer a search: they are definitions to write, `defined` where no source read states them (Round 16)
 - [ ] ANC-3 not found in any public archive (Round 15). Its exact title may be in the 1964 Part 25 adoption notice, 29 FR 18291. A research item: it blocks no definition, and no library request is made for it (Round 16)
-- [x] ~~Along which line is hull length measured?~~ — `defined`: parallel to the hull's base line (Round 16)
+- [x] ~~Along which line is hull length measured?~~ — `defined`: parallel to the hull reference axis of § 25.527(b)(7), as `forebody-length` and `afterbody-length` are (Round 16, corrected by #23)
 - [ ] Were the Stevens series hulls widest at the step? ARR L5G23 files their step beam as maximum beam; if they were not, that comparison mixes the two. ARR 4F15's body plan, Fig. 5, appears to show it, but the report does not say

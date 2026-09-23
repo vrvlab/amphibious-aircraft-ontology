@@ -961,6 +961,41 @@ CI now runs `tools/test_validate_units.py` and `tools/test_validate_vocabularies
 which were open items. Retiring the consumer self-tests would otherwise have left the
 workflow running no self-tests at all.
 
+## Round 15 — draft, and two traps in older symbols (2026-09-23)
+
+**Sources:** F.W.S. Locke, Jr., *A Correlation of the Dimensions, Proportions, and Loadings
+of Existing Seaplane Floats and Flying-Boat Hulls*, NACA ARR, March 1943, NTRS 19930093017;
+W. Sottorf, *The Design of Floats*, NACA TM 860, April 1938, NTRS 19930094556; NACA ARR 4F15,
+Figures 4 and 7; NACA Report 766, p. 9. Each read from the page images, fetched 2026-09-23.
+
+Round 13 left hull depth, waterline length, and the prismatic and block coefficients open,
+and named Locke's 1943 survey and ANC-3 as the places to look. Locke was read. ANC-3 was not
+found in any public archive searched: NTRS, the Internet Archive, and HathiTrust's and
+DTIC's catalogues, which refuse automated access. The 1953 Civil Air Regulations Part 4b,
+§ 4b.250, carries the "more rational analysis" escape clause and does not name ANC-3, so the
+reference entered the rule later, probably with Part 25 in 1964.
+
+### What was read, and what it settled
+
+| Claim | Read in | Finding |
+|---|---|---|
+| Draft at the main step | TM 860, notation; ARR 4F15 p. 11 and Fig. 4; Report 766 p. 9 | **Defined the same way in all three:** vertical, from the keel, at the main step. Sottorf states the direction; the NACA reports nondimensionalise it as d/b. Entered as `draft-at-main-step` |
+| Draft is a function of load | ARR 4F15 Fig. 4 | "Static properties of the four models" plots C_d against C_Δ. A draft without its load is not reproducible, and the entry says so |
+| Locke's b | Locke p. 3 | "beam at the main step", called the fundamental length characteristic of a seaplane hull. Added to `beam-at-main-step` |
+| Locke's L | Locke pp. 3, 5 | **Not `hull-length`.** L/b is the sum of the forebody and afterbody equations, and the afterbody ends at "the second step or stern post, whichever is shorter". Noted on `hull-length` |
+| Locke's C_P | Locke p. 2 | **A brake-horsepower coefficient**, 550 bhp/(w b³ √(gb)), not a prismatic coefficient. A future prismatic-coefficient entry must not alias bare `C_P` |
+| Hull depth, waterline length, Cp, Cb | Locke, Sottorf | Not defined. Locke's notation has no depth, no waterline length and no hull-form coefficient |
+| The line hull length is measured along | ARR 4F15 Fig. 7 | Two candidate lines, "TANGENT TO KEEL AT STEP" and "BASE LINE", drawn 2° apart, with stations in inches aft of F.P. Which one L runs along is not stated. Still open |
+
+### What was not entered
+
+- **Stevens widest at the step.** ARR 4F15's body plan, Figure 5, appears to show the forebody
+  sections near the step reaching the same chine half-breadth, with the afterbody no wider.
+  That is a reading of a drawing, not a statement in the report, so it stays an open item.
+- **Hull depth, waterline length, Cp, Cb.** Still no flying-boat definition. A wind-tunnel
+  report (Hartman, NACA TN 525, 1935) varies "over-all height" in its Table I, which may
+  define the datum on the page image; only its text layer has been read.
+
 ## Open items
 
 - [x] ~~Characterise pre-2017 amendments for §§ 25.345, 25.349, 25.473, 25.479, 25.807~~ — closed to 1997 by diffing govinfo annual CFR granules; substantive changes recorded in `history` blocks
@@ -988,6 +1023,7 @@ workflow running no self-tests at all.
 - [ ] Vocabularies with no source yet: wing bracing, tail arrangement, float retraction, door and ramp styles. NACA Report 474 has none of them
 - [ ] `applies_to` is a slug with no registry behind it. When a second consumer disagrees about what a `hull` is, it will need one
 - [x] ~~Hull length and beam have no entries~~ — `hull-length`, `beam-at-main-step` and `maximum-beam`, Round 13
-- [ ] Hull depth, waterline length, and the prismatic and block coefficients have no entries (issue #8). The only definitions found are ITTC's, for ships; a flying-boat source is needed. Try Locke's 1943 NACA survey of seaplane float and hull proportions, and ANC-3
-- [ ] Along which line is hull length measured: the keel, the hull reference axis, or horizontally? No NACA report read says
-- [ ] Were the Stevens series hulls widest at the step? ARR L5G23 files their step beam as maximum beam; if they were not, that comparison mixes the two
+- [ ] Hull depth, waterline length, and the prismatic and block coefficients have no entries (issue #8). Locke's 1943 survey defines none of them (Round 15). Next: Hartman, NACA TN 525, Table I on the page image, for a height datum
+- [ ] ANC-3 not found in any public archive (Round 15). Its exact title may be in the 1964 Part 25 adoption notice, 29 FR 18291; after that it is a library request
+- [ ] Along which line is hull length measured: the keel, the hull reference axis, or horizontally? No NACA report read says. ARR 4F15 Fig. 7 draws two candidates, the keel tangent at the step and a base line, 2° apart
+- [ ] Were the Stevens series hulls widest at the step? ARR L5G23 files their step beam as maximum beam; if they were not, that comparison mixes the two. ARR 4F15's body plan, Fig. 5, appears to show it, but the report does not say

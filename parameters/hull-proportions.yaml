@@ -11,10 +11,14 @@
 # so a coefficient read from one series and applied with the other's beam is off
 # by the cube of their ratio, and nothing in the symbol says which b it was.
 #
+# Draft is here because the flying-boat literature defines it the same way every
+# time: vertically, from the keel, at the main step. It is not one number but a
+# function of load, and the entry says so.
+#
 # Hull depth, waterline length, and the prismatic and block coefficients are not
 # here. The only definitions found are ITTC's, written for ships, whose default
 # stations (between perpendiculars, amidships, the design waterline) a stepped
-# hull does not obviously have. See docs/verification-log.md, Round 13.
+# hull does not obviously have. See docs/verification-log.md, Rounds 13 and 15.
 
 - id: hull-length
   name: Hull length, forepoint to sternpost
@@ -53,6 +57,11 @@
       this length. The regulation never states the sum.
       The length-beam ratio in every report read is this length over a beam,
       and which beam depends on the report; see beam-at-main-step.
+      NOT Locke's L. NACA ARR (Locke, March 1943) forms its over-all length
+      coefficient L/b by adding its forebody and afterbody equations (p. 5),
+      and ends the afterbody at "the second step or stern post, whichever is
+      shorter" (p. 3). On a hull with a second step that is shorter than this
+      length, and the report never defines L on its own.
   bounds:
     min: 0.0
     min_exclusive: true
@@ -98,7 +107,9 @@
       C_delta = delta/(w b^3), C_V = V/sqrt(g b), C_R = R/(w b^3),
       C_M = M/(w b^4), C_d = d/b and the length/beam ratio L/b. Table I, p. 26,
       tabulates "Beam at main step". NACA Report 766, p. 7, also states step
-      depth as a percentage "of the beam at the step".
+      depth as a percentage "of the beam at the step". NACA ARR (Locke, March
+      1943), p. 3, uses the same b, "beam at the main step", and calls it the
+      fundamental length characteristic of a seaplane hull.
     notes: >-
       Where a hull's chine planform is widest at the step, this equals
       maximum-beam. ARR L5G23 Table I files the Stevens series' 5.40 inches
@@ -117,8 +128,9 @@
     checked_against: >-
       NACA ARR 4F15 (June 1944), NTRS citation 19930093044, PDF sha256
       fdbb07cd2b81...a8f5, pp. 11 and 26 read from the page images; NACA Report
-      766 (1943), citation 19930091845, sha256 bfd856295b36...4598, p. 7. Both
-      fetched 2026-09-23.
+      766 (1943), citation 19930091845, sha256 bfd856295b36...4598, p. 7; NACA
+      ARR (Locke, March 1943), citation 19930093017, sha256 dc018c4e78ca...b71b,
+      p. 3. All fetched 2026-09-23.
   tags: [hull, geometry, hydrodynamics]
 
 - id: maximum-beam
@@ -173,3 +185,56 @@
       over-chines convention, which the NACA reports leave unstated; it is not
       claimed to be the same measurement.
   tags: [hull, geometry, hydrodynamics]
+
+- id: draft-at-main-step
+  name: Hull draft at the main step
+  aliases: [step draft, draft at step, draft of keel at main step, t_st]
+  quantity:
+    unit: unit:M
+    symbol: m
+    quantity_kind: quantitykind:Length
+  definition: >-
+    The vertical distance from the bottom of the keel at the main step down to
+    the water line: how deep the hull sits at the step. Not a property of the
+    hull alone. It depends on the load on the water, so a value means nothing
+    without the load it was taken at.
+  measurement_convention:
+    datum: >-
+      The bottom of the keel at the main step. Sottorf: the "vertical distance
+      of the water line from the bottom of the keel at the step".
+    station: At the main step.
+    source: >-
+      NACA TM 860 (Sottorf, April 1938), notation on the first page, symbol t_st; NACA ARR 4F15,
+      p. 11, "d draft of keel at main step", with C_d = d/b, and Figure 4,
+      "Static properties of the four models", which plots C_d against the load
+      coefficient; NACA Report 766, p. 9, "d draft at main step", with C_d =
+      d/b.
+    notes: >-
+      Vertical, not normal to the keel or to the hull reference axis. Sottorf
+      says so; the NACA reports do not repeat it.
+      A value must carry its load. ARR 4F15 Figure 4 gives draft as a curve
+      against C_delta, at rest, so a draft without the load and the at-rest
+      condition is not reproducible. Underway, the draft at the step changes
+      with speed and trim, and none of these definitions covers that case.
+      Nondimensionalised as d/b, and which b is the report's: the beam at the
+      main step in ARR 4F15, the maximum beam in Report 766. See
+      beam-at-main-step and maximum-beam.
+      This is the only flying-boat draft definition found. A block coefficient
+      for a flying boat would need one; no source read builds a block
+      coefficient from it.
+  verification:
+    status: verified
+    checked_against: >-
+      Read from the NTRS scans' page images: NACA TM 860, W. Sottorf, "The
+      Design of Floats" (April 1938, translated from Luftfahrtforschung vol. 14,
+      1937), citation 19930094556, PDF sha256 48819b668eac...52f7, notation on
+      the first page; NACA
+      ARR 4F15 (June 1944), citation 19930093044, sha256 fdbb07cd2b81...a8f5,
+      p. 11 and Figure 4; NACA Report 766 (1943), citation 19930091845, sha256
+      bfd856295b36...4598, p. 9. All fetched 2026-09-23.
+    notes: >-
+      Sottorf's TM is an NACA translation of a German original, and defines the
+      quantity for a float. The station and datum are the same as for a
+      flying-boat hull, and the NACA hull reports use the same symbol-level
+      definition.
+  tags: [hull, geometry, hydrodynamics, hydrostatics]

@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from changelog import LAYERS, diff  # noqa: E402
+from changelog import LAYERS, diff, is_major  # noqa: E402
 
 
 def edition(**parameters) -> dict:
@@ -40,7 +40,15 @@ def case_superseded_then_removed():
     del gone["parameters"]["wing-area"]
     d = diff(BASE, marked)["parameters"]
     return d["superseded"] == [("wing-area", "hull-length")] and not d["broken"] \
-        and not broken(marked, gone)
+        and not diff(marked, gone, major=True)["parameters"]["broken"]
+
+
+def case_superseded_then_removed_in_a_minor():
+    marked = copy.deepcopy(BASE)
+    marked["parameters"]["wing-area"]["superseded_by"] = "hull-length"
+    gone = copy.deepcopy(marked)
+    del gone["parameters"]["wing-area"]
+    return any("not major" in b for b in broken(marked, gone))
 
 
 CASES = [
@@ -50,7 +58,12 @@ CASES = [
     ("an id removed without being superseded breaks the promise",
      lambda: any("`wing-area` removed" in b for b in broken(
          BASE, edition(**{"hull-length": BASE["parameters"]["hull-length"]})))),
-    ("an id superseded in one edition and removed in the next does not", case_superseded_then_removed),
+    ("an id superseded in one edition and removed in the next major does not", case_superseded_then_removed),
+    ("an id superseded and then removed in a minor edition breaks the promise",
+     case_superseded_then_removed_in_a_minor),
+    ("only a rise in the first component is major",
+     lambda: is_major("v0.6.0", "v1.0.0") and not is_major("v0.6.0", "v0.7.0")
+     and not is_major("v0.6.0", None)),
     ("a unit changed breaks the promise",
      lambda: any("`hull-length` changed unit" in b for b in broken(
          BASE, edition(**{**BASE["parameters"], "hull-length": {"quantity": {"unit": "unit:FT"}}})))),

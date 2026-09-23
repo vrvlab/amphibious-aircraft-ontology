@@ -99,8 +99,8 @@ Retrieved **2026-08-04**. The enhanced renderer endpoint used in Round 1 now 302
 interstitial; `api/versioner/v1/full/{date}/title-14.xml?...&section=25.337` returns the
 section text directly and was used instead.
 
-Prompted by an audit of `vrvlab/flightforge`, which selects the limit load factor from a table
-keyed on vehicle class where every civil entry is `2.5`.
+Prompted by an audit of a design tool that selects the limit load factor from a table keyed
+on vehicle class, where every civil entry is `2.5`.
 
 ### Confirmed correct
 
@@ -113,8 +113,7 @@ keyed on vehicle class where every civil entry is `2.5`.
 
 ### Corrections to how this section was being characterised
 
-The formula had been stated from recollection in `flightforge/docs/CONCEPTUAL_FIDELITY_PLAN.md`
-and flagged there as unverified pending this check. The expression itself survived. Its framing
+The formula had been stated from recollection in that tool's planning notes and flagged there as unverified pending this check. The expression itself survived. Its framing
 did not.
 
 | Misstatement | What the text says |
@@ -143,7 +142,7 @@ The `api/versioner/v1/full/{date}/title-14.xml?...&section=NN` endpoint used in 
 continues to work and was used throughout. Formula images were downloaded from
 `img.federalregister.gov` and read directly, per the Round 2 process change.
 
-Prompted by a cross-repository QA pass over `aerogit`, `flightforge` and `Loftline`.
+Prompted by a QA pass over three design tools that consume this corpus.
 
 ### The defect: § 25.337(c)(1) encoded the opposite of its own quotation
 
@@ -203,8 +202,8 @@ back on the hull formulas.
 
 ### § 25.533 was encoding constants without their formulas
 
-The section carried `C3` and `C4` as bare values with no expression, while `flightforge`
-implemented both formulas anyway. A constant without its formula is not an encoding of
+The section carried `C3` and `C4` as bare values with no expression, while a downstream
+design tool implemented both formulas anyway. A constant without its formula is not an encoding of
 the rule. Both are now encoded from the published images:
 
 | Formula | Image | Result |
@@ -215,8 +214,8 @@ the rule. Both are now encoded from the published images:
 **The distributed case takes V_S0, not V_S1.** Both the glossary and the image confirm
 it: the local pressures of (b) are referred to the takeoff stalling speed, the
 distributed pressures of (c) to the landing stalling speed. Two different speeds in
-adjacent paragraphs of one section. `flightforge` had this right; the corpus had not
-recorded it either way.
+adjacent paragraphs of one section. A downstream tool had this right; the corpus had
+not recorded it either way.
 
 A useful cross-check on the flared reading: `C3/C2 = 0.7512`, so where β happens to equal
 β_k the flared formula returns essentially the same `0.75 × P_k` the unflared case gives
@@ -249,23 +248,23 @@ A parameter vocabulary (`parameters/`) now names the quantities the constraints 
 because three consumers had independently invented three vocabularies for one hull:
 
 - All three collapse the **two distinct deadrise angles** — β at the station and β_k at
-  the keel — into a single `deadrise_deg`. AeroGit's facet documents its own loss in its
+  the keel — into a single `deadrise_deg`. One of them documented its own loss in its
   description; nothing checked it, and nothing propagated it.
-- **Loftline admits `deadrise_deg = 0.0` inclusive.** § 25.533 divides by tan β, so that
-  is not a flat hull with a large pressure — it is undefined. AeroGit made the same bound
-  exclusive for exactly this reason. Loftline sits upstream of the geometry, so the
-  permissive bound is the one that decides what reaches the formulas, and Flightforge's
-  `_tan_deg` floors the angle at 1° — a numerical guard doing a validation job.
-- **"Forebody fraction" names two different things.** In Loftline and AeroGit it means the
-  step station; in Flightforge it is a Parkinson spray correlation length, and its note
+- **The geometry tool admitted `deadrise_deg = 0.0` inclusive.** § 25.533 divides by tan β,
+  so that is not a flat hull with a large pressure — it is undefined. Another of the three
+  made the same bound exclusive for exactly this reason. The geometry tool sits upstream,
+  so its permissive bound is the one that decides what reaches the formulas, and the
+  loads tool floored the angle at 1° — a numerical guard doing a validation job.
+- **"Forebody fraction" names two different things.** In two of the tools it means the
+  step station; in the third it is a Parkinson spray correlation length, and its note
   says so. Those are genuinely different quantities. For Appendix B, L_f *is* the step
   station by definition, and substituting the other moves the K1/K2 discontinuity to a
   station the hull does not have.
 - **The auxiliary float load path is encoded but unreachable.** § 25.535 is now fully
   encoded, and no consumer carries a float deadrise for it to act on.
 
-`tools/check_consumers.py` re-reads each consumer's own source read-only and fails if a
-recorded divergence goes stale in either direction.
+A consumer checker was added to re-read each tool's source and fail if a recorded
+divergence went stale. It was retired in Round 14.
 
 ## Round 4 — § 25.535 speed units resolved, and a fifty-eight-year error found (2026-08-14)
 
@@ -416,8 +415,8 @@ entries citing those sections.
 
 ### `tools/check_editions.py` — drift detection against the regulation
 
-`check_consumers.py` asks whether the consumers still match what this repo says about them.
-This asks the harder question in the other direction. Three checks:
+The consumer checker (retired in Round 14) asked whether the consumers still matched what this
+repo said about them. This asks the harder question in the other direction. Three checks:
 
 | Check | Catches |
 | --- | --- |
@@ -526,8 +525,8 @@ to get a per-exit number is a reading the table does not support"*. That is exac
 backwards. Both the 1997 and 2016 editions print the per-exit values, independently
 corroborating it.
 
-**How it survived.** The entry was authored downstream in flightforge and upstreamed in
-an earlier round. Upstreaming normalised its structure — the operator vocabulary, an
+**How it survived.** The entry was authored downstream in a design tool and upstreamed
+in an earlier round. Upstreaming normalised its structure — the operator vocabulary, an
 unquoted section number, a `status` field holding prose — and marked the result
 `verified` without re-reading its numbers against primary source. **Structural
 normalisation is not verification.** Marking it verified asserted a check that had not
@@ -601,9 +600,10 @@ silently empty registry is worse than no tool.
 
 ## Round 7 — the conformance checker was not checking half of what it claimed (2026-08-14)
 
-**Source:** the consuming repositories themselves, read through `tools/check_consumers.py`.
+**Source:** the consuming tools themselves, read through the consumer checker (retired in
+Round 14).
 
-Two findings this corpus filed against AeroGit were fixed there — chine flare is now
+Two findings this corpus filed against one consuming tool were fixed there — chine flare is now
 carried, and the `conceptual` bounds distinction is now enforced rather than only stated.
 Neither fix was noticed here. That is the interesting part.
 
@@ -621,7 +621,7 @@ if identifier is None:
 ```
 
 The comment states the intent and the `continue` skips it. So every `status: absent` entry
-was unfalsifiable: nothing looked for the parameter reappearing. AeroGit added
+was unfalsifiable: nothing looked for the parameter reappearing. The tool added
 `chine_flare_deg`, and the checker reported "every implementation claim still holds against
 its source" — byte-identical output before and after.
 
@@ -639,15 +639,15 @@ that cries wolf gets switched off. Where it misses, the remedy is to add the spe
 
 ### Three entries recorded against the wrong parameter
 
-AeroGit's `L_forebody_fraction` was recorded as the regulatory forebody length. It is the
+One tool's `L_forebody_fraction` was recorded as the regulatory forebody length. It is the
 spray length; its `step_fraction` is the regulatory one. The mapping had been read from that
-facet's description, which said "Forebody length as a fraction of hull length" — and the
+tool's description, which said "Forebody length as a fraction of hull length" — and the
 description was simply wrong, as its authors have since agreed and corrected.
 
 Worth recording as a limitation rather than a one-off: **a mapping read from prose is only as
 good as the prose.** The checker verifies bounds, which are machine-readable, and cannot
-verify identity, which is not. Both `forebody-length` and `spray-forebody-length` now carry
-a note saying where their AeroGit entry came from.
+verify identity, which is not. Both `forebody-length` and `spray-forebody-length` carried
+a note saying where that entry came from, until Round 14 removed records of private tools.
 
 The same pass corrected the note that two of three consumers carry both a step fraction and
 a forebody fraction permitted to differ. It is three of three.
@@ -660,8 +660,8 @@ record at `https://qudt.org/vocab/unit/<id>`, fetched 2026-09-18 as Turtle. *The
 for Units of Measure*, **Version 2.2, 2024-06-17**, https://ucum.org/ucum (sha256
 `08584e17…4f71` as fetched).
 
-Sent from the consumer side. AeroHydro Studio pins an edition of this corpus and takes its
-vocabulary from it, and asked a plain question of `v0.3.0`: what is `unit:LB_F`? The corpus
+Sent from the consumer side. A design tool that pins an edition of this corpus and takes its
+vocabulary from it and asked a plain question of `v0.3.0`: what is `unit:LB_F`? The corpus
 could not say. The eleven units it knew were a dict in `tools/validate.py`, with the comment
 "each verified to resolve at qudt.org". Nothing else about them was recorded, no consumer
 could read them, and six of the eleven were used by no parameter, so nothing had ever checked
@@ -720,8 +720,8 @@ to go red.
 vocabulary; reprint of 1939, originally published March 1934. NTRS citation 20100021420, the
 scanned PDF (sha256 `e900d802…4626` as fetched). A work of the United States Government.
 
-Sent from the consumer side. AeroHydro Studio takes its parameter ids from this corpus and
-found none for a wing or a tail (studio issues 82 and 83). Five entries, in
+Sent from the consumer side. A design tool that takes its parameter ids from this corpus
+found none for a wing or a tail. Five entries, in
 `parameters/lifting-surfaces.yaml`: `wing-area`, `wing-span`, `wing-aspect-ratio`,
 `horizontal-tail-area`, `vertical-tail-area`.
 
@@ -767,7 +767,7 @@ and 8, and every phrase quoted from them is as printed. "span", "chord, mean, of
 **Source:** NACA Report No. 474, *Nomenclature for Aeronautics*, as in Round 9. NTRS citation
 20100021420.
 
-Sent from the consumer side (studio issue 86). AeroHydro Studio holds an attachment's *style*,
+Sent from the consumer side. A design tool holds an attachment's *style*,
 and asks that a style decide which parameters exist. The corpus had no layer for a closed set of
 alternatives, so a consumer's enums were its own words. `vocabularies/` is that layer, with
 three entries, every value's definition the report's:
@@ -807,8 +807,8 @@ System of Units (SI)*, BIPM, 9th edition (2019), **V4.01, June 2026** (sha256 `5
 `08584e17…4f71`). QUDT, the records of `unit:PER-M`, `unit:PER-M2` and `unit:KiloGM-PER-M2`, and
 of the five quantity kinds named below, fetched 2026-09-21 as Turtle.
 
-Sent from the consumer side again. AeroHydro Studio binds every unit it writes to this registry,
-and found that three quantities in its model could not be written at all (its issue 93): the
+Sent from the consumer side again. A design tool that binds every unit it writes to this
+registry found that three quantities in its model could not be written at all: the
 curvature of a hull's line, in `m⁻¹`; a Gaussian curvature, in `m⁻²`; and a floor loading stated
 as a mass per area, in `kg/m²`. `v0.5.0` held 22 units and none of these.
 
@@ -850,10 +850,10 @@ several ranges had been left out, each with a note explaining why.
 range has the canonical `bounds` shape, so either end can be open or exclusive. An
 optional `basis` per end records the source's own authority label, in the `bounds_basis`
 vocabulary, so a `conceptual` ceiling that a tool reports without refusing is not recorded
-as a limit. `tools/consumers.yaml` names one source per kind, and the checker compares
-each recorded range only with a source of the same kind. It also fails when a source
-declares a range for a recorded identifier that the record leaves out. Before, it only
-checked ranges that had been recorded.
+as a limit. The consumer registry named one source per kind, and the checker compared
+each recorded range only with a source of the same kind, and failed when a source
+declared a range for a recorded identifier that the record left out. Both were retired
+in Round 14.
 
 Existing records were migrated by kind and nothing else: tool ranges read from a
 validation table became `validity`, and optimiser and design-study ranges became `search`.
@@ -933,6 +933,34 @@ The Part 25 text in the first section was read from govinfo's 2025-01-01 CFR edi
 because eCFR refused the fetch. eCFR's version history shows no amendment to §§ 25.521-25.537
 after 2023 or to Appendix B after 2016, but no entry here relies on that text for a value.
 
+## Round 14 — a public vocabulary records only public sources (2026-09-23)
+
+This corpus is published as a shared, public set of definitions. Until this round it also
+recorded, by name, how several private design tools spelled and bounded its parameters,
+and it shipped a checker that read those tools' source from sibling directories. Neither
+belongs in a public resource: a reader cannot check a claim about a tool they cannot see,
+and the records served the tools' maintainers, not the corpus's readers.
+
+- **Every `implementations` record about a private tool is removed**: 27 records across
+  `chine-flare`, `deadrise` and `hull-stations`. The records of NACA ARR 4F15, a published
+  report, stay, and they are why the kind `tested` exists.
+- **`tools/check_consumers.py`, its self-tests and `tools/consumers.yaml` are retired**, with
+  both CI steps that ran them. Their only inputs were private repositories.
+- **Prose that named a private tool now says "a design tool"** or states the general
+  failure. That covers constraint notes, a figure record, the build script, the README's
+  findings section (now "What the layer catches", a table of failure modes with the entry
+  that names each), and the earlier rounds of this log. No finding was removed. Each lesson
+  stands without knowing which tool taught it.
+- `schema/README.md` and the schema now say that `implementations` records public sources
+  only.
+
+The earlier rounds are otherwise unchanged. Git history keeps what they said before, and
+this round records that the names were removed, not that they were never there.
+
+CI now runs `tools/test_validate_units.py` and `tools/test_validate_vocabularies.py`,
+which were open items. Retiring the consumer self-tests would otherwise have left the
+workflow running no self-tests at all.
+
 ## Open items
 
 - [x] ~~Characterise pre-2017 amendments for §§ 25.345, 25.349, 25.473, 25.479, 25.807~~ — closed to 1997 by diffing govinfo annual CFR granules; substantive changes recorded in `history` blocks
@@ -952,11 +980,8 @@ after 2023 or to Appendix B after 2016, but no entry here relies on that text fo
 - [ ] § 25.485 and the remaining ground load sections referenced by the upstreamed 25.473 file are not read
 - [ ] ANC-3 alternate standard not yet located or assessed — now blocking two items rather than one
 - [ ] CS-25 Appendix S (water scooping) — no primary text obtained; all secondary
-- [ ] Extend `parameters/` scope beyond `geometry.` — the weights, speeds and inertia families reach Flightforge through seed_state and have no declared consumer mapping yet
-- [ ] No consumer carries an auxiliary float deadrise, so the § 25.535 load path has no geometry source anywhere in the ecosystem
-- [x] ~~AeroGit carries no chine flare, so the § 25.533(b)(1)-versus-(b)(2) selector is lost at the layer that versions the design~~ — AeroGit now declares `chine_flare_deg` and aliases it to the key the amphibious plugin selects on. It passes the angle and does not choose the path itself, which is right: the choice belongs to whatever evaluates the pressures
 - [ ] The weights are forces in `lbf`, as the regulation writes them. A consumer that is SI inside carries mass in `kg`, and nothing here yet says that the two relate by standard gravity, `9.806 65 m/s²` exactly. `unit:LB_F`'s record now holds the number; no parameter holds the statement
-- [ ] `.github/workflows/verify.yml` does not run `tools/test_validate_units.py`. It runs `test_check_consumers.py` the same way; one more step would cover the unit rules. Staleness of `dist/units.json` is already caught, since the workflow now diffs all of `dist/`
+- [x] ~~`.github/workflows/verify.yml` does not run `tools/test_validate_units.py`~~ — it runs it, and `test_validate_vocabularies.py`, from Round 14
 - [ ] `wing-taper-ratio` has no entry: NACA Report 474 defines taper and no ratio. Needs a primary source that defines the ratio and says which root chord
 - [ ] Report 474 is silent on tip floats and tip devices in the span, on a dorsal fin, and on how twin fins are summed. Each entry says so; none is resolved
 - [ ] Does § 25.535 (auxiliary floats) reach a sponson or a stub-wing stabilizer, which are part of the hull? `lateral-stabilization-on-water` records that the question is open

@@ -79,7 +79,7 @@
       formula image EC28SE91.040 read directly
     notes: >-
       The corpus previously carried C3 as a bare constant with no expression,
-      while downstream flightforge implemented this formula anyway. A constant
+      while a downstream design tool implemented this formula anyway. A constant
       without its formula is not an encoding of the rule.
 
       Note which deadrise this takes: beta at the appropriate station, NOT

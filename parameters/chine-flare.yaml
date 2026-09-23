@@ -64,62 +64,6 @@
         The 0.75 * P_k chine ratio is stated for the unflared bottom. For the
         flared case, 25.533(b)(2) gives the chine pressure its own formula and
         the distribution between chine and start-of-flare varies linearly.
-  implementations:
-    - system: amphix-auto-engineer
-      identifier: chine_flare
-      unit: unit:DEG
-      bounds:
-        search: {min: 0.0, max: 15.0}
-      notes: >-
-        Bounds SPAN the regulatory case boundary: 0.0 is the unflared case,
-        anything above it is the flared case. A design search over this range
-        therefore crosses between two different regulatory formulas with
-        different empirical constants. Whether the pressure model switches
-        accordingly is a checkable claim about the implementation, and is
-        exactly the kind of check this mapping exists to make possible.
-    - system: loftline
-      identifier: chine_flare_deg
-      unit: unit:DEG
-      bounds:
-        validity: {min: 0.0, max: 45.0}
-      status: exact
-      notes: >-
-        Documented as flare "at the step", which is narrower than the flared
-        bottom condition of 25.533(b)(2) -- that one is a property of a
-        station, so a hull flared aft of the step and straight forward of it
-        cannot be expressed.
-    - system: aerogit
-      identifier: chine_flare_deg
-      unit: unit:DEG
-      bounds:
-        validity: {min: 0.0, basis: {min: conceptual}}
-      status: exact
-      finding: >-
-        Resolved. AeroGit previously carried no chine flare at all, so the
-        facet could not express which of the two 25.533(b) paths a design
-        took, and the regulatory selector was lost precisely at the layer that
-        versions the design and gates the pull request. It now declares the
-        angle and aliases it to geometry.hull.chine_flare_deg.
-      notes: >-
-        Declared with a conceptual minimum of zero and NO maximum, on the
-        stated grounds that this corpus fixes no canonical bound while
-        Loftline admits 45 degrees and Flightforge searches to 20 -- so any
-        ceiling chosen here would refuse a hull the tool upstream of the
-        geometry accepts. Omitted here until bounds were keyed by kind, since
-        a [min, max] pair could not express a half-open range.
-        AeroGit selects nothing itself; it passes the angle and leaves the
-        (b)(1)-versus-(b)(2) choice to the amphibious plugin.
-    - system: flightforge
-      identifier: geometry.hull.chine_flare_deg
-      unit: unit:DEG
-      bounds:
-        search: {min: 0.0, max: 20.0}
-      status: exact
-      notes: >-
-        Carried AND used as the selector: water_loads.py switches to the flared
-        path on flare > 1.0 degree. That 1 degree threshold is an
-        implementation choice, not a regulatory one -- 25.533(b) distinguishes
-        flared from unflared without a numeric cut.
   verification:
     status: verified
     checked_against: >-

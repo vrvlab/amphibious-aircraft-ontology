@@ -101,8 +101,8 @@
     - cfr-25.533-b2-flared-chine-pressure
   notes: >-
     Read 2026-08-13. The corpus carried C3 as a bare constant with no formula
-    until this image was read, while flightforge had implemented the formula
-    anyway. A constant without its formula is not an encoding of the rule.
+    until this image was read, while a downstream design tool had implemented
+    the formula anyway. A constant without its formula is not an encoding of the rule.
 
 - id: EC28SE91.041
   url: https://img.federalregister.gov/EC28SE91.041/EC28SE91.041_large.png

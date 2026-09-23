@@ -35,8 +35,8 @@
     notes: >-
       Because the endpoint is definitional, a tool carrying both a "step
       fraction" and a "forebody fraction" that are permitted to differ has two
-      candidate values for L_f and no rule for choosing. All three repository
-      consumers do exactly that.
+      candidate values for L_f and no rule for choosing. A tool that carries
+      both should say which one Appendix B reads.
   bounds:
     min: 0.0
     min_exclusive: true
@@ -51,49 +51,6 @@
       symbol: L_f
       relationship: identical
   distinct_from: [spray-forebody-length, afterbody-length]
-  implementations:
-    - system: loftline
-      identifier: forebody_fraction
-      unit: unit:UNITLESS
-      bounds:
-        validity: {min: 0.1, max: 0.95}
-      status: conflated
-      finding: >-
-        Declared separately from step_fraction and defaulting to it when
-        omitted, so the two are permitted to differ. For Appendix B they cannot.
-      notes: A fraction of overall hull length, not an absolute length.
-    - system: aerogit
-      identifier: step_fraction
-      bounds:
-        validity:
-          min: 0.0
-          min_exclusive: true
-          max: 1.0
-          max_exclusive: true
-          basis: {min: mathematical, max: mathematical}
-      status: renamed
-      finding: >-
-        Same quantity as Loftline's forebody_fraction and Flightforge's
-        step_fraction, under the third of three spellings. Neither name is
-        wrong; carrying both is.
-      notes: >-
-        Corrected. This entry previously named AeroGit's L_forebody_fraction,
-        read from a facet description that said "Forebody length as a fraction
-        of hull length" -- which reads as this parameter. Its alias table sends
-        that key to Flightforge's L_forebody_fraction, the spray length, and
-        AeroGit's step_fraction is what carries L_f. The description was the
-        thing that was wrong and has since been corrected upstream; recorded
-        here because a mapping read from prose is only as good as the prose.
-    - system: flightforge
-      identifier: geometry.hull.step_fraction
-      unit: unit:UNITLESS
-      bounds:
-        search: {min: 0.4, max: 0.6}
-      status: renamed
-      finding: >-
-        The step station is the correct source for L_f. Flightforge also
-        carries a separate L_forebody_fraction, which is the spray length —
-        see spray-forebody-length.
   verification:
     status: verified
     checked_against: >-
@@ -118,8 +75,8 @@
       Set by whichever correlation is in use, not by the main step. This is the
       whole point of the separate entry.
     source: >-
-      Not a regulatory quantity. Parkinson spray correlations as applied in
-      flightforge's amphibious plugin.
+      Not a regulatory quantity. The forebody length of Parkinson-type spray
+      correlations.
     notes: >-
       Declared so that the distinction from forebody-length is nameable and the
       conflation is checkable. It is legitimate for a tool to carry both.
@@ -135,50 +92,12 @@
         K1 and K2 discontinuity away from the physical step. No constraint in
         this corpus consumes this parameter.
   distinct_from: [forebody-length]
-  implementations:
-    - system: flightforge
-      identifier: geometry.hull.L_forebody_fraction
-      unit: unit:UNITLESS
-      bounds:
-        search: {min: 0.45, max: 0.65}
-      status: exact
-      finding: >-
-        This one is right, and is why the two forebody lengths are separate
-        parameters at all. Flightforge's own note reads "Parkinson spray L_f".
-        Its search range overlaps but does not coincide with step_fraction's,
-        confirming the two are treated as independent quantities there.
-    - system: loftline
-      identifier: null
-      status: absent
-      finding: >-
-        Loftline carries one forebody_fraction whose documentation does not say
-        which meaning it holds.
-    - system: aerogit
-      identifier: L_forebody_fraction
-      unit: unit:UNITLESS
-      bounds:
-        validity:
-          min: 0.0
-          min_exclusive: true
-          max: 1.0
-          max_exclusive: true
-          basis: {min: mathematical, max: mathematical}
-      status: renamed
-      finding: >-
-        Carried, and correctly wired: AeroGit's alias table sends this key to
-        Flightforge's L_forebody_fraction, the spray length, and not to the
-        step station. Previously recorded absent here, from a description that
-        called it the forebody length -- see the note on forebody-length.
-      notes: >-
-        Bounds are an open interval on (0, 1) as a fraction of hull length, a
-        validity range. Omitted until bounds were keyed by kind, since the pair
-        could not express an open interval.
   verification:
     status: interpretation
     checked_against: >-
-      Not a regulatory quantity and not stated in 14 CFR. Recorded because
-      three tools exchange a field of this name and two distinct lengths
-      between them.
+      Not a regulatory quantity and not stated in 14 CFR. Recorded because it
+      shares a name with the step station, forebody-length, and substituting
+      one for the other moves the Appendix B discontinuity.
   tags: [hull, geometry, hydrodynamics]
 
 - id: afterbody-length
@@ -214,19 +133,6 @@
       symbol: L_a
       relationship: identical
   distinct_from: [forebody-length]
-  implementations:
-    - system: loftline
-      identifier: null
-      status: absent
-      finding: >-
-        Derivable as length minus the step station, but not declared, so the
-        afterbody branch of K1 and K2 has no named input.
-    - system: aerogit
-      identifier: null
-      status: absent
-    - system: flightforge
-      identifier: null
-      status: absent
   verification:
     status: verified
     checked_against: >-

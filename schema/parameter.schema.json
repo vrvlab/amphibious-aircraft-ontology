@@ -139,7 +139,7 @@
           "items": {
             "$ref": "#/$defs/implementation"
           },
-          "description": "Where the quantity appears in real tools. Descriptive, not normative."
+          "description": "Where the quantity appears in a published source: a report, a standard, a dataset, or a tool anyone can read. Descriptive, not normative. Only public sources are recorded, since a claim about a private tool is one no reader can check."
         },
         "verification": {
           "type": "object",
@@ -218,7 +218,8 @@
       "properties": {
         "system": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "The public source, named so a reader can find it, e.g. \"NACA ARR 4F15 (Davidson & Locke 1944)\"."
         },
         "identifier": {
           "type": [
@@ -235,7 +236,7 @@
           "type": "object",
           "additionalProperties": false,
           "minProperties": 1,
-          "description": "That system's declared ranges, recorded as they stand today and keyed by what KIND of range each one is. A search box and a validity limit are different claims, and comparing one against the other reports a conflict that is not there. tools/check_consumers.py re-reads each kind from the source that declares it and fails if a recorded range has gone stale, or if a source declares a range this record omits.",
+          "description": "The ranges that source declares, keyed by what KIND of range each one is. A search box and a validity limit are different claims, and comparing one against the other reports a conflict that is not there.",
           "properties": {
             "validity": {
               "$ref": "#/$defs/range",

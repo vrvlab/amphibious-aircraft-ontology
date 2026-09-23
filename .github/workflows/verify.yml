@@ -32,10 +32,12 @@ jobs:
       - name: Worked test cases reproduce
         run: python tools/run_tests.py --verbose
 
-      - name: Consumer checker self-checks
-        # The absent-claim check is the half that was missing; these pin it so
-        # it cannot go quiet again without CI saying so.
-        run: python tools/test_check_consumers.py
+      - name: Validator self-checks
+        # Each breaks a copy of the corpus one way at a time and requires the
+        # validator to refuse it, so a rule cannot go quiet unnoticed.
+        run: |
+          python tools/test_validate_units.py
+          python tools/test_validate_vocabularies.py
 
       - name: Build artifacts are current
         # dist/ is committed so consumers can vendor single files. Regenerating
@@ -49,8 +51,3 @@ jobs:
             exit 1
           fi
 
-      - name: Consumer conformance (advisory)
-        # Reports where downstream parameter vocabularies diverge from
-        # parameters/. Advisory here because the consumer repos are not
-        # checked out in this job; it runs for real in their own CI.
-        run: python tools/check_consumers.py --report-only

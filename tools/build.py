@@ -3,11 +3,11 @@
 
 Why a build artifact at all, when the YAML is right there:
 
-  * Consumers should not need a YAML parser. Flightforge ships with no runtime
-    dependencies and its test suite keeps the same rule, which is why it was
-    scraping the corpus with a regex. AeroGit is Rust and carries no YAML
-    dependency either. A single JSON file is readable from the standard
-    library of every language involved.
+  * Consumers should not need a YAML parser. A tool with no runtime
+    dependencies otherwise ends up scraping the corpus with a regex, and a tool
+    in a language without a YAML library in its standard distribution needs
+    a dependency to read it at all. A single JSON file is readable from the
+    standard library of every language likely to consume it.
   * Vendoring one file is reviewable. Vendoring a directory is not.
   * An id index means a consumer pins `cfr-25.527-b2-c1-value` rather than a
     line number or a file offset.

@@ -139,15 +139,14 @@ disturbed when a parameter mapping changes, and vice versa. Take `parameters.jso
 need to know what a quantity in your own tool corresponds to; take `constraints.json` if you
 need to know what the regulation requires of it. Most consumers eventually want both.
 
-Do not transcribe constants into your own source. That is how `flightforge` came to carry
-`C4 = 0.078 · C1` as a Python literal alongside a formula the corpus had never encoded, and
-how the 2.33 step load floor came to be implemented downstream from a key no schema
-declared. Load the entry and assert against it.
+Do not transcribe constants into your own source. That is how one design tool came to carry
+`C4 = 0.078 · C1` as a literal alongside a formula the corpus had never encoded, and how the
+2.33 step load floor came to be implemented downstream from a key no schema declared. Load the entry and assert against it.
 
 Everything is checked on every push:
 
 ```bash
-python3 tools/validate.py && python3 tools/run_tests.py && python3 tools/check_consumers.py
+python3 tools/validate.py && python3 tools/run_tests.py
 ```
 
 `validate.py` enforces both schemas, id uniqueness across the whole corpus, cross-reference
@@ -176,23 +175,18 @@ Anything other than `identical` must carry a caveat explaining the difference; t
 
 **`selects` is why this layer is worth building.** Chine flare is a plain angle in degrees — a units registry would confirm that and catch nothing else. But its *value* decides whether § 25.533(b)(1) applies with `C₂ = 0.00213` or § 25.533(b)(2) applies with `C₃ = 0.0016`. A tool that carries a flare parameter and always evaluates the unflared formula is non-compliant in a way no unit check and no bounds check would ever detect.
 
-### What the layer found
+### What the layer catches
 
-Each parameter records where it appears in real tools, under what name and with what bounds. Three consuming projects had independently invented three vocabularies for the same hull:
+Each failure below is one a design tool can make while every unit check and every bounds check passes. Each has a parameter entry that names it:
 
-| | Ontology | Loftline | AeroGit | Flightforge |
-| --- | --- | --- | --- | --- |
-| deadrise | three distinct angles — `beta` at station, `beta_k` at keel, `beta` at the step | one `deadrise_deg`, `0.0–60.0` | one `deadrise_deg`, `>0–45` | one `deadrise_deg`, `10–25` |
-| forebody | `L_f` — the step station, definitionally | `forebody_fraction`, may differ from `step_fraction` | `step_fraction`, plus a spray `L_forebody_fraction` | `step_fraction`, plus a Parkinson spray `L_forebody_fraction` |
-| chine flare | selects § 25.533(b)(1) vs (b)(2) | carried | carried | carried, switches on flare > 1° |
-
-Two of those are live defects. Loftline admits `deadrise_deg = 0.0` inclusive, and § 25.533 divides by `tan β` — that hull is not flat-bottomed, it is *undefined*; AeroGit made the same bound exclusive for exactly this reason, and Flightforge's `_tan_deg` floors the angle at 1°, which is a numerical guard doing a validation job. And "forebody fraction" names two different lengths across the three: all three carry both a step fraction and a forebody fraction that are permitted to differ, which for Appendix B they cannot.
-
-Two findings have since been closed by the projects they were filed against, which is what the layer is for. AeroGit now carries chine flare, so the § 25.533(b) selector survives the layer that versions the design; and it enforces the `regulatory` / `mathematical` / `conceptual` distinction on its own bounds, so its 45° ceiling reports an unusual hull rather than refusing one Loftline accepts.
-
-A third finding is an absence: § 25.535 auxiliary float loads are fully encoded, and **no consumer carries a float deadrise for them to act on**.
-
-[`tools/check_consumers.py`](tools/check_consumers.py) reads each project's own source read-only and fails if an `implementations` claim goes stale in either direction — so a conflation cannot be quietly fixed, or quietly introduced, without this repo noticing.
+| Failure | What goes wrong | Entry |
+| --- | --- | --- |
+| One deadrise for three angles | The regulation uses `beta` at a station, `beta_k` at the keel and `beta` at the step. A single hull-wide `deadrise` value feeds all three, and understates `P_k` wherever the keel angle is the steeper one | `deadrise-at-station`, `deadrise-at-keel`, `deadrise-at-main-step` |
+| A zero deadrise admitted | § 25.533 divides by `tan β`. A hull with zero deadrise is not flat-bottomed; it is *undefined*. A numerical floor inside the formula turns that into a finite, wrong pressure | `deadrise-at-keel` (`min_exclusive`, `mathematical`) |
+| Two "forebody" lengths | Appendix B's `L_f` ends at the main step by definition. Spray correlations use a different forebody length, and a tool carrying both, permitted to differ, has two candidates and no rule | `forebody-length`, `spray-forebody-length` |
+| The flare selector dropped | Chine flare's value selects § 25.533(b)(1) or (b)(2), with different constants. A layer that does not carry it loses which rule applies | `chine-flare` (`selects`) |
+| One `b`, two beams | NACA's Stevens and Langley series both write `C_Δ = Δ/(w b³)`, one with the beam at the step and one with the maximum beam | `beam-at-main-step`, `maximum-beam` |
+| A search box read as a limit | An optimiser's range is not what a tool accepts. Compared as if it were, two agreeing tools appear to disagree | `implementations[].bounds`, keyed by kind |
 
 ### Units follow QUDT and CPACS
 

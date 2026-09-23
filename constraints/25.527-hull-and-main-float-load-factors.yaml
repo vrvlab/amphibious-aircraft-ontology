@@ -135,8 +135,8 @@
     notes: >-
       Promoted from a `notes_additional_bound` key on cfr-25.527-b2-c1-value,
       which no schema declared and therefore no consumer could read. It was
-      nonetheless being implemented downstream (flightforge's c1_for_step),
-      i.e. a load-bearing rule was travelling as a comment.
+      nonetheless being implemented by a downstream design tool, i.e. a
+      load-bearing rule was travelling as a comment.
 
       The floor operates on C1, not on n_w: the parenthesis reads "except that
       this factor may not be less than that necessary to obtain the minimum

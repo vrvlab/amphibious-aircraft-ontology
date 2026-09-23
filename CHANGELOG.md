@@ -5,6 +5,27 @@ Each edition against the one before, computed from `dist/`. From the first
 edition after v0.6.0 the edition promise holds (docs/CONOPS.md), and a
 change that breaks it is named here.
 
+## v0.7.0
+
+### constraints
+
+- **Changed:** `cfr-25.527-b2-step-load-factor-floor` (verification)
+- **Changed:** `cfr-25.533-b2-flared-chine-pressure` (verification)
+- **Changed:** `cfr-25.807-g-seats-per-exit` (verification)
+
+### parameters
+
+- **Added:** `beam-at-main-step`, `draft-at-main-step`, `hull-length`, `maximum-beam`
+- **Changed:** `afterbody-length` (implementations)
+- **Changed:** `chine-flare` (implementations)
+- **Changed:** `deadrise-at-keel` (implementations)
+- **Changed:** `deadrise-at-main-step` (implementations)
+- **Changed:** `deadrise-at-station` (implementations)
+- **Changed:** `deadrise-auxiliary-float` (implementations)
+- **Changed:** `forebody-length` (implementations, measurement_convention)
+- **Changed:** `spray-forebody-length` (implementations, measurement_convention, verification)
+- **Changed:** `vertical-tail-area` (measurement_convention, verification)
+
 ## v0.6.0
 
 ### units

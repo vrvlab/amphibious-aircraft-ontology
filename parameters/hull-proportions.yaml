@@ -47,10 +47,17 @@
     source: >-
       NACA ARR 4F15, p. 11 (symbol L) and Table I, p. 26; NACA TN 1570, p. 3
       (symbol L); NACA ARR L5G23, Table I, p. 11.
+    line: >-
+      DEFINED HERE: measured parallel to the hull's base line, the reference
+      line its stations are measured along. Not along the keel, and not
+      horizontally at rest.
     notes: >-
       None of the three reports says along which line the length is measured:
       along the keel, along the hull reference axis, or horizontally. On a hull
-      with a rising afterbody keel the three differ.
+      with a rising afterbody keel the three differ. ARR 4F15 Figure 7 draws two
+      candidates 2 degrees apart, the keel tangent at the step and a base line,
+      with stations in inches aft of F.P. The line is therefore the ontology's
+      choice; see verification.rationale.
       A READING, NOT A SOURCE'S TEXT: 14 CFR 25.529(a) measures the bow landing
       station from the bow to the step and the stern landing station from the
       step to the sternpost, so forebody-length plus afterbody-length spans
@@ -70,19 +77,31 @@
     Every quantity stated as a fraction of hull length divides by it.
   distinct_from: [forebody-length, afterbody-length]
   verification:
-    status: verified
+    status: defined
     checked_against: >-
       Read from the NTRS scans, page images and not only the text layer: NACA
       ARR 4F15 (Davidson and Locke, June 1944), citation 19930093044, PDF sha256
-      fdbb07cd2b81...a8f5, pp. 11 and 26; NACA TN 1570 (Carter and Haar, April
-      1948), citation 19930082382, sha256 2a1555ccebf7...957f, p. 3; NACA ARR
-      L5G23 (Land, Bidwell and Goldenbaum, October 1945), citation 19930093020,
-      sha256 c3cb5500945f...1db8, Table I, p. 11. All fetched 2026-09-23.
+      fdbb07cd2b81...a8f5, pp. 11 and 26 and Figure 7; NACA TN 1570 (Carter and
+      Haar, April 1948), citation 19930082382, sha256 2a1555ccebf7...957f, p. 3;
+      NACA ARR L5G23 (Land, Bidwell and Goldenbaum, October 1945), citation
+      19930093020, sha256 c3cb5500945f...1db8, Table I, p. 11; NACA ARR (Locke,
+      March 1943), citation 19930093017. All fetched 2026-09-23. The bounded
+      search for the measuring line (docs/CONOPS.md) ended with these: none
+      states it.
+    rationale: >-
+      The base line is the axis a hull's stations are measured along, so
+      forebody-length and afterbody-length, which run bow to step and step to
+      sternpost, add to this length exactly when all three are taken along it.
+      It is a property of the hull's lines alone. The keel is not straight
+      (the step, a rising afterbody) and would need a further rule, and a
+      horizontal length at rest would depend on load and trim, as draft does.
+      Read by every length-beam ratio. Chosen by the designer, 2026-09-23.
     notes: >-
-      The reports read agree on forepoint (or F.P.) to sternpost, and ARR
-      L5G23 applies it across the DVL, NACA and Stevens series alike, so this
-      entry is verified as to endpoints. The measuring line is stated
-      by none of them and is recorded above as open, not assumed.
+      The endpoints are the sources': the reports read agree on forepoint (or
+      F.P.) to sternpost, and ARR L5G23 applies it across the DVL, NACA and
+      Stevens series alike. The line is the ontology's. A value from a report
+      measured along another line differs by the cosine of the angle between
+      them: 0.06 percent at ARR 4F15's 2 degrees.
   tags: [hull, geometry, hydrodynamics]
 
 - id: beam-at-main-step
@@ -98,9 +117,9 @@
     it.
   measurement_convention:
     datum: >-
-      Transverse, in the section at the main step. The source does not say
-      whether the beam is taken over the chines, over any spray strips, or over
-      the flare.
+      Transverse, in the section at the main step, over the chines, excluding
+      spray strips. The source does not say what the beam is taken over; the
+      over-chines convention is DEFINED HERE, as for maximum-beam.
     station: At the main step.
     source: >-
       NACA ARR 4F15, p. 11: "b beam at main step, feet", in the definitions of
@@ -124,13 +143,25 @@
     resistance coefficients.
   distinct_from: [maximum-beam]
   verification:
-    status: verified
+    status: defined
     checked_against: >-
       NACA ARR 4F15 (June 1944), NTRS citation 19930093044, PDF sha256
       fdbb07cd2b81...a8f5, pp. 11 and 26 read from the page images; NACA Report
       766 (1943), citation 19930091845, sha256 bfd856295b36...4598, p. 7; NACA
       ARR (Locke, March 1943), citation 19930093017, sha256 dc018c4e78ca...b71b,
-      p. 3. All fetched 2026-09-23.
+      p. 3. All fetched 2026-09-23. None of them says what the beam is taken
+      over; the bounded search ended there.
+    rationale: >-
+      Over the chines, excluding spray strips, agrees with ITTC's maximum
+      breadth over chines for a hard-chine planing hull, B_PX (see
+      maximum-beam), and makes this beam and maximum-beam comparable wherever
+      a hull is widest at the step. The chine is the line the planing bottom
+      ends at, which is what the load and resistance coefficients scale by.
+      Read by every Stevens-series coefficient and every length-beam ratio.
+      Chosen by the designer, 2026-09-23.
+    notes: >-
+      The station and the name are the sources'; what the beam is taken over
+      is the ontology's.
   tags: [hull, geometry, hydrodynamics]
 
 - id: maximum-beam
@@ -146,11 +177,12 @@
     maximum beam "was chosen as the characteristic dimension".
   measurement_convention:
     datum: >-
-      Transverse. The NACA sources do not say whether the beam is taken over the
-      chines, over spray strips, or over the flare. ITTC, for a hard-chine
-      planing hull, defines a maximum breadth over chines, B_PX, "excluding
-      external spray strips"; whether Langley measured the same way is not
-      stated.
+      Transverse, over the chines, excluding spray strips: DEFINED HERE. The
+      NACA sources do not say whether the beam is taken over the chines, over
+      spray strips, or over the flare. ITTC, for a hard-chine planing hull,
+      defines a maximum breadth over chines, B_PX, "excluding external spray
+      strips", and this entry agrees with it; whether Langley measured the same
+      way is not stated.
     station: >-
       The station of greatest beam, which need not be the step. On Report 766's
       model 84 it is station 10, "maximum beam", while step depth is stated
@@ -172,7 +204,7 @@
     resistance coefficients.
   distinct_from: [beam-at-main-step]
   verification:
-    status: verified
+    status: defined
     checked_against: >-
       NACA Report 766 (Parkinson, Olson, Draley and Luoma, 1943), NTRS citation
       19930091845, PDF sha256 bfd856295b36...4598, pp. 7 and 9; NACA TN 1570
@@ -180,10 +212,17 @@
       ITTC Symbols and Terminology List, Version 2024, PDF sha256
       5eb1eb88af50...77ee, section 3.1.1. All read from the page images or the
       publisher's PDF, fetched 2026-09-23.
+    rationale: >-
+      The Langley definition gives the station; what the beam is taken over it
+      leaves open. Over the chines, excluding spray strips, is the convention
+      of ITTC's B_PX, the one public standard read that states one for a
+      hard-chine planing hull, and the same one beam-at-main-step uses, so the
+      two beams differ only in station. Read by every Langley-series
+      coefficient. Chosen by the designer, 2026-09-23.
     notes: >-
-      Verified as to the Langley definition. The ITTC breadth is cited for its
-      over-chines convention, which the NACA reports leave unstated; it is not
-      claimed to be the same measurement.
+      The station is Langley's; the convention is the ontology's and agrees
+      with ITTC's. A Langley value is not thereby claimed to have been measured
+      over the chines.
   tags: [hull, geometry, hydrodynamics]
 
 - id: draft-at-main-step

@@ -25,6 +25,10 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
           "description": "Stable slug, e.g. cfr-25.527-a1. Must be unique across the whole corpus, not just within a file. Never reuse or repurpose an id: downstream consumers pin them."
         },
+        "superseded_by": {
+          "type": "string",
+          "description": "The constraint id that replaces this one, as when one entry is split in two. A rule that follows an amendment keeps its id; this is for an entry whose meaning is replaced. Checked to resolve to a constraint that is not itself superseded."
+        },
         "title": {
           "type": "string",
           "minLength": 1

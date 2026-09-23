@@ -165,6 +165,28 @@ searched chine flare over 0 to 20 degrees, another accepted 0 to 45, and recorde
 pairs the two looked like a disagreement over which hulls are valid. Issue #8 was opened
 on that reading. They are two different kinds of claim, and cannot conflict.
 
+## A definition's status, and `superseded_by`
+
+A parameter or a vocabulary is a **definition**; a constraint is a **rule**
+([`docs/CONOPS.md`](../docs/CONOPS.md), *Two kinds of entry*). A definition may carry one
+status a rule may not:
+
+- `defined` — the ontology sets the meaning, or the part of it no source read states. The
+  entry must carry `verification.rationale`: why this convention, and what reads it. Its
+  `checked_against` still names what was read, and the bounded search that was made, so the
+  next reader does not repeat it.
+
+The validator refuses `defined` on a constraint and on a unit, whose meanings are the
+regulation's and the SI Brochure's. A parameter's `measurement_convention.line` says along
+what it is measured, where more than one line would give a different number.
+
+`superseded_by`, on a constraint, a parameter or a vocabulary, names the id that replaces an
+entry whose meaning is replaced. A meaning never changes under an id. The replacement must
+exist in the same layer and must not itself be superseded, so a consumer following the
+pointer lands on a current entry. An id is removed only after an edition in which it was
+superseded, and [`tools/changelog.py`](../tools/changelog.py) `--promise` refuses one that
+was not.
+
 ## `kind: note`
 
 An entry that is not a quantity a tool holds — a recorded consequence of modelling, kept

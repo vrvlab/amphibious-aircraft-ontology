@@ -75,7 +75,10 @@ _FIGURE_RE = re.compile(r"\bEC[0-9A-Z]+\.[0-9]+\b")
 _SECTION_RE = re.compile(r"^(\d+\.\d+)")
 
 RELATIONSHIPS = {"identical", "discretization", "subset", "derived", "selects"}
-STATUSES = {"verified", "partial", "unverified", "interpretation"}
+#: A rule's meaning is the regulation's; a definition's is the ontology's
+#: (docs/CONOPS.md, Two kinds of entry). Only a definition may be `defined`.
+RULE_STATUSES = {"verified", "partial", "unverified", "interpretation"}
+DEFINITION_STATUSES = RULE_STATUSES | {"defined"}
 
 #: Tokens that appear in expressions but are operators, calls or literals
 #: rather than declared quantities.
@@ -290,8 +293,12 @@ def main() -> int:
             seen[cid] = path.name
             constraint_ids.add(cid)
             st = (entry.get("verification") or {}).get("status")
-            if st not in STATUSES:
-                errors.append(f"{cid}: verification.status {st!r} not in {sorted(STATUSES)}")
+            if st not in RULE_STATUSES:
+                errors.append(
+                    f"{cid}: verification.status {st!r} not in {sorted(RULE_STATUSES)}"
+                    + (": a rule's meaning is the regulation's, so it is never `defined`"
+                       if st == "defined" else "")
+                )
 
             # Join to the source registry. An entry that cites a section
             # nobody has registered has no recorded edition, no amendment
@@ -370,8 +377,10 @@ def main() -> int:
                 errors.append(f"{pid}: quantity_kind {qk!r} is measured by no unit in units/")
 
             st = (entry.get("verification") or {}).get("status")
-            if st not in STATUSES:
-                errors.append(f"{pid}: verification.status {st!r} not in {sorted(STATUSES)}")
+            if st not in DEFINITION_STATUSES:
+                errors.append(
+                    f"{pid}: verification.status {st!r} not in {sorted(DEFINITION_STATUSES)}"
+                )
 
             for m in entry.get("regulatory_mapping") or []:
                 cid, rel = m.get("constraint"), m.get("relationship")
@@ -419,8 +428,10 @@ def main() -> int:
         json.loads(VOCABULARY_SCHEMA.read_text(encoding="utf-8"))
     )
     vocabulary_ids: set[str] = set()
+    vocabularies: list[dict] = []
     for path in sorted(VOCABULARIES.glob("*.yaml")):
         entries = load(path)
+        vocabularies.extend(entries)
         for err in vocabulary_validator.iter_errors(entries):
             where = "".join(f"[{p!r}]" for p in err.absolute_path)
             errors.append(f"{path.name}{where}: {err.message}")
@@ -449,6 +460,32 @@ def main() -> int:
                         errors.append(
                             f"{vid}.{value.get('id')}: admits unknown parameter {pid!r}"
                         )
+
+    # ---- superseded ids ----------------------------------------------------
+    # A meaning never changes under an id: a new meaning is a new id, and the
+    # old entry names it. The replacement must exist in the same layer and be
+    # current, or a consumer following the pointer lands on another pointer or
+    # on nothing.
+    layers = (
+        ("constraint", [e for _, es in constraints for e in es]),
+        ("parameter", [e for _, es in parameters for e in es]),
+        ("vocabulary", vocabularies),
+    )
+    for layer, entries in layers:
+        by_id = {e.get("id"): e for e in entries if e.get("id")}
+        for eid, entry in by_id.items():
+            to = entry.get("superseded_by")
+            if to is None:
+                continue
+            if to == eid:
+                errors.append(f"{eid}: superseded_by names itself")
+            elif to not in by_id:
+                errors.append(f"{eid}: superseded_by names {to!r}, which is no {layer}")
+            elif by_id[to].get("superseded_by"):
+                errors.append(
+                    f"{eid}: superseded_by names {to!r}, which is itself superseded "
+                    f"by {by_id[to]['superseded_by']!r}; name the current one"
+                )
 
     if not quiet:
         print(

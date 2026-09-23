@@ -193,6 +193,9 @@
     station: >-
       The ACTUAL OUTLINE. Unlike the wing and the horizontal tail, nothing is
       extended through the body: the area stops where the fin does.
+      DEFINED HERE: every vertical fin of the aircraft, with its rudder, summed;
+      twin or multiple fins add. A dorsal fin is excluded, as a fairing or
+      fillet is.
     source: >-
       NACA Report No. 474, Nomenclature for Aeronautics, "area, measurement of
       (performance calculations): vertical tail area"
@@ -200,7 +203,7 @@
       The asymmetry with horizontal-tail-area is the reason the two are
       separate entries and not one "tail area" with a direction. Report 474
       does not say whether a dorsal fin is part of the fin, nor how twin fins
-      are summed; a tool must state both.
+      are summed; both are the ontology's, above.
   bounds:
     min: 0.0
   bounds_basis: mathematical
@@ -209,9 +212,16 @@
     aircraft with no vertical tail, and nothing is singular there.
   distinct_from: [horizontal-tail-area]
   verification:
-    status: verified
+    status: defined
     checked_against: >-
       NACA Report No. 474 (reprint of 1939; originally published March 1934),
       the entry "area, measurement of", read from the NTRS scan, citation
-      20100021420.
+      20100021420. It is silent on dorsal fins and on twin fins; the bounded
+      search ended there.
+    rationale: >-
+      Summing the fins makes the area the aircraft's directional surface
+      whatever the arrangement, which is what a tail volume coefficient reads.
+      Excluding the dorsal fin follows Report 474's own rule that fairings and
+      fillets are ignored, and keeps the area to the fin's actual outline.
+      Chosen by the designer, 2026-09-23.
   tags: [tail, geometry, planform]

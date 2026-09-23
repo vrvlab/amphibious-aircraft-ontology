@@ -100,6 +100,11 @@
               "type": "string",
               "minLength": 1
             },
+            "line": {
+              "type": "string",
+              "minLength": 1,
+              "description": "ALONG WHAT the quantity is measured, where more than one line or direction would give a different number: a hull's base line, the keel, the horizontal."
+            },
             "notes": {
               "type": "string"
             }
@@ -154,17 +159,41 @@
                 "verified",
                 "partial",
                 "unverified",
-                "interpretation"
-              ]
+                "interpretation",
+                "defined"
+              ],
+              "description": "defined — the ontology sets the meaning, or the part of it no source read states. It is a definition's status, never a rule's: docs/CONOPS.md, Two kinds of entry."
             },
             "checked_against": {
               "type": "string",
-              "minLength": 1
+              "minLength": 1,
+              "description": "What was read. For a `defined` entry, also the bounded search that was made, so the next reader does not repeat it."
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Why this convention, and what reads it. REQUIRED when status is `defined`: a choice the ontology makes says why."
             },
             "notes": {
               "type": "string"
             }
+          },
+          "if": {
+            "properties": {
+              "status": {
+                "const": "defined"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rationale"
+            ]
           }
+        },
+        "superseded_by": {
+          "type": "string",
+          "description": "The id that replaces this one. A meaning never changes under an id: a new meaning is a new id, and the old one names it here for at least one edition before it may be removed. Checked to resolve to an entry of the same layer that is not itself superseded."
         },
         "tags": {
           "type": "array",

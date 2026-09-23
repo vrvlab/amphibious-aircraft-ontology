@@ -996,6 +996,45 @@ reference entered the rule later, probably with Part 25 in 1964.
   report (Hartman, NACA TN 525, 1935) varies "over-all height" in its Table I, which may
   define the datum on the page image; only its text layer has been read.
 
+## Round 16 — definitions the ontology owns (2026-09-23)
+
+**Sources:** none new. This round changes what an entry needs, not what any source says
+([`docs/CONOPS.md`](CONOPS.md), #17; built under #18).
+
+Rounds 13 to 15 went mostly on searches that could not settle a definition: which of two
+lines 2° apart hull length runs along, a height datum on the page image of a 1935 table,
+ANC-3 as a library request. A rule's meaning is the regulation's, and the search for it goes
+as far as the primary text. A definition's meaning is the ontology's, and the search for its
+source is now one bounded pass; where the sources are silent, the entry chooses and says why,
+with the status `defined`.
+
+### What was re-filed
+
+Every parameter and vocabulary was reviewed for a gap that no source read settles and that
+changes a measured number. Four were closed by the designer's choice, 2026-09-23:
+
+| Entry | Was | Now `defined` |
+|---|---|---|
+| `hull-length` | `verified` as to endpoints, measuring line open | Parallel to the hull's base line, the line its stations run along |
+| `beam-at-main-step` | `verified`, over what not stated | Over the chines, excluding spray strips |
+| `maximum-beam` | `verified`, over what not stated | Over the chines, excluding spray strips, agreeing with ITTC's B_PX |
+| `vertical-tail-area` | `verified`, dorsal fin and twin fins open | Every fin with its rudder, summed; a dorsal fin excluded |
+
+The endpoints, stations and names stay the sources', and each entry's `checked_against`
+still lists what was read.
+
+### What was not re-filed
+
+- **`spray-forebody-length`** stays `interpretation`. Its station is set by the correlation
+  in use, on purpose; the entry exists to keep it apart from `forebody-length`.
+- **`draft-at-main-step`** stays `verified`: three sources state it the same way.
+- **`wing-position`** and **`lateral-stabilization-on-water`** stay `verified`: what Report
+  474 leaves unsaid there is an edge between two values, recorded in the entry, not a gap in
+  a measured quantity.
+- **Whether the Stevens hulls were widest at the step** is a fact about a historical series,
+  not a definition, and stays open. The over-chines convention now makes the two beams
+  comparable wherever a hull is.
+
 ## Open items
 
 - [x] ~~Characterise pre-2017 amendments for §§ 25.345, 25.349, 25.473, 25.479, 25.807~~ — closed to 1997 by diffing govinfo annual CFR granules; substantive changes recorded in `history` blocks
@@ -1018,12 +1057,12 @@ reference entered the rule later, probably with Part 25 in 1964.
 - [ ] The weights are forces in `lbf`, as the regulation writes them. A consumer that is SI inside carries mass in `kg`, and nothing here yet says that the two relate by standard gravity, `9.806 65 m/s²` exactly. `unit:LB_F`'s record now holds the number; no parameter holds the statement
 - [x] ~~`.github/workflows/verify.yml` does not run `tools/test_validate_units.py`~~ — it runs it, and `test_validate_vocabularies.py`, from Round 14
 - [ ] `wing-taper-ratio` has no entry: NACA Report 474 defines taper and no ratio. Needs a primary source that defines the ratio and says which root chord
-- [ ] Report 474 is silent on tip floats and tip devices in the span, on a dorsal fin, and on how twin fins are summed. Each entry says so; none is resolved
+- [ ] Report 474 is silent on tip floats and tip devices in the span. The dorsal fin and twin fins are `defined` in `vertical-tail-area` (Round 16)
 - [ ] Does § 25.535 (auxiliary floats) reach a sponson or a stub-wing stabilizer, which are part of the hull? `lateral-stabilization-on-water` records that the question is open
 - [ ] Vocabularies with no source yet: wing bracing, tail arrangement, float retraction, door and ramp styles. NACA Report 474 has none of them
 - [ ] `applies_to` is a slug with no registry behind it. When a second consumer disagrees about what a `hull` is, it will need one
 - [x] ~~Hull length and beam have no entries~~ — `hull-length`, `beam-at-main-step` and `maximum-beam`, Round 13
-- [ ] Hull depth, waterline length, and the prismatic and block coefficients have no entries (issue #8). Locke's 1943 survey defines none of them (Round 15). Next: Hartman, NACA TN 525, Table I on the page image, for a height datum
-- [ ] ANC-3 not found in any public archive (Round 15). Its exact title may be in the 1964 Part 25 adoption notice, 29 FR 18291; after that it is a library request
-- [ ] Along which line is hull length measured: the keel, the hull reference axis, or horizontally? No NACA report read says. ARR 4F15 Fig. 7 draws two candidates, the keel tangent at the step and a base line, 2° apart
+- [ ] Hull depth, waterline length, and the prismatic and block coefficients have no entries (issue #8). Locke's 1943 survey defines none of them (Round 15). No longer a search: they are definitions to write, `defined` where no source read states them (Round 16)
+- [ ] ANC-3 not found in any public archive (Round 15). Its exact title may be in the 1964 Part 25 adoption notice, 29 FR 18291. A research item: it blocks no definition, and no library request is made for it (Round 16)
+- [x] ~~Along which line is hull length measured?~~ — `defined`: parallel to the hull's base line (Round 16)
 - [ ] Were the Stevens series hulls widest at the step? ARR L5G23 files their step beam as maximum beam; if they were not, that comparison mixes the two. ARR 4F15's body plan, Fig. 5, appears to show it, but the report does not say

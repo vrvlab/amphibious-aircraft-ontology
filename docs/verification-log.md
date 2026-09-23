@@ -865,6 +865,74 @@ The first draft of this change recorded ends that the source labels `conceptual`
 validity limits, which is the same error one level down. It was found in review before
 merging, and is the reason `basis` exists.
 
+## Round 13 — hull length, and two beams where one was assumed (2026-09-23)
+
+**Sources:** NACA ARR 4F15 (Davidson and Locke, June 1944), NACA Report 766 (Parkinson,
+Olson, Draley and Luoma, 1943), NACA TN 1570 (Carter and Haar, April 1948) and NACA ARR
+L5G23 (Land, Bidwell and Goldenbaum, October 1945), each read from its NTRS scan, as page
+images for every page cited, fetched 2026-09-23. *ITTC Symbols and Terminology List*,
+Version 2024, section 3.1.1. 14 CFR 25.521-25.537 and Appendix B figures 1 and 2 were
+searched for the quantities, not read for a value; see the last section.
+
+Issue #8 asked for a shared vocabulary for the hull. A consumer needs hull length, beam,
+depth, waterline length and the prismatic and block coefficients, and this corpus had none
+of them. It now has three entries, in `parameters/hull-proportions.yaml`.
+
+### Part 25 defines none of them
+
+§§ 25.521-25.537 locate their loads by a bow-to-step length and a step-to-sternpost length
+(§ 25.529(a)), along a hull reference axis tangent to the keel at the step (§ 25.527(b)(7)),
+and between the keel and chine lines (§ 25.529(b)(2)). Appendix B's figures carry forebody
+and afterbody lengths and no beam. So the definitions have to come from elsewhere, and the
+NACA tank-test reports are where they were fixed.
+
+### What was read, and what it settled
+
+| Quantity | Read in | Finding |
+|---|---|---|
+| Hull length | ARR 4F15 p. 11, Table I p. 26; TN 1570 p. 3; ARR L5G23 Table I p. 11 | All agree: forepoint (TN 1570's forward perpendicular) to sternpost. L5G23 tabulates **over-all length** separately. For its NACA series the two differ by the tail extension, 114.85 against 83.33 inches for model 144 |
+| Beam at the main step | ARR 4F15 p. 11, Table I p. 26 | Stevens' characteristic dimension. Every coefficient in the report divides by it |
+| Maximum beam | Report 766 p. 9; TN 1570 p. 3 | Langley's characteristic dimension: "the maximum beam was chosen as the characteristic dimension" |
+| Over chines, or over spray strips? | All of the above; ITTC 2024 § 3.1.1 | None of the NACA reports says. ITTC defines a maximum breadth over chines, B_PX, excluding external spray strips, for planing hulls. Cited for its convention, not claimed to be Langley's |
+| Measuring line for length | All of the above | Stated by none: along the keel, the reference axis, or horizontally. Recorded as open |
+
+### The finding: one symbol, two beams
+
+Stevens and Langley both write the load coefficient as C_Δ = Δ/(w b³). In ARR 4F15, b is
+the beam at the main step. In Report 766, b is the maximum beam, and that report's own model
+is widest at station 10, not at the step, where it states step depth against "the beam at
+the step". A coefficient taken from one series and applied with the other's beam is off by
+the cube of the ratio of the two beams, and the symbol does not show it.
+
+ARR L5G23, comparing the series, files Stevens' 5.40-inch step beam under "Maximum beam".
+That is right only if those hulls are widest at the step, and no source read says they are.
+It is the conflation these entries exist to name, made in 1945 by the people who ran the
+tanks.
+
+So they are two parameters, each `distinct_from` the other. Bare "beam" is an alias of
+neither: tools use it for both, and a tool that writes it has not said which.
+
+### What was not entered, and why
+
+- **Hull depth.** The NACA reports hold "height of hull" or "maximum depth of hull" constant
+  across a series without saying where it is measured. ITTC defines moulded depth for a
+  ship, baseplane to deck at side, with a station a stepped hull does not obviously have.
+- **Waterline length.** ITTC defines it on the static waterline. A flying boat has no design
+  waterline in the ship sense, so an entry would have to name a load condition, and no
+  source read fixes one.
+- **Prismatic and block coefficients.** ITTC's definitions assume stations (between
+  perpendiculars, amidships) and a waterline. ITTC says to state them when they differ.
+  ITTC's two documents also differ slightly from each other. No source read says whether
+  either coefficient means anything for a stepped planing hull.
+
+Entering these now would restate a ship's definition under an `interpretation` label. They
+are open items until a flying-boat source is found. Candidates: Locke's 1943 NACA survey of
+seaplane float and hull proportions, and ANC-3.
+
+The Part 25 text in the first section was read from govinfo's 2025-01-01 CFR edition,
+because eCFR refused the fetch. eCFR's version history shows no amendment to §§ 25.521-25.537
+after 2023 or to Appendix B after 2016, but no entry here relies on that text for a value.
+
 ## Open items
 
 - [x] ~~Characterise pre-2017 amendments for §§ 25.345, 25.349, 25.473, 25.479, 25.807~~ — closed to 1997 by diffing govinfo annual CFR granules; substantive changes recorded in `history` blocks
@@ -894,4 +962,7 @@ merging, and is the reason `basis` exists.
 - [ ] Does § 25.535 (auxiliary floats) reach a sponson or a stub-wing stabilizer, which are part of the hull? `lateral-stabilization-on-water` records that the question is open
 - [ ] Vocabularies with no source yet: wing bracing, tail arrangement, float retraction, door and ramp styles. NACA Report 474 has none of them
 - [ ] `applies_to` is a slug with no registry behind it. When a second consumer disagrees about what a `hull` is, it will need one
-- [ ] Hull length, beam, depth, waterline length, prismatic coefficient and block coefficient have no entries (issue #8). Each needs its definition and measurement convention read against a primary source
+- [x] ~~Hull length and beam have no entries~~ — `hull-length`, `beam-at-main-step` and `maximum-beam`, Round 13
+- [ ] Hull depth, waterline length, and the prismatic and block coefficients have no entries (issue #8). The only definitions found are ITTC's, for ships; a flying-boat source is needed. Try Locke's 1943 NACA survey of seaplane float and hull proportions, and ANC-3
+- [ ] Along which line is hull length measured: the keel, the hull reference axis, or horizontally? No NACA report read says
+- [ ] Were the Stevens series hulls widest at the step? ARR L5G23 files their step beam as maximum beam; if they were not, that comparison mixes the two

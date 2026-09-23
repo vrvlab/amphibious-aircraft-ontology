@@ -1015,13 +1015,21 @@ changes a measured number. Four were closed by the designer's choice, 2026-09-23
 
 | Entry | Was | Now `defined` |
 |---|---|---|
-| `hull-length` | `verified` as to endpoints, measuring line open | Parallel to the hull's base line, the line its stations run along |
+| `hull-length` | `verified` as to endpoints, measuring line open | Parallel to the hull reference axis, the keel tangent at the main step of § 25.527(b)(7), which its two parts already use |
 | `beam-at-main-step` | `verified`, over what not stated | Over the chines, excluding spray strips |
 | `maximum-beam` | `verified`, over what not stated | Over the chines, excluding spray strips, agreeing with ITTC's B_PX |
 | `vertical-tail-area` | `verified`, dorsal fin and twin fins open | Every fin with its rudder, summed; a dorsal fin excluded |
 
 The endpoints, stations and names stay the sources', and each entry's `checked_against`
 still lists what was read.
+
+**Corrected the same day (#23).** `hull-length` was first defined along the base line. The
+choice put to the designer described "along the keel" as a curved line needing a further
+rule, when the keel tangent at the main step is the hull reference axis: straight, fixed by
+§ 25.527(b)(7), and the line `forebody-length` and `afterbody-length` were already measured
+along. The base line ran 2° off it, so the three lengths did not share a line and the
+rationale's claim that the parts sum to the whole was false. Found while pinning for a
+consumer, before any edition held `hull-length`.
 
 ### What was not re-filed
 

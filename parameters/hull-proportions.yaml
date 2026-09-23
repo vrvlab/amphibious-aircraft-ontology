@@ -48,16 +48,18 @@
       NACA ARR 4F15, p. 11 (symbol L) and Table I, p. 26; NACA TN 1570, p. 3
       (symbol L); NACA ARR L5G23, Table I, p. 11.
     line: >-
-      DEFINED HERE: measured parallel to the hull's base line, the reference
-      line its stations are measured along. Not along the keel, and not
-      horizontally at rest.
+      DEFINED HERE: measured parallel to the hull reference axis, the straight
+      line in the plane of symmetry tangent to the keel at the main step, as
+      14 CFR 25.527(b)(7) fixes it; the line forebody-length and
+      afterbody-length are measured along. Not along a base line drawn
+      elsewhere, and not horizontally at rest.
     notes: >-
       None of the three reports says along which line the length is measured:
       along the keel, along the hull reference axis, or horizontally. On a hull
       with a rising afterbody keel the three differ. ARR 4F15 Figure 7 draws two
-      candidates 2 degrees apart, the keel tangent at the step and a base line,
-      with stations in inches aft of F.P. The line is therefore the ontology's
-      choice; see verification.rationale.
+      candidates 2 degrees apart, "TANGENT TO KEEL AT STEP", which is the hull
+      reference axis, and a base line, with stations in inches aft of F.P. The
+      line is therefore the ontology's choice; see verification.rationale.
       A READING, NOT A SOURCE'S TEXT: 14 CFR 25.529(a) measures the bow landing
       station from the bow to the step and the stern landing station from the
       step to the sternpost, so forebody-length plus afterbody-length spans
@@ -89,19 +91,22 @@
       search for the measuring line (docs/CONOPS.md) ended with these: none
       states it.
     rationale: >-
-      The base line is the axis a hull's stations are measured along, so
       forebody-length and afterbody-length, which run bow to step and step to
-      sternpost, add to this length exactly when all three are taken along it.
-      It is a property of the hull's lines alone. The keel is not straight
-      (the step, a rising afterbody) and would need a further rule, and a
-      horizontal length at rest would depend on load and trim, as draft does.
-      Read by every length-beam ratio. Chosen by the designer, 2026-09-23.
+      sternpost, are measured parallel to the hull reference axis, so this
+      length is their sum exactly when it is taken along the same line. The
+      axis is the regulation's own (25.527(b)(7)) and already in the corpus,
+      and it is a property of the hull's lines alone: a horizontal length at
+      rest would depend on load and trim, as draft does. Read by every
+      length-beam ratio. Chosen by the designer, 2026-09-23. It corrects the
+      base line first chosen the same day, which ran 2 degrees off the line
+      its two parts use (#23).
     notes: >-
       The endpoints are the sources': the reports read agree on forepoint (or
       F.P.) to sternpost, and ARR L5G23 applies it across the DVL, NACA and
-      Stevens series alike. The line is the ontology's. A value from a report
-      measured along another line differs by the cosine of the angle between
-      them: 0.06 percent at ARR 4F15's 2 degrees.
+      Stevens series alike. The line is the ontology's choice of the
+      regulation's axis. A value from a report measured along another line
+      differs by the cosine of the angle between them: 0.06 percent at ARR
+      4F15's 2 degrees.
   tags: [hull, geometry, hydrodynamics]
 
 - id: beam-at-main-step

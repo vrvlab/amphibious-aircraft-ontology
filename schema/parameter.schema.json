@@ -103,7 +103,7 @@
             "line": {
               "type": "string",
               "minLength": 1,
-              "description": "ALONG WHAT the quantity is measured, where more than one line or direction would give a different number: a hull's base line, the keel, the horizontal."
+              "description": "ALONG WHAT the quantity is measured, where more than one line or direction would give a different number: the hull reference axis, a base line drawn elsewhere, the horizontal."
             },
             "notes": {
               "type": "string"

@@ -15,7 +15,9 @@ Regulations change; an undated citation is not reproducible.
 
 ## Checklist
 
-- [ ] Every quantitative claim traces to a primary source, **or** is labelled `unverified` / `interpretation`
+- [ ] Every rule traces to a primary source, **or** is labelled `unverified` / `interpretation`
+- [ ] Every definition is exact enough to measure; where no source read states it, it is `defined` with a `rationale`, and `checked_against` records the one search that was made
+- [ ] No id removed, repurposed or given a new unit (`python3 tools/changelog.py --promise`); a new meaning is a new id with `superseded_by` on the old
 - [ ] Units declared on every variable (or `dimensionless`)
 - [ ] `applicability` block present if the constraint is conditional (most of Subpart C is, via § 25.521(b))
 - [ ] Worked test case added where the constraint is evaluable

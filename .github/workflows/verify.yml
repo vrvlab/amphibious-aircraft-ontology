@@ -38,6 +38,8 @@ jobs:
         run: |
           python tools/test_validate_units.py
           python tools/test_validate_vocabularies.py
+          python tools/test_validate_definitions.py
+          python tools/test_changelog.py
 
       - name: Build artifacts are current
         # dist/ is committed so consumers can vendor single files. Regenerating

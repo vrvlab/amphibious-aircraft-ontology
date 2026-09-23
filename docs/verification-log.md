@@ -832,6 +832,39 @@ Whether a floor loading *should* be a mass per area is the consumer's question a
 registry's: the unit exists either way, and its record says that it is not a pressure and
 becomes one only by standard gravity, which is the open item about weights below.
 
+## Round 12 — a search box is not a validity limit, and the record could not say which (2026-09-22)
+
+**Source:** this corpus's own `implementations` records, and issue #8.
+
+Issue #8 was opened on a conflict between two consumers' chine flare ranges: 0 to 45
+degrees in one and 0 to 20 in the other. The issue's own follow-up found there was no
+conflict. The 20 was an optimiser's search box and the 45 was what a tool accepts, and
+this corpus had already said so in a note. The records let the mistake happen because an
+implementation's range was a bare `[min, max]` pair, which could not say what kind of
+range it was. The same pair also could not record an exclusive end or an open one, so
+several ranges had been left out, each with a note explaining why.
+
+### What changed
+
+`implementations[].bounds` is now keyed by kind: `validity`, `search` or `tested`. Each
+range has the canonical `bounds` shape, so either end can be open or exclusive. An
+optional `basis` per end records the source's own authority label, in the `bounds_basis`
+vocabulary, so a `conceptual` ceiling that a tool reports without refusing is not recorded
+as a limit. `tools/consumers.yaml` names one source per kind, and the checker compares
+each recorded range only with a source of the same kind. It also fails when a source
+declares a range for a recorded identifier that the record leaves out. Before, it only
+checked ranges that had been recorded.
+
+Existing records were migrated by kind and nothing else: tool ranges read from a
+validation table became `validity`, and optimiser and design-study ranges became `search`.
+`tested` was not in the issue. It is there because NACA ARR 4F15's `[20.0, 20.0]` is the
+one deadrise all four tank models were built to. That is neither a limit nor a search
+range, and filing it as either would repeat the mistake this round is about.
+
+The first draft of this change recorded ends that the source labels `conceptual` as plain
+validity limits, which is the same error one level down. It was found in review before
+merging, and is the reason `basis` exists.
+
 ## Open items
 
 - [x] ~~Characterise pre-2017 amendments for §§ 25.345, 25.349, 25.473, 25.479, 25.807~~ — closed to 1997 by diffing govinfo annual CFR granules; substantive changes recorded in `history` blocks
@@ -861,3 +894,4 @@ becomes one only by standard gravity, which is the open item about weights below
 - [ ] Does § 25.535 (auxiliary floats) reach a sponson or a stub-wing stabilizer, which are part of the hull? `lateral-stabilization-on-water` records that the question is open
 - [ ] Vocabularies with no source yet: wing bracing, tail arrangement, float retraction, door and ramp styles. NACA Report 474 has none of them
 - [ ] `applies_to` is a slug with no registry behind it. When a second consumer disagrees about what a `hull` is, it will need one
+- [ ] Hull length, beam, depth, waterline length, prismatic coefficient and block coefficient have no entries (issue #8). Each needs its definition and measurement convention read against a primary source

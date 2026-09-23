@@ -106,25 +106,8 @@
           }
         },
         "bounds": {
-          "type": "object",
-          "additionalProperties": false,
-          "description": "Canonical validity bounds, as distinct from any one tool's search range. Requires bounds_basis, because a bound with no stated authority gets enforced as though it had one.",
-          "properties": {
-            "min": {
-              "type": "number"
-            },
-            "max": {
-              "type": "number"
-            },
-            "min_exclusive": {
-              "type": "boolean",
-              "default": false
-            },
-            "max_exclusive": {
-              "type": "boolean",
-              "default": false
-            }
-          }
+          "$ref": "#/$defs/range",
+          "description": "Canonical validity bounds, as distinct from any one tool's search range. Requires bounds_basis, because a bound with no stated authority gets enforced as though it had one."
         },
         "bounds_basis": {
           "enum": [
@@ -249,13 +232,24 @@
           "description": "QUDT IRI as that system uses it."
         },
         "bounds": {
-          "type": "array",
-          "minItems": 2,
-          "maxItems": 2,
-          "items": {
-            "type": "number"
-          },
-          "description": "That system's declared range, recorded as it stands today. tools/check_consumers.py re-reads the system's own source and fails if this has gone stale."
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "That system's declared ranges, recorded as they stand today and keyed by what KIND of range each one is. A search box and a validity limit are different claims, and comparing one against the other reports a conflict that is not there. tools/check_consumers.py re-reads each kind from the source that declares it and fails if a recorded range has gone stale, or if a source declares a range this record omits.",
+          "properties": {
+            "validity": {
+              "$ref": "#/$defs/range",
+              "description": "The range the system declares admissible. Outside it a value is refused, or reported as invalid, unless `basis` marks that end `conceptual`, in which case it is reported and accepted."
+            },
+            "search": {
+              "$ref": "#/$defs/range",
+              "description": "An optimiser's or trade study's box. Deliberately narrower than validity; a design outside it is unusual, not invalid."
+            },
+            "tested": {
+              "$ref": "#/$defs/range",
+              "description": "The span a test programme or dataset actually covered. Says where evidence exists, not what is permitted."
+            }
+          }
         },
         "status": {
           "enum": [
@@ -275,6 +269,54 @@
           "type": "string"
         }
       }
+    },
+    "range": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "description": "A range as a source states it: either end may be open, and either end may be exclusive. The same shape serves the canonical bounds and every kind of tool range, so the two compare field by field.",
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "min_exclusive": {
+          "type": "boolean",
+          "default": false
+        },
+        "max_exclusive": {
+          "type": "boolean",
+          "default": false
+        },
+        "basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "The authority for each end, where the source states one, in the vocabulary of bounds_basis. An end marked `conceptual` is reported by that tool, not refused. Left out when the source states no basis.",
+          "properties": {
+            "min": {
+              "$ref": "#/$defs/parameter/properties/bounds_basis"
+            },
+            "max": {
+              "$ref": "#/$defs/parameter/properties/bounds_basis"
+            }
+          }
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "min"
+          ]
+        },
+        {
+          "required": [
+            "max"
+          ]
+        }
+      ]
     }
   }
 }

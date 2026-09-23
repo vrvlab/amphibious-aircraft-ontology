@@ -8,6 +8,11 @@
 # source, and fail if an `implementations` entry has gone stale in either
 # direction: a divergence that was quietly fixed, or one quietly introduced.
 #
+# `sources` lists, per KIND of range, the file that declares it and the reader
+# that parses it. Kinds are `validity`, `search` and `tested`, as in the
+# `bounds` block of an implementation, and each is compared only against its
+# own kind. A system with no sources is recorded but unverifiable.
+#
 # `scope` limits which parameter tags a system must account for. All three
 # repository consumers are scoped to `hull` and `auxiliary-float` today: those
 # are the quantities that cross repository boundaries as authored design
@@ -19,8 +24,10 @@
 - system: loftline
   repo: vrvlab/Loftline
   path: ../Loftline
-  reader: loftline_spec_rs
-  authority: crates/loftline-core/src/spec.rs
+  sources:
+    - kind: validity
+      reader: loftline_spec_rs
+      authority: crates/loftline-core/src/spec.rs
   scope: [hull]
   notes: >-
     Loftline's JSON Schema is generated and carries no numeric bounds; the
@@ -32,15 +39,19 @@
 - system: aerogit
   repo: vrvlab/aerogit
   path: ../aerogit
-  reader: aerogit_facet_json
-  authority: templates/facets/water/amphibian.json
+  sources:
+    - kind: validity
+      reader: aerogit_facet_json
+      authority: templates/facets/water/amphibian.json
   scope: [hull]
 
 - system: flightforge
   repo: Catalina-Aircraft-Company/flightforge
   path: ../flightforge
-  reader: flightforge_design_vars_py
-  authority: app/flightforge/plugins/amphibious/design_vars.py
+  sources:
+    - kind: search
+      reader: flightforge_design_vars_py
+      authority: app/flightforge/plugins/amphibious/design_vars.py
   scope: [hull]
   notes: >-
     Bounds here are optimizer search ranges rather than validity limits, so a
@@ -54,8 +65,7 @@
 - system: amphix-auto-engineer
   repo: vrvlab/amphix-auto-engineer
   path: ../amphix-auto-engineer
-  reader: null
-  authority: null
+  sources: []
   scope: []
 
 # Literature sources. Recorded in `implementations` because they fix a
@@ -65,6 +75,6 @@
 - system: NACA ARR 4F15 (Davidson & Locke 1944)
   repo: null
   path: null
-  reader: null
   authority: NACA ARR 4F15, tank tests of four related hull models
+  sources: []
   scope: []

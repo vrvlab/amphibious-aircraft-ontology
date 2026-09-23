@@ -55,7 +55,8 @@
     - system: loftline
       identifier: forebody_fraction
       unit: unit:UNITLESS
-      bounds: [0.1, 0.95]
+      bounds:
+        validity: {min: 0.1, max: 0.95}
       status: conflated
       finding: >-
         Declared separately from step_fraction and defaulting to it when
@@ -63,6 +64,13 @@
       notes: A fraction of overall hull length, not an absolute length.
     - system: aerogit
       identifier: step_fraction
+      bounds:
+        validity:
+          min: 0.0
+          min_exclusive: true
+          max: 1.0
+          max_exclusive: true
+          basis: {min: mathematical, max: mathematical}
       status: renamed
       finding: >-
         Same quantity as Loftline's forebody_fraction and Flightforge's
@@ -79,7 +87,8 @@
     - system: flightforge
       identifier: geometry.hull.step_fraction
       unit: unit:UNITLESS
-      bounds: [0.4, 0.6]
+      bounds:
+        search: {min: 0.4, max: 0.6}
       status: renamed
       finding: >-
         The step station is the correct source for L_f. Flightforge also
@@ -130,7 +139,8 @@
     - system: flightforge
       identifier: geometry.hull.L_forebody_fraction
       unit: unit:UNITLESS
-      bounds: [0.45, 0.65]
+      bounds:
+        search: {min: 0.45, max: 0.65}
       status: exact
       finding: >-
         This one is right, and is why the two forebody lengths are separate
@@ -146,6 +156,13 @@
     - system: aerogit
       identifier: L_forebody_fraction
       unit: unit:UNITLESS
+      bounds:
+        validity:
+          min: 0.0
+          min_exclusive: true
+          max: 1.0
+          max_exclusive: true
+          basis: {min: mathematical, max: mathematical}
       status: renamed
       finding: >-
         Carried, and correctly wired: AeroGit's alias table sends this key to
@@ -153,9 +170,9 @@
         step station. Previously recorded absent here, from a description that
         called it the forebody length -- see the note on forebody-length.
       notes: >-
-        Bounds are an open interval on (0, 1) as a fraction of hull length, so
-        they are not the same kind of claim as the other entries' search ranges
-        and are omitted rather than recorded as [0, 1].
+        Bounds are an open interval on (0, 1) as a fraction of hull length, a
+        validity range. Omitted until bounds were keyed by kind, since the pair
+        could not express an open interval.
   verification:
     status: interpretation
     checked_against: >-

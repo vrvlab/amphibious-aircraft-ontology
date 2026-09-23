@@ -24,7 +24,7 @@ does not depend on finding the definition in someone else's document.
 
 | Who | Does what | Needs from the ontology |
 |---|---|---|
-| **A design tool** | Vendors a tagged edition, names its quantities by the ontology's ids, evaluates the constraints against them | Ids that do not move, a meaning that does not change under an id, one file per layer in `dist/` |
+| **A design tool** | Vendors a tagged edition, names its quantities by the ontology's ids, evaluates the constraints against them, and reports what it could not do | Ids that do not move, a meaning that does not change under an id, one file per layer in `dist/` |
 | **A contributor**, human or agent | Adds or corrects an entry by pull request | A clear test for when an entry is done, and a point at which to stop looking |
 | **A reviewer** | Decides whether an entry is merged | The same test, so review is a check, not a second search |
 | **A reader** | Wants to know what the regulation says, or what a word means | Citations for the rules; definitions that stand on their own |
@@ -115,12 +115,22 @@ A consumer vendors one tag and pins it, and never transcribes a constant into it
 Each edition says what it added, superseded and changed, in a changelog a consumer can read
 before re-pinning (proposed, #18).
 
-## How the work is queued
+## Where the work comes from
 
-- **The queue is here.** A consumer that needs a word, a unit or a rule opens an issue in this
-  repository, naming what reads it. A consumer does not define the word itself; it may hold a
-  marked candidate of its own until an edition holds the word.
-- **A word a consumer is blocked on comes first.** Research items stay open and welcome:
+The ontology does not depend on any consumer to build or validate. It depends on one to be
+worth anything. **A design tool that uses it in earnest is its discovery engine**: sizing a
+hull against § 25.533 is where a definition turns out to leave the line of measurement open,
+where two tools' numbers under one name disagree, where a unit is missing, or where a rule
+cannot be evaluated as written. Without that use the corpus is a list of terms, and nothing
+says which of its gaps matter.
+
+So the work is led by use, not by the literature:
+
+- **The queue is here.** A consumer that finds a word, a unit or a rule missing, unclear,
+  uncertain or wrong opens an issue in this repository, naming what reads it and what it could
+  not do. A consumer does not define the word itself; it may hold a marked candidate of its own
+  until an edition holds the word.
+- **What a consumer is blocked on comes first.** Research items stay open and welcome:
   Appendix B's provenance, amendments before 1997, the EASA side, ANC-3. None of them blocks a
   definition.
 - **A human merges.** Every pull request is reviewed against this document and

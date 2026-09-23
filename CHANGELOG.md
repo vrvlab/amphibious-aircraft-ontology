@@ -5,6 +5,10 @@ Each edition against the one before, computed from `dist/`. From the first
 edition after v0.6.0 the edition promise holds (docs/CONOPS.md), and a
 change that breaks it is named here.
 
+## v0.7.1
+
+No entry changed.
+
 ## v0.7.0
 
 ### constraints

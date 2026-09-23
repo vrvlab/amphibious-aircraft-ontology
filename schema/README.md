@@ -138,8 +138,10 @@ it had one:
 
 ## `implementations`
 
-Where the quantity appears in real tools — descriptive, not normative. `status` records
-what each tool did to it: `exact`, `renamed`, `collapsed` (one identifier standing for
+Where the quantity appears in a published source — a report, a standard, a dataset, or a
+tool anyone can read — described, not prescribed. **Only public sources are recorded.** This
+corpus is a shared public vocabulary, and a record about a private tool is one no reader can
+check. `status` records what each source did to the quantity: `exact`, `renamed`, `collapsed` (one identifier standing for
 several parameters), `conflated` (used where a different parameter belongs), or `absent`.
 
 `bounds` records each range a tool declares, **keyed by what kind of range it is**:
@@ -162,16 +164,6 @@ The kind is there because leaving it out produced a false finding. One tool's op
 searched chine flare over 0 to 20 degrees, another accepted 0 to 45, and recorded as bare
 pairs the two looked like a disagreement over which hulls are valid. Issue #8 was opened
 on that reading. They are two different kinds of claim, and cannot conflict.
-
-These are claims about other repositories, and claims rot.
-[`tools/check_consumers.py`](../tools/check_consumers.py) locates each project via
-[`tools/consumers.yaml`](../tools/consumers.yaml), which names one source per kind of
-range for each project, re-reads those sources read-only, and compares each recorded
-range only with the source of its own kind. For each identifier a record names, it fails
-if a recorded range has moved, if a source declares a range for it that the record leaves
-out, or if the identifier has vanished. A key a consumer declares that no record names is
-not reported, unless it matches a parameter recorded `absent`. So the check covers the
-mappings that exist; it does not find the parameters nobody has mapped yet.
 
 ## `kind: note`
 

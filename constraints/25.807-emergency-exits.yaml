@@ -74,8 +74,8 @@
       side, but they are a derivation and not the table; they are now
       interp-25.807-g-seats-per-exit-pair.
 
-      The error was inherited when this file was upstreamed from flightforge,
-      where it had been authored. Upstreaming normalised its structure — the
+      The error was inherited when this file was upstreamed from the design
+      tool where it had been authored. Upstreaming normalised its structure — the
       operator vocabulary, an unquoted section number, a status field holding
       prose — without re-reading its numbers against primary source. Structural
       normalisation is not verification, and marking the result `verified`

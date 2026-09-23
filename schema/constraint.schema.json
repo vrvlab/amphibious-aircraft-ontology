@@ -38,7 +38,7 @@
             "qualitative",
             "table"
           ],
-          "description": "`table` covers requirements the CFR publishes as a lookup rather than an expression — § 25.807's exit dimensions and seats-per-exit-pair, for instance. It was invented downstream in flightforge's vendored copies before this schema existed, and is adopted here rather than rewritten, because a table really is what the regulation contains."
+          "description": "`table` covers requirements the CFR publishes as a lookup rather than an expression — § 25.807's exit dimensions and seats-per-exit-pair, for instance. It was invented downstream, in a design tool's vendored copy, before this schema existed, and is adopted here rather than rewritten, because a table really is what the regulation contains."
         },
         "source": {
           "$ref": "#/$defs/source"

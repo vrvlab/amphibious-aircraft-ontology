@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Check the source registry against the live regulation.
 
-`tools/check_consumers.py` asks whether the consumers still match what this repo
-says about them. This asks the harder question in the other direction: **does
-the regulation still say what this repo verified?**
+This asks whether **the regulation still says what this repo verified.**
 
 It matters because regulations change quietly. 14 CFR 25.535(d) specified a side
 load coefficient of 3.25 tan β from 1964 until 2022, when Amdt. 25-148 corrected

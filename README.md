@@ -113,7 +113,7 @@ required to show the case.
 
 ## What's here now
 
-- **[`constraints/`](constraints/)** — 63 entries across Part 25 water loads, flight and ground loads in representation-neutral YAML. Every entry carries its formula, units, bounds, primary-source citation, and verification status.
+- **[`constraints/`](constraints/)** — Part 25 water loads, flight and ground loads in representation-neutral YAML. How many entries each layer holds is `entry_count` in its `dist/` file, and `tools/validate.py` prints the counts. Every entry carries its formula, units, bounds, primary-source citation, and verification status.
 - **[`parameters/`](parameters/)** — the join between design parameters and regulatory symbols. Each quantity carries a QUDT unit IRI, an explicit measurement convention, and typed links to the constraints it appears in.
 - **[`sources/`](sources/)** — [`sections/`](sources/sections/) records which issue was read, when the text took effect, and its full amendment history; [`figures/`](sources/figures/) digests the raster images the regulation publishes in place of text. Both trip when the source changes underneath.
 - **[`schema/`](schema/)** — JSON Schema for constraints, parameters and sources, all enforced in CI.

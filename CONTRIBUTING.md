@@ -29,7 +29,7 @@ Downgrading something from `verified` to `interpretation` because you checked an
 ## Where help is most needed
 
 1. **[Appendix B provenance](appendix-b/)** — the figure values are encoded; where they came from is not. Tracing them to the underlying NACA tank data would be a significant contribution. An independent second reading of the figure is also welcome.
-2. **Sections not yet read** — §§ 25.523, 25.529, 25.531, 25.535, 25.537.
+2. **Sections not yet read** — § 25.335 (design airspeeds), which § 25.337(c) reaches through V_C and V_D, and § 25.485 with the other ground load sections the § 25.473 file refers to. The open items in [`docs/verification-log.md`](docs/verification-log.md) keep this list current.
 3. **CS-25 / EASA equivalents** — everything here is FAA. The EASA side is unstarted.
 4. **ANC-3** — § 25.521(b) names it as an alternate standard. We have not located a copy.
 5. **Worked examples from real aircraft** — a documented sizing case for any certified amphibian would let us validate the kernel against reality.

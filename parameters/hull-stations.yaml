@@ -138,3 +138,72 @@
     checked_against: >-
       Appendix B figure 2, read from the published image, eCFR issue 2026-07-07.
   tags: [hull, geometry, part-25, water-loads]
+
+- id: station-position
+  name: Station position, aft of the forepoint
+  aliases: [station, station number, station x, x of station, longitudinal station]
+  quantity:
+    unit: unit:M
+    symbol: m
+    quantity_kind: quantitykind:Length
+  definition: >-
+    Where a transverse station of the hull lies along it: the distance from the
+    hull's forepoint to the station's plane, measured parallel to the hull
+    reference axis, positive aft. A hull's lines are drawn as sections at
+    stations, and an offsets table is indexed by them.
+  measurement_convention:
+    datum: >-
+      From the forepoint, the forward end of the hull, the same point
+      hull-length and forebody-length are measured from. NACA ARR 4F15 names it
+      the forepoint and the forward perpendicular (F.P.).
+    station: >-
+      To the plane of the station: a plane normal to the hull reference axis. A
+      station at the forepoint is at zero; one at the main step is at
+      forebody-length; one at the sternpost is at hull-length.
+    source: >-
+      NACA ARR 4F15, Figure 6 ("station nos. are inches aft of forepoint") and
+      Figure 7 ("ins. aft of F.P.").
+    line: >-
+      DEFINED HERE: measured parallel to the hull reference axis, the straight
+      line in the plane of symmetry tangent to the keel at the main step, as
+      14 CFR 25.527(b)(7) fixes it. Not along a base line.
+    notes: >-
+      ARR 4F15 draws its stations square to a base line, which its Figure 7
+      shows 2 degrees from the tangent to the keel at the step. The ontology
+      measures along the hull reference axis instead, as it does hull-length,
+      so that a station at the step is exactly forebody-length aft of the
+      forepoint and one at the sternpost exactly hull-length. A position read
+      from such a drawing along its base line differs by the cosine of the
+      angle between the lines: 0.06 percent at 2 degrees.
+      A drawing whose longitudinal coordinate has its origin elsewhere, at a
+      datum ahead of the bow for instance, gives a coordinate and not this
+      quantity. The station position is that coordinate less the forepoint's.
+  bounds:
+    min: 0.0
+  bounds_basis: conceptual
+  bounds_rationale: >-
+    A station of the hull lies between its forepoint and its sternpost. A
+    station forward of the forepoint is not a station of the hull. Reported,
+    not enforced.
+  distinct_from: [forebody-length, hull-length]
+  verification:
+    status: defined
+    checked_against: >-
+      The bounded search (docs/CONOPS.md). Read from the NTRS scans, page
+      images: NACA ARR 4F15 (Davidson and Locke, June 1944), citation
+      19930093044, PDF sha256 fdbb07cd2b81...a8f5, Figures 6 and 7 (PDF pages
+      32 and 33). One search of NTRS, "flying-boat hull lines stations", found
+      NACA TN 491 (Shoemaker and Parkinson, February 1934), citation
+      19930081479, sha256 ab8a5d0db7f0...2215, read whole: it derives its
+      length series by "uniformly increasing the distance between stations"
+      (p. 4) and numbers no station. Fetched 2026-09-26.
+    rationale: >-
+      The sources read agree on the origin, the forepoint, and state no line
+      but their base line. The line is the ontology's choice of the
+      regulation's axis, the one hull-length, forebody-length and
+      afterbody-length are measured along, so that the positions of the
+      forepoint, the step and the sternpost are those lengths exactly. Read by
+      a design tool that records the position at which a station was inserted
+      into an offsets table, and by any exchange of offsets tables between
+      tools. Chosen by the designer, 2026-09-26.
+  tags: [hull, geometry]

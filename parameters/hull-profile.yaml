@@ -17,15 +17,15 @@
     symbol: m
     quantity_kind: quantitykind:Length
   definition: >-
-    The length of the forebody run: the consecutive stations immediately
-    forward of the main step whose sections are identical to the section at the
-    step, keel to crown, the step's own station among them. Along the run the
-    hull neither rises nor narrows, so its keel is straight and meets the step
-    level.
+    The length of the forebody run: the longest continuous stretch of the hull,
+    ending at the main step, over which every transverse section is identical to
+    the section at the step, keel to crown. Along the run the hull neither rises
+    nor narrows, so its keel is straight and meets the step level.
   measurement_convention:
     datum: >-
-      From the forward end of the run: the most forward station from which every
-      station aft to the main step has the section at the step.
+      From the forward end of the run: the most forward point along the hull
+      from which every section aft to the main step is the section at the step.
+      A property of the hull's surface, not of the stations it is tabulated at.
     station: >-
       To the main step. The section at the step is the forebody's, the step's
       lower edge.
@@ -38,8 +38,12 @@
       straight, so the axis lies along it and the length is taken along the
       run's own keel.
     notes: >-
-      Zero where no station forward of the step repeats the section at the
-      step: the hull has no run. The whole section repeats, not the bottom
+      Zero where the section changes immediately forward of the step: the hull
+      has no run. An offsets table shows a run as stations that repeat the
+      section at the step, but repeated stations alone do not make one: the
+      surface between them must repeat it too, which a table states by declaring
+      the stretch a parallel body (a master section) ending at the step, not by
+      the coincidence of its values. The whole section repeats, not the bottom
       alone. A hull whose bottom repeats while its sides or deck taper has a
       straight keel ahead of the step and no run by this definition; that
       straight length is a different quantity and has no entry. Where a run has
@@ -144,13 +148,17 @@
       NACA ARR 4F15, Figure 6: "angle between tangent to forebody keel at main
       step and a line joining tip of main step with tip of sternpost".
     notes: >-
-      Not the afterbody keel angle. The line to the sternpost starts at the
-      forebody keel, below the afterbody keel by the step's depth, so the
-      sternpost angle exceeds the afterbody keel angle for any step with depth:
-      NACA TN 1648, Table I, and TN 3119, Table II, tabulate both, and in every
-      column the sternpost angle is the greater. A READING: "tip of main step"
-      is not defined in the figure; the step's lower edge is the point on the
-      forebody keel, where the tangent that is the datum is taken.
+      Not the afterbody keel angle. Both are measured from the same datum, but
+      from different points at the step: this line starts at the step's lower
+      edge on the forebody keel, and the afterbody keel starts at the step's
+      upper edge, above that point by the step's depth. For a straight
+      afterbody keel that ends at the sternpost, the sternpost angle therefore
+      exceeds the afterbody keel angle whenever the step has depth; for a
+      curved afterbody keel the order is not fixed. NACA TN 1648, Table I, and
+      TN 3119, Table II, tabulate both, and in every column the sternpost angle
+      is the greater. A READING: "tip of main step" is not defined in the
+      figure; the step's lower edge is the point on the forebody keel, where
+      the tangent that is the datum is taken.
   distinct_from: [afterbody-keel-angle]
   verification:
     status: defined
